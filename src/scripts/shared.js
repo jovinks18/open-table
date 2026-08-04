@@ -1,5 +1,6 @@
 import { siteConfig } from '../config/site.js'
 import { initMobileMenu } from './modules/mobile-menu.js'
+import { buildMailtoHref, isConfiguredHttpUrl } from './modules/site-links.js'
 
 function initContactLink() {
   const contactLinks = document.querySelectorAll('[data-contact-link]')
@@ -9,8 +10,7 @@ function initContactLink() {
 
   contactLinks.forEach((contactLink) => {
     const subject = contactLink.dataset.contactSubject
-    const query = subject ? `?subject=${encodeURIComponent(subject)}` : ''
-    contactLink.href = `mailto:${siteConfig.contactEmail}${query}`
+    contactLink.href = buildMailtoHref(siteConfig.contactEmail, subject)
     contactLink.hidden = false
   })
 
@@ -19,7 +19,24 @@ function initContactLink() {
   })
 }
 
+function initPrivacyLink() {
+  const privacyLinks = document.querySelectorAll('[data-privacy-link]')
+  const privacyFallbacks = document.querySelectorAll('[data-privacy-fallback]')
+
+  if (!isConfiguredHttpUrl(siteConfig.privacyNoticeUrl) || !privacyLinks.length) return
+
+  privacyLinks.forEach((privacyLink) => {
+    privacyLink.href = siteConfig.privacyNoticeUrl
+    privacyLink.hidden = false
+  })
+
+  privacyFallbacks.forEach((privacyFallback) => {
+    privacyFallback.setAttribute('hidden', '')
+  })
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initContactLink()
+  initPrivacyLink()
   initMobileMenu()
 })

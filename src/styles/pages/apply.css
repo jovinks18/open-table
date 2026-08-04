@@ -1,4 +1,10 @@
 .application-page {
+  --graphite: var(--warm-ivory);
+  --graphite-ink: var(--espresso);
+  --graphite-muted: var(--warm-taupe);
+  --soft-linen: var(--espresso);
+  --mushroom: var(--warm-taupe);
+
   background: var(--graphite);
   color: var(--soft-linen);
 }

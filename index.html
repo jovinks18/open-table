@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0e0e0e" />
+    <meta name="theme-color" content="#f5efe6" />
     <meta
       name="description"
       content="donna is a private matchmaking service offering thoughtful, manually curated introductions that lead to real meetings."
@@ -15,9 +15,63 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&amp;display=swap" />
     <link rel="stylesheet" href="/src/styles/main.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/splitting/dist/splitting.css" />
+    <script>
+      try {
+        const forceIntro = new URLSearchParams(window.location.search).get('intro') === '1'
+        const introSeen = window.sessionStorage.getItem('donnaExperienceSeen') === '1'
+        if (forceIntro || !introSeen) document.documentElement.classList.add('experience-pending')
+      } catch {
+        document.documentElement.classList.add('experience-pending')
+      }
+    </script>
   </head>
 
-  <body>
+  <body class="home-page">
+    <section class="experience-intro" data-experience-intro aria-label="The donna experience">
+      <a class="experience-intro__wordmark" href="#top" aria-label="donna home">donna</a>
+      <button class="experience-intro__skip" type="button" data-experience-skip>Skip intro</button>
+
+      <div class="experience-intro__gallery" aria-hidden="true">
+        <figure class="experience-intro__image">
+          <img data-src="/images/intro/bengaluru-01.webp" alt="" />
+          <figcaption>Bengaluru</figcaption>
+        </figure>
+        <figure class="experience-intro__image">
+          <img data-src="/images/intro/mumbai-01.webp" alt="" />
+          <figcaption>Mumbai</figcaption>
+        </figure>
+        <figure class="experience-intro__image">
+          <img data-src="/images/intro/delhi-01.webp" alt="" />
+          <figcaption>Delhi</figcaption>
+        </figure>
+        <figure class="experience-intro__image">
+          <img data-src="/images/intro/hyderabad-01.jpg" alt="" />
+          <figcaption>Hyderabad</figcaption>
+        </figure>
+        <figure class="experience-intro__image">
+          <img data-src="/images/intro/bengaluru-02.webp" alt="" />
+          <figcaption>Bengaluru</figcaption>
+        </figure>
+        <figure class="experience-intro__image">
+          <img data-src="/images/intro/mumbai-02.webp" alt="" />
+          <figcaption>Mumbai</figcaption>
+        </figure>
+        <figure class="experience-intro__image">
+          <img data-src="/images/intro/delhi-02.webp" alt="" />
+          <figcaption>Delhi</figcaption>
+        </figure>
+        <figure class="experience-intro__image">
+          <img data-src="/images/intro/bengaluru-03.webp" alt="" />
+          <figcaption>Bengaluru</figcaption>
+        </figure>
+      </div>
+
+      <div class="experience-intro__arrival" data-experience-arrival>
+        <p>The donna experience</p>
+        <h2>Somewhere in this city, someone is hoping to meet you too.</h2>
+      </div>
+    </section>
+
     <div class="donna-page">
       <a class="skip-link" href="#main-content">Skip to content</a>
 
@@ -149,7 +203,7 @@
           <p class="eyebrow">The donna experience</p>
           <h2 id="apply-title">Ready to meet, not just match?</h2>
           <a class="button button-primary" href="/apply.html">Apply to join</a>
-          <p>Private application · 25+ only · Limited capacity</p>
+          <p>We’re welcoming a small number of people this year.</p>
         </section>
       </main>
 
@@ -162,7 +216,6 @@
           <a data-contact-link hidden>Contact</a>
           <span data-contact-fallback title="Contact method pending launch">Contact</span>
         </nav>
-        <p>25+ only</p>
       </footer>
     </div>
 

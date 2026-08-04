@@ -1,6 +1,6 @@
 .site-footer {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   gap: clamp(1.5rem, 4vw, 4rem);
   align-items: center;
   padding: 1.5rem clamp(1.25rem, 4vw, 4rem);
@@ -8,15 +8,10 @@
   color: var(--graphite-ink);
 }
 
-.site-footer p {
-  font-size: 0.68rem;
-  letter-spacing: 0.05em;
-}
-
 .footer-nav {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   gap: clamp(1rem, 2.5vw, 2.5rem);
   font-size: 0.78rem;
   font-weight: 550;
@@ -35,8 +30,4 @@
 
 .footer-nav [data-contact-fallback] {
   color: var(--graphite-muted);
-}
-
-.site-footer > p:last-child {
-  justify-self: end;
 }

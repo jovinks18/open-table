@@ -1,6 +1,25 @@
+.faq-page {
+  --graphite: var(--warm-ivory);
+  --graphite-ink: var(--espresso);
+  --graphite-muted: var(--warm-taupe);
+
+  background: var(--warm-ivory);
+  color: var(--espresso);
+}
+
+.faq-layout {
+  width: min(100%, 80rem);
+  margin-inline: auto;
+  padding: clamp(7rem, 10vw, 9rem) clamp(1.25rem, 5vw, 4rem) 0;
+}
+
 .faq-intro {
-  padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  padding: 0 0 clamp(2.5rem, 5vw, 4rem);
   text-align: center;
+}
+
+.faq-intro h1 {
+  font-size: clamp(2.5rem, 4vw, 4rem);
 }
 
 .faq-intro h1,
@@ -8,16 +27,27 @@
   margin-inline: auto;
 }
 
-.faq-intro h1 {
-  font-size: clamp(2.5rem, 4vw, 4rem);
+.faq-intro .legal-tldr {
+  max-width: 32rem;
+  margin-top: 1rem;
+  color: var(--graphite-muted);
+  font-size: clamp(1rem, 1.3vw, 1.12rem);
+  line-height: 1.6;
 }
 
 .faq-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(2rem, 6vw, 5rem);
   width: 100%;
-  max-width: 50rem;
-  margin-inline: auto;
-  padding-inline: clamp(1.25rem, 5vw, 3rem);
+  max-width: none;
+  margin: 0;
+  padding: 0;
   background: var(--graphite);
+}
+
+.faq-column {
+  min-width: 0;
 }
 
 .faq-item {
@@ -89,4 +119,11 @@
   display: flex;
   justify-content: center;
   padding: 0 clamp(1.25rem, 5vw, 3rem) clamp(5rem, 9vw, 9rem);
+}
+
+@media (max-width: 800px) {
+  .faq-list {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
 }

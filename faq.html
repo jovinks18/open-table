@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0e0e0e" />
+    <meta name="theme-color" content="#f5efe6" />
     <meta
       name="description"
       content="Answers to common questions about applying to donna and how introductions work."
@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="/src/styles/main.css" />
   </head>
 
-  <body>
+  <body class="faq-page">
     <div class="donna-page">
       <a class="skip-link" href="#main-content">Skip to content</a>
 
@@ -46,12 +46,14 @@
       </header>
 
       <main id="main-content">
-        <section class="legal-intro faq-intro" aria-labelledby="faq-title">
-          <h1 id="faq-title" tabindex="-1">FAQ</h1>
-          <p class="legal-tldr">The questions people ask before applying.</p>
-        </section>
+        <div class="faq-layout">
+          <section class="legal-intro faq-intro" aria-labelledby="faq-title">
+            <h1 id="faq-title" tabindex="-1">FAQ</h1>
+            <p class="legal-tldr">The questions people ask before applying.</p>
+          </section>
 
-        <section class="faq-list" aria-label="Frequently asked questions">
+          <section class="faq-list" aria-label="Frequently asked questions">
+            <div class="faq-column">
           <details class="faq-item">
             <summary><h2><span>Is this a dating app?</span><span class="faq-icon" aria-hidden="true"></span></h2></summary>
             <p>No. There’s nothing to download and nothing to browse. We get to know you, then introduce you to one person at a time.</p>
@@ -96,7 +98,9 @@
             <summary><h2><span>How many introductions will I get?</span><span class="faq-icon" aria-hidden="true"></span></h2></summary>
             <p>Fewer than you’re used to. We’d rather make four introductions you’d have said yes to than forty you’d scroll past.</p>
           </details>
+            </div>
 
+            <div class="faq-column">
           <details class="faq-item">
             <summary><h2><span>What does it cost?</span><span class="faq-icon" aria-hidden="true"></span></h2></summary>
             <p>Nothing. The service is free, and we intend to keep it that way.</p>
@@ -136,7 +140,9 @@
             <summary><h2><span>Can I stop?</span><span class="faq-icon" aria-hidden="true"></span></h2></summary>
             <p>Any time, in one message. No explanation needed and we won’t ask for one.</p>
           </details>
-        </section>
+            </div>
+          </section>
+        </div>
 
         <p class="faq-disclaimer">
           Manual review and safety checks can reduce risk, but they cannot guarantee another person’s identity, intentions or behaviour.
@@ -156,7 +162,6 @@
           <a data-contact-link hidden>Contact</a>
           <span data-contact-fallback title="Contact method pending launch">Contact</span>
         </nav>
-        <p>25+ only</p>
       </footer>
     </div>
 

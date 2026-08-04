@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0e0e0e" />
+    <meta name="theme-color" content="#f5efe6" />
     <meta
       name="description"
-      content="How we approach identity checks, first meetings, reporting, and member safety."
+      content="How donna reviews applications, shares introductions, supports safer first meetings and responds to concerns."
     />
     <title>donna | Safety</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -23,7 +23,7 @@
         <a class="wordmark" href="/index.html" aria-label="donna home">donna</a>
         <nav class="desktop-nav" aria-label="Primary navigation">
           <a href="/index.html#how">How it works</a>
-          <a href="/safety.html">Safety</a>
+          <a href="/safety.html" aria-current="page">Safety</a>
           <a href="/faq.html">FAQ</a>
           <a class="header-cta" href="/apply.html">Apply to join</a>
         </nav>
@@ -38,147 +38,83 @@
         <div class="mobile-menu" id="mobile-menu" hidden>
           <nav aria-label="Mobile navigation">
             <a href="/index.html#how">How it works</a>
-            <a href="/safety.html">Safety</a>
+            <a href="/safety.html" aria-current="page">Safety</a>
             <a href="/faq.html">FAQ</a>
             <a class="button button-primary" href="/apply.html">Apply to join</a>
           </nav>
         </div>
       </header>
 
-      <main id="main-content">
-        <section class="safety-hero" aria-labelledby="safety-title">
-          <h1 id="safety-title" tabindex="-1">Safety at donna</h1>
-          <p class="safety-hero-subheading">What we do, what we can’t do, and what to do if something goes wrong.</p>
-          <p class="safety-hero-copy">
-            We verify every member, arrange first meetings in public, and listen before and
-            after every introduction. That reduces avoidable risk. It doesn’t remove it, and
-            this page is honest about the difference.
-          </p>
-          <div class="safety-hero-actions">
-            <a class="button button-primary" href="#report">Report a concern</a>
-          </div>
+      <main class="safety-main" id="main-content">
+        <header class="safety-page-intro">
+          <h1>Safety at donna</h1>
+          <p>What donna reviews, what it cannot guarantee, and how you stay in control.</p>
+        </header>
+
+        <section class="safety-category-grid" aria-label="donna safety guidance">
+          <article class="safety-category-card" id="review" aria-labelledby="review-title">
+            <p class="safety-label">Application review</p>
+            <h2 id="review-title">Every application is reviewed</h2>
+            <p>donna manually reviews applications and checks submitted information for consistency.</p>
+          </article>
+
+          <article class="safety-category-card" aria-labelledby="permission-title">
+            <p class="safety-label">Permission</p>
+            <h2 id="permission-title">Nothing is shared without permission</h2>
+            <p>Your profile is only shared for a specific introduction, and only after you agree.</p>
+          </article>
+
+          <article class="safety-category-card" id="meeting" aria-labelledby="meeting-title">
+            <p class="safety-label">First meetings</p>
+            <h2 id="meeting-title">Meet somewhere public</h2>
+            <p>Choose a populated place, arrange your own transport, and tell someone you trust.</p>
+          </article>
+
+          <article class="safety-category-card" aria-labelledby="control-title">
+            <p class="safety-label">Your choice</p>
+            <h2 id="control-title">You stay in control</h2>
+            <p>You can decline, leave, stop communicating, or withdraw from donna at any time.</p>
+          </article>
+
+          <article class="safety-category-card" aria-labelledby="money-title">
+            <p class="safety-label">Money</p>
+            <h2 id="money-title">Money requests are a warning sign</h2>
+            <p>Never send money or financial information to someone donna introduces you to.</p>
+          </article>
+
+          <article class="safety-category-card" aria-labelledby="report-card-title">
+            <p class="safety-label">Reporting</p>
+            <h2 id="report-card-title">Tell us when something feels wrong</h2>
+            <p>You do not need to prove it was serious before reporting a concern.</p>
+          </article>
         </section>
 
-        <section class="safety-standards" aria-label="Donna safety standards">
-          <p>Identity checked</p>
-          <p>Mutual yes</p>
-          <p>Public first meeting</p>
-          <p>Human follow-up</p>
-        </section>
-
-        <section class="safety-playbook" aria-labelledby="playbook-title">
-          <aside class="safety-playbook-nav">
-            <p class="eyebrow" id="playbook-title">Your safety playbook</p>
-            <nav aria-label="Safety playbook">
-              <a href="#before-you-meet"><span aria-hidden="true"></span>Before you meet</a>
-              <a href="#when-you-meet"><span aria-hidden="true"></span>When you meet</a>
-              <a href="#after-you-meet"><span aria-hidden="true"></span>After you meet</a>
-              <a href="#something-happens"><span aria-hidden="true"></span>If something happens</a>
-            </nav>
-          </aside>
-
-          <div class="safety-playbook-content">
-            <section id="before-you-meet" class="safety-stage">
-              <p class="safety-stage-label">Before you meet</p>
-              <h2>We check what we reasonably can.</h2>
-              <p>
-                Before making an introduction, we confirm identity and age, review the
-                application, and check the stated basics of someone’s work and situation.
-              </p>
-              <div class="safety-stage-details">
-                <div>
-                  <h3>What is shared</h3>
-                  <p>Only enough information to consider the introduction. Contact details are shared after you meet, if you both want them.</p>
-                </div>
-                <div>
-                  <h3>Money</h3>
-                  <p>We will never ask you for money. Neither should anyone we introduce you to. If someone does, stop and tell us.</p>
-                </div>
-                <div>
-                  <h3>What checks cannot prove</h3>
-                  <p>Verification can establish that someone is real. It cannot guarantee their intentions, judgment or future behaviour.</p>
-                </div>
-              </div>
-            </section>
-
-            <section id="when-you-meet" class="safety-stage">
-              <p class="safety-stage-label">When you meet</p>
-              <h2>The first meeting stays public.</h2>
-              <p>
-                We arrange a time and a public venue. Travel independently, tell someone
-                you trust where you are going, and keep control of when and how you leave.
-              </p>
-              <p class="safety-stage-note">You never owe anyone more time, attention or politeness because donna arranged the meeting.</p>
-            </section>
-
-            <section id="after-you-meet" class="safety-stage">
-              <p class="safety-stage-label">After you meet</p>
-              <h2>Tell us what actually happened.</h2>
-              <p>
-                Your debrief is private. We use it to improve future introductions and to
-                notice behaviour that may mean someone should not be introduced again.
-              </p>
-              <p class="safety-stage-note">The other person does not receive your debrief.</p>
-            </section>
-
-            <section id="something-happens" class="safety-stage">
-              <p class="safety-stage-label">If something happens</p>
-              <h2>You do not need to prove it was serious first.</h2>
-              <p>
-                Leave whenever you need to. Save messages or details that may help, tell
-                someone you trust, and report the concern to us when you are able.
-              </p>
-              <div class="safety-stage-details">
-                <div>
-                  <h3>What happens after you report</h3>
-                  <p>A person reads every report. [PLACEHOLDER — response commitment]</p>
-                </div>
-              </div>
-              <p class="safety-stage-note">In an immediate emergency, contact emergency services before contacting us.</p>
-            </section>
-          </div>
-        </section>
-
-        <section class="safety-non-negotiables" aria-labelledby="non-negotiables-title">
-          <p class="eyebrow" id="non-negotiables-title">Our non-negotiables</p>
-          <p class="safety-values">Consent <span aria-hidden="true">·</span> Respect <span aria-hidden="true">·</span> No harassment <span aria-hidden="true">·</span> No money requests</p>
-          <p class="safety-non-negotiables-note">These aren’t guidelines. Break them and you won’t be introduced to anyone again.</p>
-        </section>
-
-        <section class="safety-report" id="report" aria-labelledby="report-title">
+        <section class="safety-report" id="support" aria-labelledby="support-title">
           <div>
-            <p class="eyebrow">Something didn’t feel right?</p>
-            <h2 id="report-title">Tell us.</h2>
-            <p>You do not need to prove it was serious first.</p>
-            <a class="button button-primary" data-contact-link data-contact-subject="Safety concern" hidden>Report a concern</a>
-            <span class="button safety-report-unavailable" data-contact-fallback title="Reporting contact will be available before introductions begin" aria-disabled="true">Report a concern</span>
+            <p class="safety-label">Support</p>
+            <h2 id="support-title">Report a concern</h2>
+            <p>Tell donna about concerning behaviour, decline an introduction, or ask for help leaving the pilot.</p>
           </div>
-
-          <div class="safety-emergency" id="emergency">
-            <p class="safety-stage-label">Need help now?</p>
-            <p>Immediate danger — call <a href="tel:112">112</a>.</p>
-            <p>Harassment, stalking, or feeling unsafe — call <a href="tel:181">181</a> or <a href="tel:1091">1091</a>.</p>
-            <p>Financial fraud, blackmail, or online abuse — call <a href="tel:1930">1930</a>, or use the <a href="https://www.cybercrime.gov.in/">National Cyber Crime Reporting Portal</a>.</p>
+          <div class="safety-report-action">
+            <a class="button button-primary" data-contact-link data-contact-subject="Safety concern" hidden>Contact donna</a>
+            <span class="safety-contact-placeholder" data-contact-fallback aria-disabled="true">donna’s safety contact is being configured.</span>
           </div>
-
-          <p class="safety-disclaimer">
-            Manual review and safety checks can reduce risk, but they cannot guarantee another person’s identity, intentions or behaviour. donna is not an emergency service.
-          </p>
         </section>
 
-        <a class="safety-emergency-affordance" href="#emergency">Emergency help</a>
+        <aside class="safety-limitation" aria-label="Limitations of donna’s safety process">
+          <p>Manual review can reduce avoidable risk, but it cannot guarantee another person’s identity, intentions or behaviour. If you believe you are in immediate danger, contact the appropriate local emergency services. donna is not an emergency-response service.</p>
+        </aside>
       </main>
 
       <footer class="site-footer">
         <a class="wordmark" href="/index.html">donna</a>
         <nav class="footer-nav" aria-label="Footer navigation">
           <a href="/index.html#how">How it works</a>
-          <a href="/safety.html">Safety</a>
+          <a href="/safety.html" aria-current="page">Safety</a>
           <a href="/faq.html">FAQ</a>
           <a data-contact-link hidden>Contact</a>
           <span data-contact-fallback title="Contact method pending launch">Contact</span>
         </nav>
-        <p>25+ only</p>
       </footer>
     </div>
 

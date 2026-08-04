@@ -1,9 +1,9 @@
 export const APPLICATION_GATEWAY = Object.freeze({
   eyebrow: 'PRIVATE APPLICATION · 25+',
   title: 'A thoughtful introduction starts with being known.',
-  supportingCopy: 'Tell Donna enough to understand who you are, what matters to you and who may genuinely fit. Every application is reviewed by a person—not an algorithm.',
+  supportingCopy: 'Tell donna enough to understand who you are, what matters to you and who may genuinely fit. Every application is reviewed by a person—not an algorithm.',
   preparation: '5–7 minutes · LinkedIn profile · 3 recent photographs',
-  pilotDisclaimer: 'Donna is a limited, manually operated pilot. Applying does not guarantee acceptance, a match or an introduction.',
+  pilotDisclaimer: 'donna is a limited, manually operated pilot. Applying does not guarantee acceptance, a match or an introduction.',
   checklist: Object.freeze([
     'Your LinkedIn profile URL.',
     'Three recent photographs.',
@@ -12,12 +12,12 @@ export const APPLICATION_GATEWAY = Object.freeze({
   ]),
   nextSteps: Object.freeze([
     Object.freeze({
-      title: 'Donna reviews',
+      title: 'donna reviews',
       copy: 'Your application and LinkedIn profile are reviewed privately and manually.',
     }),
     Object.freeze({
-      title: 'Donna asks',
-      copy: 'If there may be a thoughtful introduction, Donna approaches each person separately.',
+      title: 'donna asks',
+      copy: 'If there may be a thoughtful introduction, donna approaches each person separately.',
     }),
     Object.freeze({
       title: 'You decide',
@@ -31,21 +31,21 @@ export const APPLICATION_GATEWAY = Object.freeze({
     }),
     Object.freeze({
       title: 'Permission each time',
-      copy: 'Applying does not give Donna permission to share your profile with another applicant.',
+      copy: 'Applying does not give donna permission to share your profile with another applicant.',
     }),
     Object.freeze({
       title: 'Decline quietly',
-      copy: 'You may decline a proposed introduction. Donna will not disclose your reason to the other person.',
+      copy: 'You may decline a proposed introduction. donna will not disclose your reason to the other person.',
     }),
   ]),
-  withdrawalCopy: 'You can withdraw your application by contacting Donna. Data requests are handled according to the Privacy Notice.',
+  withdrawalCopy: 'You can withdraw your application by contacting donna. Data requests are handled according to the Privacy Notice.',
 })
 
 export const APPLICATION_STEPS = Object.freeze([
   {
     id: 'eligibility',
     title: 'First, a few eligibility details.',
-    description: 'Donna’s current pilot is for people aged 25 and above who are ready to meet in person.',
+    description: 'donna’s current pilot is for people aged 25 and above who are ready to meet in person.',
     fields: [
       { name: 'date_of_birth', label: 'Date of birth', type: 'date', required: true, autocomplete: 'bday' },
       { name: 'current_city', label: 'Current city', type: 'text', required: true, autocomplete: 'address-level2' },
@@ -82,7 +82,7 @@ export const APPLICATION_STEPS = Object.freeze([
   {
     id: 'basics',
     title: 'The basics.',
-    description: 'This information is reviewed privately by the Donna team.',
+    description: 'This information is reviewed privately by the donna team.',
     fields: [
       { name: 'full_name', label: 'Full name', type: 'text', required: true, autocomplete: 'name', maxLength: 120 },
       { name: 'display_first_name', label: 'First name you would be comfortable sharing with an approved introduction', type: 'text', required: true, autocomplete: 'given-name', maxLength: 60 },
@@ -95,7 +95,7 @@ export const APPLICATION_STEPS = Object.freeze([
         required: true,
         autocomplete: 'url',
         maxLength: 240,
-        helpText: 'Donna manually reviews the LinkedIn profile you provide as a supporting consistency check. This is not identity or age verification.',
+        helpText: 'donna manually reviews the LinkedIn profile you provide as a supporting consistency check. This is not identity or age verification.',
         placeholder: 'https://www.linkedin.com/in/your-name',
       },
       { name: 'occupation', label: 'Occupation or current role', type: 'text', required: true, autocomplete: 'organization-title', maxLength: 120 },
@@ -218,7 +218,7 @@ export const APPLICATION_STEPS = Object.freeze([
         options: [['yes', 'Yes'], ['no', 'No'], ['open_to_it', 'Open to it'], ['unsure', 'Unsure'], ['prefer_not_to_say', 'Prefer not to say']],
       },
       { name: 'non_negotiables', label: 'Up to three genuine non-negotiables', type: 'textarea', required: false, maxLength: 300, rows: 4, helpText: 'Keep the total response to 300 characters.' },
-      { name: 'additional_context', label: 'Anything else Donna should understand when considering an introduction?', type: 'textarea', required: false, maxLength: 500, rows: 5 },
+      { name: 'additional_context', label: 'Anything else donna should understand when considering an introduction?', type: 'textarea', required: false, maxLength: 500, rows: 5 },
     ],
   },
   {
@@ -244,12 +244,12 @@ export const PHOTO_SLOTS = Object.freeze([
 
 export const CONSENT_SCHEMA = Object.freeze([
   { name: 'age_and_accuracy', required: true, label: 'I confirm that I am at least 25 years old and that the information I provided is accurate.' },
-  { name: 'manual_review', required: true, label: 'I consent to Donna processing my application for manual review and matchmaking consideration.' },
-  { name: 'linkedin_review', required: true, label: 'I understand that Donna may manually review the LinkedIn URL I provided as a supporting consistency check.' },
-  { name: 'photograph_review', required: true, label: 'I consent to Donna privately storing and reviewing the photographs I provide.' },
+  { name: 'manual_review', required: true, label: 'I consent to donna processing my application for manual review and matchmaking consideration.' },
+  { name: 'linkedin_review', required: true, label: 'I understand that donna may manually review the LinkedIn URL I provided as a supporting consistency check.' },
+  { name: 'photograph_review', required: true, label: 'I consent to donna privately storing and reviewing the photographs I provide.' },
   { name: 'no_guarantee', required: true, label: 'I understand that applying does not guarantee acceptance, a match or an introduction.' },
   { name: 'legal_documents', required: true, label: 'I have read the Privacy Notice and Pilot Terms.', legal: true },
-  { name: 'product_updates', required: false, label: 'I would like to receive occasional Donna product updates.', optional: true },
+  { name: 'product_updates', required: false, label: 'I would like to receive occasional donna product updates.', optional: true },
 ])
 
 export const ACCEPTED_PHOTO_TYPES = Object.freeze(['image/jpeg', 'image/png', 'image/webp'])

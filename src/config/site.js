@@ -1,5 +1,5 @@
 export const siteConfig = Object.freeze({
-  contactEmail: '',
+  contactEmail: 'thedonnapilot@gmail.com',
   pilotCity: '',
   applicationMode: 'preview',
   privacyNoticeUrl: '',

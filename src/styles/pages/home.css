@@ -1,3 +1,12 @@
+.home-page {
+  --graphite: var(--warm-ivory);
+  --graphite-ink: var(--espresso);
+  --graphite-muted: var(--warm-taupe);
+
+  background: var(--warm-ivory);
+  color: var(--espresso);
+}
+
 .hero {
   position: relative;
   min-height: 100svh;

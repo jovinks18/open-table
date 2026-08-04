@@ -44,7 +44,7 @@ test('centralizes the required gateway content', () => {
   assert.equal(APPLICATION_GATEWAY.eyebrow, 'PRIVATE APPLICATION · 25+')
   assert.equal(APPLICATION_GATEWAY.title, 'A thoughtful introduction starts with being known.')
   assert.equal(APPLICATION_GATEWAY.checklist.length, 4)
-  assert.deepEqual(APPLICATION_GATEWAY.nextSteps.map(({ title }) => title), ['Donna reviews', 'Donna asks', 'You decide'])
+  assert.deepEqual(APPLICATION_GATEWAY.nextSteps.map(({ title }) => title), ['donna reviews', 'donna asks', 'You decide'])
   assert.deepEqual(APPLICATION_GATEWAY.controls.map(({ title }) => title), ['Private by default', 'Permission each time', 'Decline quietly'])
 })
 

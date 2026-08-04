@@ -10,9 +10,9 @@ Checkpoint date: 2026-08-03
 
 The current checkpoint includes:
 
-- A homepage at `/` and `/index.html`.
+- A homepage at `/` and `/index.html`, preceded once per browser session by a skippable city-image experience intro.
 - A safety page at `/safety.html`.
-- A flat FAQ page at `/faq.html`.
+- A two-column disclosure FAQ page at `/faq.html`.
 - An application gateway and six-step application preview at `/apply.html`.
 - Shared responsive navigation and footer behaviour.
 - Automated application schema, progress, privacy and validation tests.
@@ -29,7 +29,7 @@ The following are deliberately not implemented:
 - Authentication or applicant accounts.
 - Email delivery.
 - Photograph uploads.
-- Local or session storage.
+- Applicant data in local or session storage. The homepage intro stores only the `donnaExperienceSeen` presentation flag in `sessionStorage`.
 - Analytics or advertising trackers.
 - Live application submission.
 - Production legal policies.
@@ -86,8 +86,8 @@ Generated output is written to `dist/`. Both `dist/` and `node_modules/` are int
 
 | Route | Entry file | Purpose | JavaScript entry |
 | --- | --- | --- | --- |
-| `/`, `/index.html` | `index.html` | Homepage, hero and how-it-works story | `src/scripts/home.js` |
-| `/safety.html` | `safety.html` | Safety playbook, reporting and emergency information | `src/scripts/shared.js` |
+| `/`, `/index.html` | `index.html` | Session-aware experience intro, homepage hero and how-it-works story | `src/scripts/home.js` |
+| `/safety.html` | `safety.html` | Categorized review limits, safer-meeting guidance, applicant control and reporting | `src/scripts/shared.js` |
 | `/faq.html` | `faq.html` | FAQ content and disclosure behaviour | `src/scripts/shared.js` plus page-local FAQ script |
 | `/apply.html` | `apply.html` | Application gateway and six-step preview | `src/scripts/shared.js` and `src/application/app.js` |
 
@@ -103,6 +103,9 @@ All four HTML files are explicit Vite entries in `vite.config.js`.
 ├── apply.html
 ├── package.json
 ├── vite.config.js
+├── public/
+│   └── images/
+│       └── intro/             # Optimized Bengaluru, Mumbai, Delhi and Hyderabad photographs
 ├── src/
 │   ├── application/
 │   │   ├── app.js             # Application rendering and in-memory interaction state
@@ -115,8 +118,10 @@ All four HTML files are explicit Vite entries in `vite.config.js`.
 │   │   ├── home.js            # Homepage entry
 │   │   ├── shared.js          # Shared menu and contact behaviour
 │   │   └── modules/
+│   │       ├── experience-intro.js
 │   │       ├── heading-animation.js
 │   │       ├── mobile-menu.js
+│   │       ├── site-links.js
 │   │       └── story-cards.js
 │   └── styles/
 │       ├── main.css           # Stylesheet import order
@@ -126,6 +131,7 @@ All four HTML files are explicit Vite entries in `vite.config.js`.
 │       ├── components/
 │       │   ├── call-to-action.css
 │       │   ├── cards.css
+│       │   ├── experience-intro.css
 │       │   └── footer.css
 │       └── pages/
 │           ├── home.css
@@ -134,8 +140,27 @@ All four HTML files are explicit Vite entries in `vite.config.js`.
 │           └── apply.css
 └── tests/
     ├── application-experience.test.js
-    └── application-validation.test.js
+    ├── application-validation.test.js
+    ├── brand-name.test.js
+    ├── experience-intro.test.js
+    └── safety-page.test.js
 ```
+
+## Homepage experience intro
+
+The homepage intro is a fixed overlay rendered inside `index.html`; it is not a separate route. Keeping the existing homepage mounted underneath allows the overlay and hero to crossfade without a navigation or loading flash.
+
+- `src/scripts/modules/experience-intro.js` controls the GSAP sequence, Skip action, focus restoration and cleanup.
+- `src/styles/components/experience-intro.css` controls the overlay, scattered image layout and reduced-motion fallback.
+- The sequence runs once per browser session using the non-sensitive `sessionStorage` key `donnaExperienceSeen`.
+- Add `?intro=1` to the homepage URL to replay it during design review.
+- Selecting Skip fades directly to the homepage and focuses `#hero-title`.
+- With `prefers-reduced-motion: reduce`, the overlay is removed without playing the sequence.
+- The underlying `.donna-page` is inert and hidden from assistive technology while the intro is active.
+- Desktop uses eight photographs. Screens up to 640px use four to reduce crowding and rendering work.
+- The photographs enter and move into their final positions before the single intro message appears, so text never competes with moving imagery.
+
+The local photographs in `public/images/intro/` were selected from the free image collections on Unsplash for [Bengaluru](https://unsplash.com/s/photos/bengaluru-city), [Mumbai](https://unsplash.com/s/photos/mumbai-india), [Delhi](https://unsplash.com/s/photos/delhi%2C-india) and [Hyderabad](https://unsplash.com/s/photos/hyderabad). The selected photographers are zablanca_clicks, Mahadev Ittina, Anshu Aditya, Nishith Parikh, Atharva Tulsi, Shubham Sharan, Raghu Nayyar and Shiv Prasad.
 
 ## Shared design system
 
@@ -440,7 +465,7 @@ git status --short
 git diff --check
 npm test
 git add README.md apply.html faq.html index.html safety.html package.json package-lock.json vite.config.js src tests .gitignore .claude/launch.json
-git commit -m "Checkpoint Donna application gateway"
+git commit -m "Checkpoint donna application gateway"
 ```
 
 Do not stage `.claude/settings.local.json`; it contains machine-specific permissions and is already ignored.
@@ -454,6 +479,7 @@ The current repository intentionally displays honest placeholders for:
 - Privacy Notice.
 - Pilot Terms.
 - Pilot city.
+- A verified locale-specific emergency-resource directory; the Safety page currently directs people to appropriate local emergency services.
 
 These are launch blockers, not cosmetic cleanup. Keep preview mode enabled until they and the backend/data-handling requirements are resolved.
 

@@ -406,7 +406,7 @@ function buildGatewayLinks() {
   const links = createElement('p', 'application-gateway-links')
 
   if (siteConfig.contactEmail) {
-    const contact = createElement('a', '', 'Contact Donna')
+    const contact = createElement('a', '', 'Contact donna')
     contact.href = `mailto:${siteConfig.contactEmail}`
     links.append(contact)
   } else {
@@ -457,7 +457,7 @@ function buildGateway() {
   const actions = createElement('div', 'application-actions')
   const begin = createButton('Begin application')
   begin.addEventListener('click', () => goToStep(0))
-  const back = createElement('a', 'text-link', 'Back to Donna')
+  const back = createElement('a', 'text-link', 'Back to donna')
   back.href = '/index.html'
   actions.append(begin, back)
   introduction.append(actions)
@@ -564,7 +564,7 @@ function buildStandardStep() {
 function buildUnderAgeExit() {
   const screen = createElement('section', 'application-screen application-exit-state')
   screen.append(buildProgress())
-  const heading = createElement('h1', '', 'Donna’s current pilot is limited to people aged 25 and above.')
+  const heading = createElement('h1', '', 'donna’s current pilot is limited to people aged 25 and above.')
   heading.tabIndex = -1
   screen.append(heading)
   screen.append(createElement('p', 'application-lead', 'We have not collected the remainder of your application information.'))
@@ -574,7 +574,7 @@ function buildUnderAgeExit() {
     underAgeExit = false
     renderApplication()
   })
-  const leave = createElement('a', 'button button-primary', 'Return to Donna')
+  const leave = createElement('a', 'button button-primary', 'Return to donna')
   leave.href = '/index.html'
   actions.append(edit, leave)
   screen.append(actions)
@@ -819,7 +819,7 @@ function buildReview() {
   summary.append(buildPhotoReview())
   form.append(summary)
 
-  const permission = createElement('p', 'application-permission-notice', 'Submitting an application does not give Donna permission to send your profile to another applicant. Donna will request your permission before every proposed introduction.')
+  const permission = createElement('p', 'application-permission-notice', 'Submitting an application does not give donna permission to send your profile to another applicant. donna will request your permission before every proposed introduction.')
   form.append(permission, buildConsentList())
 
   if (siteConfig.applicationMode === 'live' && (!siteConfig.privacyNoticeUrl || !siteConfig.pilotTermsUrl)) {
