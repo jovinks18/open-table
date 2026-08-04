@@ -1,0 +1,344 @@
+.safety-hero {
+  max-width: 80rem;
+  margin-inline: auto;
+  padding: clamp(8rem, 14vw, 12rem) clamp(1.25rem, 7vw, 7rem) clamp(4.5rem, 8vw, 7rem);
+  text-align: center;
+}
+
+.safety-hero h1,
+.safety-hero-subheading,
+.safety-hero-copy {
+  margin-inline: auto;
+}
+
+.safety-hero h1 {
+  max-width: 18ch;
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  line-height: 1;
+}
+
+.safety-hero-subheading {
+  max-width: 36rem;
+  margin-top: 1.25rem;
+  color: var(--graphite-ink);
+  font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+.safety-hero-copy {
+  max-width: 42rem;
+  margin-top: 1.25rem;
+  color: var(--graphite-muted);
+  font-size: clamp(1rem, 1.2vw, 1.12rem);
+  line-height: 1.6;
+}
+
+.safety-hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.safety-standards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-width: 80rem;
+  margin-inline: auto;
+  border-block: 1px solid rgb(160 139 111 / 30%);
+  padding-inline: clamp(1.25rem, 4vw, 4rem);
+}
+
+.safety-standards p {
+  padding: 1.35rem 0.75rem;
+  color: var(--graphite-ink);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.safety-playbook {
+  display: grid;
+  grid-template-columns: minmax(13rem, 0.7fr) minmax(0, 2fr);
+  gap: clamp(3rem, 8vw, 8rem);
+  max-width: 80rem;
+  margin-inline: auto;
+  padding: clamp(5rem, 9vw, 9rem) clamp(1.25rem, 7vw, 7rem);
+}
+
+.safety-playbook-nav {
+  align-self: start;
+  position: sticky;
+  top: 2.5rem;
+}
+
+.safety-playbook-nav nav {
+  display: grid;
+  gap: 1rem;
+}
+
+.safety-playbook-nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--graphite-muted);
+  font-size: 0.85rem;
+  line-height: 1.35;
+  transition: color 180ms ease;
+}
+
+.safety-playbook-nav a:hover,
+.safety-playbook-nav a:focus-visible {
+  color: var(--graphite-ink);
+}
+
+.safety-playbook-nav a span {
+  width: 0.48rem;
+  height: 0.48rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--terracotta);
+  border-radius: 50%;
+}
+
+.safety-playbook-content {
+  min-width: 0;
+}
+
+.safety-stage {
+  padding-block: clamp(3rem, 6vw, 5rem);
+  border-top: 1px solid rgb(160 139 111 / 30%);
+  scroll-margin-top: 2rem;
+}
+
+.safety-stage:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.safety-stage-label {
+  color: var(--terracotta);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.safety-stage h2,
+.safety-report h2 {
+  max-width: 24ch;
+  margin-top: 0.8rem;
+  font-family: var(--serif);
+  font-size: clamp(1.65rem, 2.6vw, 2.4rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.safety-stage > p:not(.safety-stage-label, .safety-stage-note) {
+  max-width: 42rem;
+  margin-top: 1.25rem;
+  color: var(--graphite-muted);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.safety-stage-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 3rem);
+  margin-top: 2.5rem;
+}
+
+.safety-stage-details h3 {
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.safety-stage-details p,
+.safety-stage-note {
+  margin-top: 0.75rem;
+  color: var(--graphite-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.safety-stage-note {
+  max-width: 38rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--terracotta);
+}
+
+.safety-non-negotiables {
+  padding: clamp(3.5rem, 7vw, 6rem) clamp(1.25rem, 7vw, 7rem);
+  background: var(--almond);
+  color: var(--espresso);
+  text-align: center;
+}
+
+.safety-values {
+  max-width: 34ch;
+  margin-inline: auto;
+  font-family: var(--serif);
+  font-size: clamp(1.5rem, 2.8vw, 2.4rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.safety-non-negotiables span {
+  color: var(--terracotta);
+}
+
+.safety-non-negotiables-note {
+  max-width: 44rem;
+  margin: 1.25rem auto 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.safety-report {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(16rem, 0.75fr);
+  gap: clamp(3rem, 8vw, 8rem);
+  padding: clamp(5rem, 9vw, 9rem) clamp(1.25rem, 7vw, 7rem);
+  background: var(--graphite);
+}
+
+.safety-report > div:first-child > p:not(.eyebrow) {
+  margin-top: 1rem;
+  color: var(--graphite-muted);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.safety-report .button {
+  margin-top: 2rem;
+}
+
+.safety-report [hidden] {
+  display: none;
+}
+
+.safety-report-unavailable {
+  background: var(--deep-brick);
+  color: var(--warm-white);
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.safety-emergency {
+  align-self: end;
+  padding-left: clamp(1.5rem, 4vw, 3rem);
+  border-left: 1px solid rgb(160 139 111 / 30%);
+  scroll-margin-top: 2rem;
+}
+
+.safety-emergency p:not(.safety-stage-label) {
+  margin-top: 1rem;
+  color: var(--graphite-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.safety-emergency a {
+  border-bottom: 1px solid var(--terracotta);
+  color: var(--graphite-ink);
+}
+
+.safety-disclaimer {
+  grid-column: 1 / -1;
+  max-width: 54rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgb(160 139 111 / 30%);
+  color: var(--graphite-muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.safety-page {
+  padding-bottom: 5rem;
+}
+
+.safety-emergency-affordance {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 12;
+  border: 1px solid var(--mushroom);
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  background: var(--almond);
+  box-shadow: 0 0.5rem 1.5rem rgb(14 14 14 / 24%);
+  color: var(--espresso);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.safety-emergency-affordance:hover,
+.safety-emergency-affordance:focus-visible {
+  background: var(--soft-linen);
+}
+
+@media (max-width: 768px) {
+  .safety-hero-actions {
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .safety-standards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .safety-standards p:nth-child(-n + 2) {
+    border-bottom: 1px solid rgb(160 139 111 / 30%);
+  }
+
+  .safety-playbook {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .safety-playbook-nav {
+    position: static;
+  }
+
+  .safety-playbook-nav nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .safety-stage-details,
+  .safety-report {
+    grid-template-columns: 1fr;
+  }
+
+  .safety-emergency {
+    padding: 2rem 0 0;
+    border-top: 1px solid rgb(160 139 111 / 30%);
+    border-left: 0;
+  }
+
+  .safety-page {
+    padding-bottom: 6.75rem;
+  }
+
+  .safety-emergency-affordance {
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    padding-block: 0.8rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .safety-playbook-nav nav {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,136 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--graphite);
+  color: var(--graphite-ink);
+  font-family: var(--sans);
+  -webkit-tap-highlight-color: rgb(198 106 74 / 18%);
+}
+
+.menu-open body {
+  overflow: hidden;
+}
+
+a,
+button {
+  touch-action: manipulation;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+p,
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 20;
+  padding: 0.7rem 1rem;
+  background: var(--graphite);
+  color: var(--graphite-ink);
+  transform: translateY(-160%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 4px;
+}
+
+.site-header {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.4rem clamp(1.25rem, 4vw, 4rem);
+}
+
+.wordmark {
+  font-family: var(--serif);
+  font-size: 1.75rem;
+  font-style: italic;
+  letter-spacing: -0.05em;
+}
+
+.site-header nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2.5rem);
+  font-size: 0.8rem;
+  font-weight: 550;
+  letter-spacing: 0.015em;
+}
+
+.menu-toggle,
+.mobile-menu {
+  display: none;
+}
+
+.mobile-menu[hidden] {
+  display: none;
+}
+
+.menu-toggle {
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--deep-brick);
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  background: transparent;
+  color: var(--deep-brick);
+  font: 600 0.78rem/1 var(--sans);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.menu-toggle:hover,
+.menu-toggle:focus-visible,
+.menu-toggle[aria-expanded="true"] {
+  background: var(--deep-brick);
+  color: var(--warm-white);
+}
+
+.desktop-nav a:not(.header-cta) {
+  padding-block: 0.65rem;
+  transition: opacity 180ms ease;
+}
+
+.desktop-nav a:not(.header-cta):hover {
+  opacity: 0.58;
+}
+
+.header-cta {
+  border: 1px solid var(--deep-brick);
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  background: transparent;
+  color: var(--deep-brick);
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.header-cta:hover,
+.header-cta:focus-visible {
+  background: var(--deep-brick);
+  color: var(--warm-white);
+}

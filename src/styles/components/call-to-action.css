@@ -1,0 +1,41 @@
+.final-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(5rem, 9vw, 9rem) clamp(1.25rem, 7vw, 7rem);
+  background: var(--graphite);
+  color: var(--graphite-ink);
+  text-align: center;
+}
+
+.final-cta h2 {
+  max-width: 12ch;
+  font-size: clamp(3.4rem, 8vw, 8rem);
+  line-height: 0.92;
+}
+
+.final-cta .button-primary {
+  margin-top: 2.25rem;
+}
+
+.final-cta .button-primary:focus-visible {
+  outline-color: var(--warm-honey);
+}
+
+.button-light {
+  margin-top: 2.25rem;
+  background: var(--soft-linen);
+  box-shadow: inset 0 0 0 1px var(--warm-honey);
+  color: var(--espresso);
+}
+
+.button-light:hover {
+  background: var(--almond);
+}
+
+.final-cta > p:last-child {
+  margin-top: 1.2rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+}

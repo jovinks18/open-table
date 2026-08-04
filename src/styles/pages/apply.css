@@ -1,0 +1,908 @@
+.application-page {
+  background: var(--graphite);
+  color: var(--soft-linen);
+}
+
+.application-main {
+  min-height: calc(100vh - 9rem);
+  padding: clamp(7.5rem, 13vw, 10rem) clamp(1rem, 4vw, 4rem) clamp(5rem, 10vw, 8rem);
+}
+
+#application-root {
+  width: min(100%, 52rem);
+  margin-inline: auto;
+}
+
+#application-root.is-gateway {
+  width: min(100%, 68rem);
+}
+
+.application-screen {
+  animation: application-enter 280ms ease both;
+}
+
+.application-screen[hidden],
+.application-page [hidden] {
+  display: none;
+}
+
+.application-eyebrow,
+.application-step-label,
+.application-fact-label,
+.application-label,
+.application-choice-label,
+.application-review-title,
+.application-photo-kicker {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.application-eyebrow,
+.application-step-label,
+.application-fact-label,
+.application-photo-kicker {
+  color: var(--graphite-muted);
+}
+
+.application-screen h1 {
+  max-width: 12ch;
+  margin: 0.65rem 0 1.25rem;
+  font-family: var(--serif);
+  font-size: clamp(2.4rem, 7vw, 4.5rem);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.application-screen h1:focus {
+  outline: none;
+}
+
+.application-screen h2,
+.application-review-group h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(1.55rem, 4vw, 2.15rem);
+  font-weight: 500;
+  line-height: 1.08;
+}
+
+.application-lead {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--mushroom);
+  font-size: clamp(1rem, 2vw, 1.16rem);
+  line-height: 1.7;
+}
+
+.application-lead + .application-lead {
+  margin-top: 0.85rem;
+}
+
+.application-gateway h1 {
+  max-width: 13ch;
+  font-size: clamp(3rem, 6vw, 5.25rem);
+}
+
+.application-gateway-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
+  gap: clamp(2.5rem, 7vw, 6rem);
+  align-items: end;
+}
+
+.application-gateway-preparation {
+  width: fit-content;
+  margin: 1.35rem 0 0;
+  padding-block: 0.75rem;
+  border-block: 1px solid color-mix(in srgb, var(--mushroom) 32%, transparent);
+  color: var(--graphite-ink);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.035em;
+  line-height: 1.5;
+}
+
+.application-gateway .application-actions {
+  justify-content: flex-start;
+  margin-top: 1.6rem;
+}
+
+.application-gateway-disclaimer {
+  max-width: 39rem;
+  margin: 1rem 0 0;
+  color: var(--graphite-muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.application-gateway-checklist {
+  padding: clamp(1.25rem, 3vw, 1.7rem);
+  border: 1px solid color-mix(in srgb, var(--mushroom) 36%, transparent);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--soft-linen) 5%, var(--graphite));
+}
+
+.application-gateway-checklist h2 {
+  font-size: clamp(1.55rem, 3vw, 1.95rem);
+}
+
+.application-gateway-checklist > p {
+  margin: 0.55rem 0 0;
+  color: var(--mushroom);
+  font-size: 0.88rem;
+}
+
+.application-gateway-checklist ul {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.application-gateway-checklist li {
+  position: relative;
+  padding-left: 1.15rem;
+  color: var(--soft-linen);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.application-gateway-checklist li::before {
+  position: absolute;
+  top: 0.62em;
+  left: 0;
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--dusty-rose);
+  content: '';
+}
+
+.application-gateway-section {
+  margin-top: clamp(3.5rem, 8vw, 6rem);
+  padding-top: 1.25rem;
+  border-top: 1px solid color-mix(in srgb, var(--mushroom) 30%, transparent);
+}
+
+.application-gateway-section .application-gateway-label {
+  margin: 0 0 1.5rem;
+  color: var(--graphite-muted);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.3;
+}
+
+.application-gateway-process,
+.application-gateway-assurances {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.application-gateway-process {
+  counter-reset: gateway-step;
+}
+
+.application-gateway-process li,
+.application-gateway-assurances li {
+  min-width: 0;
+  padding: 0 clamp(1.1rem, 3vw, 2rem);
+}
+
+.application-gateway-process li {
+  counter-increment: gateway-step;
+}
+
+.application-gateway-process li:first-child,
+.application-gateway-assurances li:first-child {
+  padding-left: 0;
+}
+
+.application-gateway-process li + li,
+.application-gateway-assurances li + li {
+  border-left: 1px solid color-mix(in srgb, var(--mushroom) 26%, transparent);
+}
+
+.application-gateway-process li::before {
+  display: block;
+  margin-bottom: 1.6rem;
+  color: var(--dusty-rose);
+  content: '0' counter(gateway-step);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.application-gateway-process h3,
+.application-gateway-assurances h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.application-gateway-process p,
+.application-gateway-assurances p {
+  margin: 0.7rem 0 0;
+  color: var(--mushroom);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.application-gateway-control {
+  padding: clamp(1.35rem, 4vw, 2.25rem);
+  border: 1px solid color-mix(in srgb, var(--mushroom) 34%, transparent);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--soft-linen) 5%, var(--graphite));
+}
+
+.application-gateway-withdrawal {
+  margin: 1.8rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid color-mix(in srgb, var(--mushroom) 24%, transparent);
+  color: var(--mushroom);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.application-gateway-links {
+  margin: 0.55rem 0 0;
+  color: var(--graphite-muted);
+  font-size: 0.82rem;
+}
+
+.application-gateway-links a {
+  color: var(--graphite-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.application-facts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  margin: clamp(2.25rem, 5vw, 3.5rem) 0 2rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--mushroom) 35%, transparent);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--mushroom) 28%, transparent);
+}
+
+.application-facts li {
+  min-height: 7rem;
+  padding: 1.15rem;
+  background: var(--graphite);
+  line-height: 1.5;
+  list-style: none;
+}
+
+.application-facts {
+  padding: 0;
+}
+
+.application-progress {
+  margin-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+.application-progress > p {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--mushroom);
+  font-size: 0.82rem;
+}
+
+.application-progress progress {
+  display: block;
+  width: 100%;
+  height: 0.22rem;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mushroom) 24%, transparent);
+}
+
+.application-progress progress::-webkit-progress-bar {
+  background: color-mix(in srgb, var(--mushroom) 24%, transparent);
+}
+
+.application-progress progress::-webkit-progress-value {
+  background: var(--dusty-rose);
+}
+
+.application-progress progress::-moz-progress-bar {
+  background: var(--dusty-rose);
+}
+
+.application-form {
+  margin-top: clamp(2rem, 5vw, 3.5rem);
+}
+
+.application-fields {
+  display: grid;
+  gap: 1.6rem;
+}
+
+.application-field,
+.application-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.application-label,
+.application-fieldset legend {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: var(--soft-linen);
+}
+
+.application-optional {
+  color: var(--mushroom);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.application-field-help {
+  max-width: 44rem;
+  margin: 0 0 0.7rem;
+  color: var(--mushroom);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.application-field input:not([type='checkbox']):not([type='radio']):not([type='file']),
+.application-field textarea,
+.application-field select,
+.application-other-input {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--mushroom) 55%, transparent);
+  border-radius: 0.35rem;
+  outline: none;
+  background: color-mix(in srgb, var(--soft-linen) 7%, var(--graphite));
+  color: var(--soft-linen);
+  font: inherit;
+  line-height: 1.45;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.application-field textarea {
+  min-height: 8.5rem;
+  resize: vertical;
+}
+
+.application-field select option {
+  color: var(--espresso);
+}
+
+.application-field input:focus-visible,
+.application-field textarea:focus-visible,
+.application-field select:focus-visible,
+.application-other-input:focus-visible,
+.application-choice:focus-within,
+.application-photo-action:focus-visible,
+.application-edit:focus-visible {
+  border-color: var(--dusty-rose);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dusty-rose) 30%, transparent);
+}
+
+.application-field input[aria-invalid='true'],
+.application-field textarea[aria-invalid='true'],
+.application-field select[aria-invalid='true'] {
+  border-color: var(--terracotta);
+}
+
+.application-counter {
+  margin: 0.45rem 0 0;
+  color: var(--mushroom);
+  font-size: 0.78rem;
+  text-align: right;
+}
+
+.application-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.application-choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 3.25rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--mushroom) 45%, transparent);
+  border-radius: 0.35rem;
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.application-choice:has(input:checked) {
+  border-color: var(--dusty-rose);
+  background: color-mix(in srgb, var(--dusty-rose) 14%, transparent);
+}
+
+.application-choice input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0 0.7rem 0 0;
+  accent-color: var(--dusty-rose);
+}
+
+.application-choice-label {
+  color: var(--soft-linen);
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.application-other-wrap {
+  grid-column: 1 / -1;
+  margin-top: 0.15rem;
+}
+
+.application-inline-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  color: var(--soft-linen);
+  line-height: 1.55;
+}
+
+.application-inline-check input {
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.16rem;
+  accent-color: var(--dusty-rose);
+}
+
+.application-error-summary {
+  margin-bottom: 1.75rem;
+  padding: 1rem 1.1rem;
+  border-left: 3px solid var(--terracotta);
+  background: color-mix(in srgb, var(--terracotta) 12%, transparent);
+}
+
+.application-error-summary:focus {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 3px;
+}
+
+.application-error-summary p,
+.application-field-error {
+  margin: 0;
+  color: var(--soft-linen);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.application-error-summary ul {
+  margin: 0.6rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.application-error-summary a,
+.application-field-error a {
+  color: inherit;
+}
+
+.application-field-error {
+  margin-top: 0.5rem;
+  color: var(--dusty-rose);
+}
+
+.application-actions,
+.application-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-top: clamp(2.25rem, 6vw, 3.75rem);
+}
+
+.application-primary,
+.application-secondary,
+.application-button-secondary,
+.application-edit,
+.application-photo-action {
+  min-height: 2.75rem;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.application-primary,
+.application-secondary,
+.application-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.25rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.application-primary {
+  background: var(--dusty-rose);
+  color: var(--espresso);
+}
+
+.application-secondary,
+.application-button-secondary {
+  border-color: color-mix(in srgb, var(--mushroom) 55%, transparent);
+  background: transparent;
+  color: var(--soft-linen);
+}
+
+.application-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.application-primary:focus-visible,
+.application-secondary:focus-visible,
+.application-button-secondary:focus-visible {
+  outline: 2px solid var(--soft-linen);
+  outline-offset: 3px;
+}
+
+.application-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.application-photo-slot {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--mushroom) 45%, transparent);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--soft-linen) 5%, var(--graphite));
+}
+
+.application-photo-slot input[type='file'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.application-photo-slot > h2 {
+  padding: 1.1rem 1.1rem 0;
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  line-height: 1.1;
+}
+
+.application-photo-slot > .application-field-help,
+.application-photo-slot > .application-field-error {
+  margin-inline: 1.1rem;
+  margin-bottom: 1.1rem;
+}
+
+.application-file-label {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 1.1rem 0.6rem;
+  padding: 0.65rem 0.95rem;
+  border: 1px solid var(--mushroom);
+  color: var(--soft-linen);
+  cursor: pointer;
+}
+
+.application-photo-preview img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.application-photo-details {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.application-photo-details p {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--mushroom);
+  font-size: 0.82rem;
+}
+
+.application-inline-button {
+  border: 0;
+  background: transparent;
+  color: var(--mushroom);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+.application-review-sections {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.application-review-group {
+  padding: clamp(1.1rem, 3vw, 1.5rem);
+  border: 1px solid color-mix(in srgb, var(--mushroom) 36%, transparent);
+  border-radius: 0.5rem;
+}
+
+.application-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--mushroom) 26%, transparent);
+}
+
+.application-inline-button {
+  min-height: 2.75rem;
+  padding: 0.55rem 0.8rem;
+  border: 0;
+  background: transparent;
+  color: var(--graphite-muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.application-review-group dl {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.7fr) minmax(0, 1.3fr);
+  gap: 0.7rem 1rem;
+  margin: 1rem 0 0;
+}
+
+.application-review-group dt {
+  color: var(--mushroom);
+  font-size: 0.82rem;
+}
+
+.application-review-group dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.application-consents {
+  display: grid;
+  gap: 1rem;
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+  padding-top: clamp(2rem, 5vw, 3rem);
+  border-top: 1px solid color-mix(in srgb, var(--mushroom) 30%, transparent);
+}
+
+.application-consents > legend {
+  margin-bottom: 0.4rem;
+  font-family: var(--serif);
+  font-size: clamp(1.55rem, 4vw, 2.15rem);
+  font-weight: 500;
+  line-height: 1.08;
+}
+
+.application-permission-notice {
+  margin-top: clamp(2.25rem, 5vw, 3.5rem);
+  padding: 1rem 1.1rem;
+  border-left: 2px solid var(--dusty-rose);
+  color: var(--mushroom);
+  line-height: 1.6;
+}
+
+.application-legal-links,
+.application-configuration-notice {
+  margin: 0;
+  color: var(--mushroom);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.application-consent-separator {
+  margin: 0.5rem 0 -0.35rem;
+  color: var(--graphite-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.application-preview-state .application-button-secondary {
+  margin-top: 2rem;
+}
+
+.application-review-group ul {
+  margin: 1rem 0 0;
+  padding-left: 1.15rem;
+  color: var(--mushroom);
+  line-height: 1.6;
+}
+
+.application-review-group li + li {
+  margin-top: 0.35rem;
+}
+
+.application-consents h2 {
+  margin-bottom: 0.4rem;
+}
+
+.application-consents a,
+.application-legal-placeholder {
+  color: var(--graphite-muted);
+}
+
+.application-legal-placeholder {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.2em;
+}
+
+.application-exit-state,
+.application-preview-state {
+  max-width: 40rem;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  border: 1px solid color-mix(in srgb, var(--mushroom) 35%, transparent);
+  border-radius: 0.5rem;
+}
+
+.application-noscript {
+  width: min(100%, 42rem);
+  margin-inline: auto;
+  padding: 1rem;
+  border: 1px solid var(--terracotta);
+}
+
+@keyframes application-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 48rem) {
+  .application-main {
+    padding-top: 7rem;
+  }
+
+  .application-gateway-top {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .application-gateway-checklist {
+    width: min(100%, 32rem);
+  }
+
+  .application-gateway-process,
+  .application-gateway-assurances {
+    grid-template-columns: 1fr;
+  }
+
+  .application-gateway-process li,
+  .application-gateway-assurances li,
+  .application-gateway-process li:first-child,
+  .application-gateway-assurances li:first-child {
+    padding: 1.25rem 0;
+  }
+
+  .application-gateway-process li:first-child,
+  .application-gateway-assurances li:first-child {
+    padding-top: 0;
+  }
+
+  .application-gateway-process li + li,
+  .application-gateway-assurances li + li {
+    border-top: 1px solid color-mix(in srgb, var(--mushroom) 26%, transparent);
+    border-left: 0;
+  }
+
+  .application-gateway-process li::before {
+    margin-bottom: 0.75rem;
+  }
+
+  .application-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .application-facts li {
+    min-height: auto;
+  }
+
+  .application-photo-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+@media (max-width: 30rem) {
+  .application-screen h1 {
+    font-size: clamp(2.25rem, 12vw, 3.25rem);
+  }
+
+  .application-gateway h1 {
+    font-size: clamp(2.5rem, 13vw, 3.35rem);
+  }
+
+  .application-choices {
+    grid-template-columns: 1fr;
+  }
+
+  .application-actions,
+  .application-navigation {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .application-gateway .application-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .application-actions .application-primary,
+  .application-actions .application-secondary,
+  .application-navigation .button {
+    width: 100%;
+  }
+
+  .application-review-group dl {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+
+  .application-review-group dd + dt {
+    margin-top: 0.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .application-screen {
+    animation: none;
+  }
+
+  .application-field input,
+  .application-field textarea,
+  .application-field select,
+  .application-choice {
+    transition: none;
+  }
+}

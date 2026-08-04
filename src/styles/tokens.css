@@ -1,0 +1,23 @@
+/* Shared design system and page styles. */
+:root {
+  --warm-ivory: #f5efe6;
+  --almond: #e7d8c6;
+  --soft-linen: #fbf7f1;
+  --espresso: #241a17;
+  --deep-brick: #7a382b;
+  --terracotta: #c66a4a;
+  --dusty-rose: #d6a29a;
+  --muted-olive: #85835b;
+  --warm-honey: #d9a441;
+  --warm-white: #fff8f0;
+  --warm-taupe: #746a62;
+  --mushroom: #cfc0b1;
+  --graphite: #0e0e0e;
+  --graphite-ink: #ddc4a4;
+  --graphite-muted: #a08b6f;
+  --line: rgb(36 26 23 / 20%);
+  --line-subtle: rgb(36 26 23 / 14%);
+  --warm-shadow: rgb(122 56 43 / 16%);
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: "Instrument Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}

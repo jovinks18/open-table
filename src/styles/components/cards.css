@@ -1,0 +1,216 @@
+.card-story {
+  position: relative;
+  padding-top: clamp(5rem, 9vw, 9rem);
+  background: var(--graphite);
+}
+
+.card-story-heading {
+  max-width: 44rem;
+  margin-inline: auto;
+  padding: 0 clamp(1.25rem, 7vw, 7rem) clamp(2.5rem, 5vw, 4rem);
+  scroll-margin-top: clamp(2rem, 4vw, 4rem);
+  text-align: center;
+}
+
+.section-tldr {
+  margin: 0.75rem auto 0;
+  max-width: 40rem;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  line-height: 1.6;
+  letter-spacing: 0;
+  color: var(--graphite-muted);
+}
+
+.story-card-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 0 clamp(1.25rem, 4vw, 4rem) clamp(5rem, 8vw, 8rem);
+  background: var(--graphite);
+}
+
+.story-card {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 2 / 3;
+  perspective: 1200px;
+  isolation: isolate;
+}
+
+.story-card-wrapper,
+.story-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.story-card-inner {
+  transform-style: preserve-3d;
+  transition: transform 900ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.story-card.is-visible .story-card-inner {
+  transform: rotateY(180deg);
+}
+
+.story-card-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  padding: clamp(1.25rem, 2.3vw, 2rem);
+  overflow: hidden;
+  background: var(--card-color);
+  color: var(--espresso);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  isolation: isolate;
+}
+
+.story-card-one {
+  --card-color: var(--soft-linen);
+}
+
+.story-card-two {
+  --card-color: var(--almond);
+}
+
+.story-card-three {
+  --card-color: var(--dusty-rose);
+}
+
+.story-card-four {
+  --card-color: var(--warm-ivory);
+}
+
+.story-card-front {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.story-card-front::before,
+.story-card-front::after {
+  position: absolute;
+  width: 55%;
+  aspect-ratio: 1;
+  border: 1px solid var(--line-subtle);
+  border-radius: 50%;
+  content: "";
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.story-card-front::before {
+  top: 22%;
+  left: -23%;
+}
+
+.story-card-front::after {
+  right: -24%;
+  bottom: 18%;
+}
+
+.story-card-face > span {
+  position: relative;
+  z-index: 1;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.story-card-front p {
+  position: relative;
+  z-index: 1;
+  max-width: 11ch;
+  margin: 1rem auto 0;
+  font-family: var(--serif);
+  font-size: clamp(1.6rem, 2.6vw, 2.3rem);
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.story-card-back {
+  justify-content: flex-end;
+  transform: rotateY(180deg);
+}
+
+.story-card-back > span {
+  margin-bottom: auto;
+}
+
+.story-card-back h3 {
+  max-width: 11ch;
+  font-family: var(--serif);
+  font-size: clamp(1.7rem, 2.6vw, 2.45rem);
+  font-weight: 400;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.story-card-back p {
+  margin-top: 1rem;
+  color: var(--espresso);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.story-card-four .story-card-face > span {
+  color: var(--deep-brick);
+}
+
+.cards-enhanced .story-card-stage {
+  display: block;
+  height: clamp(30rem, 42vw, 36rem);
+  padding: 0;
+  overflow: hidden;
+}
+
+.cards-enhanced .story-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(clamp(13.5rem, 20vw, 18rem), 46svh);
+  height: auto;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+  will-change: left, transform;
+}
+
+.cards-enhanced .story-card-inner {
+  transition: none;
+}
+
+.cards-enhanced .story-card-wrapper {
+  animation: card-float 3.2s infinite ease-in-out;
+}
+
+.cards-enhanced .story-card:nth-of-type(2) .story-card-wrapper {
+  animation-delay: 0.18s;
+}
+
+.cards-enhanced .story-card:nth-of-type(3) .story-card-wrapper {
+  animation-delay: 0.36s;
+}
+
+.cards-enhanced .story-card:nth-of-type(4) .story-card-wrapper {
+  animation-delay: 0.54s;
+}
+
+@keyframes card-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-0.7rem);
+  }
+}
