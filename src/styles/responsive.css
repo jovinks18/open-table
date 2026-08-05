@@ -105,6 +105,10 @@
     font-size: 0.98rem;
   }
 
+  .hero-story {
+    margin-top: 1.5rem;
+  }
+
   .hero-actions {
     align-items: center;
     flex-direction: column;

@@ -9,9 +9,9 @@ const introCss = readFileSync(new URL('../src/styles/components/experience-intro
 test('homepage includes a skippable city-image experience intro', () => {
   assert.match(homeHtml, /data-experience-intro/)
   assert.match(homeHtml, /data-experience-skip>Skip intro<\/button>/)
-  assert.match(homeHtml, /Somewhere in this city, someone is hoping to meet you too\./)
+  assert.match(homeHtml, /We probably know someone for you\./)
   assert.doesNotMatch(homeHtml, /data-experience-opening/)
-  assert.match(introScript, /\.to\(arrival, \{ opacity: 1, y: 0, duration: 0\.72, ease: 'power3\.out' \}, 3\.1\)/)
+  assert.match(introScript, /\.to\(arrival, \{ opacity: 1, y: 0, duration: 0\.72, ease: 'power3\.out' \}, 2\.25\)/)
 
   const imagePaths = [...homeHtml.matchAll(/data-src="(\/images\/intro\/[^"]+)"/g)]
     .map(([, imagePath]) => imagePath)

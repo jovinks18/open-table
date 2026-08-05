@@ -26,7 +26,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 46rem;
+  width: min(100%, 68rem);
+  max-width: 68rem;
 }
 
 .hero h1 {
@@ -57,11 +58,22 @@ h1 {
 }
 
 .hero-intro {
-  max-width: 34rem;
-  margin-top: 1.5rem;
+  max-width: none;
+  margin: 0;
   color: var(--graphite-muted);
   font-size: clamp(0.98rem, 1.2vw, 1.12rem);
   line-height: 1.55;
+}
+
+.hero-story {
+  width: 100%;
+  max-width: 60rem;
+  margin: 2rem auto 0;
+  text-align: center;
+}
+
+.hero-story .hero-intro + .hero-intro {
+  margin-top: 0.45rem;
 }
 
 .hero-actions {

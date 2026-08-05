@@ -141,6 +141,6 @@ export function initExperienceIntro() {
       stagger: 0.04,
       ease: 'power3.inOut',
     }, 1.6)
-    .to(arrival, { opacity: 1, y: 0, duration: 0.72, ease: 'power3.out' }, 3.1)
+    .to(arrival, { opacity: 1, y: 0, duration: 0.72, ease: 'power3.out' }, 2.25)
     .add(() => cleanup(), '+=2')
 }

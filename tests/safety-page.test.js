@@ -14,10 +14,10 @@ function visibleText(value) {
   return value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
-test('safety guidance is organized into six semantic category cards', () => {
+test('safety guidance is organized into eight semantic category cards', () => {
   const articles = [...safetyHtml.matchAll(/<article\b[^>]*class="[^"]*safety-category-card[^"]*"/g)]
 
-  assert.equal(articles.length, 6)
+  assert.equal(articles.length, 8)
   assert.match(safetyHtml, /id="review"/)
   assert.match(safetyHtml, /id="meeting"/)
   assert.match(safetyHtml, /id="support"/)
@@ -35,9 +35,11 @@ test('safety page maintains one h1 and logical section-heading order', () => {
     'Every application is reviewed',
     'Nothing is shared without permission',
     'Meet somewhere public',
+    "We know when and where you're meeting",
     'You stay in control',
     'Money requests are a warning sign',
     'Tell us when something feels wrong',
+    'What we do about it',
     'Report a concern',
   ]
   const h2Text = headings.filter(({ level }) => level === 'h2').map(({ text }) => text)
@@ -46,10 +48,14 @@ test('safety page maintains one h1 and logical section-heading order', () => {
   assert.deepEqual([...positions].sort((a, b) => a - b), positions)
 })
 
-test('missing safety contact uses an honest non-interactive placeholder', () => {
-  assert.match(safetyHtml, /data-contact-fallback[^>]*aria-disabled="true">donna’s safety contact is being configured\.<\/span>/)
-  assert.doesNotMatch(safetyHtml, /href="#"/)
-  assert.doesNotMatch(safetyHtml, /mailto:\s*["']/)
+test('safety contacts use configured direct links', () => {
+  const retiredCopy = ['being', 'configured'].join(' ')
+
+  assert.match(safetyHtml, /href="https:\/\/wa\.me\/13413338019"/)
+  assert.match(safetyHtml, /href="mailto:thedonnapilot@gmail\.com"/)
+  assert.match(safetyHtml, /Jovin reads these\. We reply within 2 hours\./)
+  assert.equal(safetyHtml.includes(retiredCopy), false)
+  assert.doesNotMatch(safetyHtml, /\[(?:NAME|WHATSAPP|EMAIL|X hours)\]/)
 })
 
 test('configured contact and privacy values produce usable links', () => {
@@ -63,7 +69,7 @@ test('configured contact and privacy values produce usable links', () => {
 test('card copy stays concise and avoids unsupported safety claims', () => {
   const cards = [...safetyHtml.matchAll(/<article\b[^>]*class="safety-category-card"[^>]*>([\s\S]*?)<\/article>/g)]
 
-  assert.equal(cards.length, 6)
+  assert.equal(cards.length, 8)
   cards.forEach(([, content]) => {
     assert.equal((content.match(/<h2\b/g) || []).length, 1)
     assert.equal((content.match(/<p\b/g) || []).length, 2)
@@ -73,10 +79,25 @@ test('card copy stays concise and avoids unsupported safety claims', () => {
 
 test('keeps the essential safety guidance and honest limitation', () => {
   assert.match(safetyHtml, /Your profile is only shared for a specific introduction, and only after you agree\./)
-  assert.match(safetyHtml, /Never send money or financial information to someone donna introduces you to\./)
+  assert.match(safetyHtml, /Never send money or financial information to someone we introduce you to\./)
   assert.match(safetyHtml, /You do not need to prove it was serious before reporting a concern\./)
   assert.match(safetyHtml, /cannot guarantee another person’s identity, intentions or behaviour/)
   assert.match(safetyHtml, /donna is not an emergency-response service\./)
+})
+
+test('emergency contacts remain reachable and tappable', () => {
+  for (const number of ['112', '1091', '181', '1930']) {
+    assert.match(safetyHtml, new RegExp(`href="tel:${number}"`))
+  }
+
+  assert.match(safetyHtml, /class="safety-emergency-jump" href="#emergency"/)
+  assert.match(safetyCss, /@media \(max-width: 767px\)/)
+  assert.match(safetyCss, /\.safety-emergency-jump\s*{[\s\S]*display:\s*flex/)
+})
+
+test('safety copy uses first-person operational voice', () => {
+  assert.doesNotMatch(safetyHtml, /donna (?:reviews|checks|arranges|introduces|reads|asks|shares|replies|approaches|confirms)/i)
+  assert.doesNotMatch(safetyHtml, /vetted/i)
 })
 
 test('category grid preserves readable card layouts across breakpoints', () => {
