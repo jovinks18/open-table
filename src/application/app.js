@@ -4,42 +4,36 @@ import {
   APPLICATION_STEPS,
   CONSENT_SCHEMA,
   DATA_FIELDS,
+  PHOTO_SHARE_CONSENT,
   PHOTO_SLOTS,
 } from './schema.js'
+import { clampApplicationStep, GATEWAY_STEP, getProgressState } from './navigation.js'
 import {
-  clampApplicationStep,
-  GATEWAY_STEP,
-  getProgressState,
-} from './navigation.js'
-import {
+  deriveHeightCm,
   isAtLeast25,
+  isFieldVisible,
   sanitizeText,
+  UNDER_25_MESSAGE,
   validateAgeRange,
   validateField,
   validatePhoto,
 } from './validation.js'
 
 const root = document.querySelector('#application-root')
-
 if (!root) throw new Error('Application root was not found.')
 
-const applicationData = Object.fromEntries(DATA_FIELDS.map((name) => [name, name === 'interested_in' ? [] : '']))
+const ARRAY_FIELDS = new Set(['languages', 'citiesConsidered', 'nonNegotiables'])
+const applicationData = Object.fromEntries(DATA_FIELDS.map((name) => [name, ARRAY_FIELDS.has(name) ? [] : '']))
+const uiState = { heightFeet: '', heightInches: '' }
+
 const consentData = Object.fromEntries(CONSENT_SCHEMA.map(({ name }) => [name, false]))
-const uiState = {
-  age_confirmation: false,
-  cultural_background_optout: false,
-  gender_identity_choice: '',
-  gender_identity_other: '',
-  interested_in_choices: [],
-  interested_in_other: '',
-}
 const photoState = new Map()
 const photoErrors = new Map()
 
 let currentStep = GATEWAY_STEP
 let currentErrors = {}
-let underAgeExit = false
 let previewComplete = false
+const attemptedSections = new Set()
 
 function createElement(tag, className, text) {
   const element = document.createElement(tag)
@@ -54,36 +48,25 @@ function createButton(text, className = 'button button-primary', type = 'button'
   return button
 }
 
-function getStepValue(field) {
-  if (field.uiOnly) return uiState[field.name]
-  return applicationData[field.name]
-}
-
-function setStepValue(field, value) {
-  if (field.uiOnly) uiState[field.name] = value
-  else applicationData[field.name] = value
-}
-
 function fieldId(name, suffix = '') {
   return `application-${name}${suffix ? `-${suffix}` : ''}`
 }
 
-function addFieldError(container, field) {
-  const message = currentErrors[field.name]
-  if (!message) return
-
+function addFieldError(container, fieldName) {
+  if (!currentErrors[fieldName]) return
   container.classList.add('has-error')
-  const error = createElement('p', 'application-field-error', message)
-  error.id = fieldId(field.name, 'error')
+  const error = createElement('p', 'application-field-error', currentErrors[fieldName])
+  error.id = fieldId(fieldName, 'error')
   container.append(error)
 }
 
-function connectErrorDescription(control, field, helpId = '') {
-  const ids = []
-  if (helpId) ids.push(helpId)
-  if (currentErrors[field.name]) ids.push(fieldId(field.name, 'error'))
+function connectError(control, fieldName, describedBy = '') {
+  const ids = describedBy ? [describedBy] : []
+  if (currentErrors[fieldName]) {
+    ids.push(fieldId(fieldName, 'error'))
+    control.setAttribute('aria-invalid', 'true')
+  }
   if (ids.length) control.setAttribute('aria-describedby', ids.join(' '))
-  if (currentErrors[field.name]) control.setAttribute('aria-invalid', 'true')
 }
 
 function addHelpText(container, field) {
@@ -94,177 +77,89 @@ function addHelpText(container, field) {
   return help.id
 }
 
+function optionalLabel(field) {
+  return field.required ? null : createElement('span', 'application-optional', ' Optional')
+}
+
+function refreshValidationAfterInteraction() {
+  if (!attemptedSections.has(currentStep)) return
+  validateCurrentStep({ focusErrors: false, refresh: true })
+}
+
+function attachDeferredValidation(control) {
+  control.addEventListener('blur', refreshValidationAfterInteraction)
+}
+
 function buildTextControl(field) {
   const container = createElement('div', 'application-field')
-  if (field.group) container.dataset.group = field.group
-
   const label = createElement('label', 'application-label', field.label)
   label.htmlFor = fieldId(field.name)
-  if (!field.required) label.append(createElement('span', 'application-optional', ' Optional'))
+  const optional = optionalLabel(field)
+  if (optional) label.append(optional)
 
   const control = document.createElement(field.type === 'textarea' ? 'textarea' : 'input')
   control.id = fieldId(field.name)
   control.name = field.name
-  control.value = getStepValue(field) || ''
+  control.value = applicationData[field.name] ?? ''
   control.required = Boolean(field.required)
-
+  if (field.type !== 'textarea') control.type = field.type
   if (field.type === 'textarea') control.rows = field.rows || 4
-  else control.type = field.type
   if (field.maxLength) control.maxLength = field.maxLength
-  if (field.min !== undefined) control.min = String(field.min)
-  if (field.max !== undefined) control.max = String(field.max)
+  if (field.min !== undefined) control.min = field.min
+  if (field.max !== undefined) control.max = field.max
   if (field.autocomplete) control.autocomplete = field.autocomplete
   if (field.inputmode) control.inputMode = field.inputmode
   if (field.placeholder) control.placeholder = field.placeholder
 
   container.append(label, control)
   const helpId = addHelpText(container, field)
-
   let counter
-  if (field.maxLength && field.type === 'textarea') {
-    counter = createElement('p', 'application-counter')
-    counter.textContent = `${control.value.length} / ${field.maxLength}`
+  if (field.type === 'textarea') {
+    counter = createElement('p', 'application-counter', `${field.maxLength - control.value.length} characters remaining`)
     counter.id = fieldId(field.name, 'counter')
     container.append(counter)
   }
 
-  connectErrorDescription(control, field, helpId || counter?.id)
+  let heightOutput
+  if (field.displayHeight) {
+    heightOutput = createElement('output', 'application-height-output')
+    heightOutput.htmlFor = control.id
+    container.append(heightOutput)
+    updateHeightOutput(heightOutput, control.value)
+  }
+
+  connectError(control, field.name, [helpId, counter?.id].filter(Boolean).join(' '))
   control.addEventListener('input', () => {
-    setStepValue(field, control.value)
-    if (counter) counter.textContent = `${control.value.length} / ${field.maxLength}`
+    applicationData[field.name] = control.value
+    if (counter) counter.textContent = `${field.maxLength - control.value.length} characters remaining`
+    if (heightOutput) updateHeightOutput(heightOutput, control.value)
   })
-
-  addFieldError(container, field)
+  attachDeferredValidation(control)
+  addFieldError(container, field.name)
   return container
 }
 
-function buildCheckbox(field) {
-  const container = createElement('div', 'application-field application-field-checkbox')
-  const label = createElement('label', 'application-choice application-choice-single')
-  const input = document.createElement('input')
-  input.type = 'checkbox'
-  input.name = field.name
-  input.id = fieldId(field.name)
-  input.checked = Boolean(getStepValue(field))
-  input.required = Boolean(field.required)
-  connectErrorDescription(input, field)
-  input.addEventListener('change', () => setStepValue(field, input.checked))
-  label.append(input, createElement('span', '', field.label))
-  container.append(label)
-  addFieldError(container, field)
-  return container
+function updateHeightOutput(output, rawValue) {
+  const centimetres = Number(rawValue)
+  if (!Number.isFinite(centimetres) || !rawValue) {
+    output.textContent = ''
+    return
+  }
+  const totalInches = Math.round(centimetres / 2.54)
+  output.textContent = `${centimetres} cm · ${Math.floor(totalInches / 12)} ft ${totalInches % 12} in`
 }
 
-function buildChoiceGroup(field, { multiple = false } = {}) {
+function buildSingleSelect(field) {
+  if (field.options.length > 5) return buildSearchableCombobox(field)
   const fieldset = createElement('fieldset', 'application-field application-fieldset')
   const legend = createElement('legend', 'application-label', field.label)
-  if (!field.required) legend.append(createElement('span', 'application-optional', ' Optional'))
+  const optional = optionalLabel(field)
+  if (optional) legend.append(optional)
   fieldset.append(legend)
-
+  const helpId = addHelpText(fieldset, field)
   const choices = createElement('div', 'application-choices')
-  const stored = getStepValue(field)
-
-  field.options.forEach(([value, labelText]) => {
-    const label = createElement('label', 'application-choice')
-    const input = document.createElement('input')
-    input.type = multiple ? 'checkbox' : 'radio'
-    input.name = field.name
-    input.value = value
-    input.id = fieldId(field.name, value)
-    input.checked = multiple ? (stored || []).includes(value) : stored === value
-    connectErrorDescription(input, field)
-    input.addEventListener('change', () => {
-      if (multiple) {
-        const selected = [...choices.querySelectorAll(`input[name="${field.name}"]:checked`)].map((item) => item.value)
-        setStepValue(field, selected)
-      } else {
-        setStepValue(field, input.value)
-      }
-    })
-    label.append(input, createElement('span', '', labelText))
-    choices.append(label)
-  })
-
-  fieldset.append(choices)
-  addFieldError(fieldset, field)
-  return fieldset
-}
-
-function buildSelect(field) {
-  const container = createElement('div', 'application-field')
-  const label = createElement('label', 'application-label', field.label)
-  label.htmlFor = fieldId(field.name)
-  if (!field.required) label.append(createElement('span', 'application-optional', ' Optional'))
-
-  const select = document.createElement('select')
-  select.id = fieldId(field.name)
-  select.name = field.name
-  select.required = Boolean(field.required)
-
-  const prompt = document.createElement('option')
-  prompt.value = ''
-  prompt.textContent = field.required ? 'Select an option' : 'Prefer not to answer'
-  select.append(prompt)
-
-  field.options.forEach(([value, text]) => {
-    const option = document.createElement('option')
-    option.value = value
-    option.textContent = text
-    option.selected = getStepValue(field) === value
-    select.append(option)
-  })
-
-  connectErrorDescription(select, field)
-  select.addEventListener('change', () => setStepValue(field, select.value))
-  container.append(label, select)
-  addFieldError(container, field)
-  return container
-}
-
-function buildTextWithOptOut(field) {
-  const container = buildTextControl(field)
-  const input = container.querySelector('input')
-  const option = createElement('label', 'application-choice application-choice-inline')
-  const checkbox = document.createElement('input')
-  checkbox.type = 'checkbox'
-  checkbox.checked = uiState.cultural_background_optout
-  checkbox.addEventListener('change', () => {
-    uiState.cultural_background_optout = checkbox.checked
-    input.disabled = checkbox.checked
-    if (checkbox.checked) {
-      applicationData.cultural_background = 'Prefer not to say'
-      input.value = ''
-    } else {
-      applicationData.cultural_background = ''
-      input.focus()
-    }
-  })
-  input.disabled = checkbox.checked
-  option.append(checkbox, createElement('span', '', field.optOutLabel))
-  container.append(option)
-  return container
-}
-
-function buildChoiceWithOther(field) {
-  const fieldset = createElement('fieldset', 'application-field application-fieldset')
-  const legend = createElement('legend', 'application-label', field.label)
-  fieldset.append(legend)
-  const choices = createElement('div', 'application-choices')
-  const selectedChoice = uiState.gender_identity_choice || (applicationData.gender_identity.startsWith('Self-described:') ? 'self_describe' : applicationData.gender_identity)
-
-  const otherWrap = createElement('div', 'application-other-field')
-  const otherLabel = createElement('label', 'application-label', 'Describe your gender identity')
-  otherLabel.htmlFor = fieldId(field.name, 'other')
-  const otherInput = document.createElement('input')
-  otherInput.type = 'text'
-  otherInput.id = fieldId(field.name, 'other')
-  otherInput.maxLength = 100
-  otherInput.value = uiState.gender_identity_other
-  otherInput.addEventListener('input', () => {
-    uiState.gender_identity_other = otherInput.value
-    applicationData.gender_identity = `Self-described: ${otherInput.value}`
-  })
-  otherWrap.append(otherLabel, otherInput)
+  choices.dataset.optionCount = String(field.options.length)
+  if (field.options.length >= 5) choices.classList.add('application-choices-many')
 
   field.options.forEach(([value, labelText]) => {
     const label = createElement('label', 'application-choice')
@@ -273,56 +168,29 @@ function buildChoiceWithOther(field) {
     input.name = field.name
     input.value = value
     input.id = fieldId(field.name, value)
-    input.checked = selectedChoice === value
-    connectErrorDescription(input, field)
+    input.checked = applicationData[field.name] === value
+    connectError(input, field.name, helpId)
     input.addEventListener('change', () => {
-      uiState.gender_identity_choice = value
-      const isOther = value === 'self_describe'
-      otherWrap.hidden = !isOther
-      otherInput.disabled = !isOther
-      applicationData.gender_identity = isOther ? `Self-described: ${uiState.gender_identity_other}` : value
-      if (isOther) otherInput.focus()
+      applicationData[field.name] = value
+      handleChoiceChange(field)
     })
     label.append(input, createElement('span', '', labelText))
     choices.append(label)
   })
-
-  const showOther = selectedChoice === 'self_describe'
-  otherWrap.hidden = !showOther
-  otherInput.disabled = !showOther
-  fieldset.append(choices, otherWrap)
-  addFieldError(fieldset, field)
+  fieldset.append(choices)
+  addFieldError(fieldset, field.name)
   return fieldset
 }
 
-function buildCheckboxGroupWithOther(field) {
+function buildMultiSelect(field) {
+  if (field.options.length > 5) return buildSearchableCombobox(field, { multiple: true })
   const fieldset = createElement('fieldset', 'application-field application-fieldset')
-  fieldset.append(createElement('legend', 'application-label', field.label))
+  const legend = createElement('legend', 'application-label', field.label)
+  fieldset.append(legend)
+  const selected = applicationData[field.name]
   const choices = createElement('div', 'application-choices')
-  const selected = uiState.interested_in_choices.length ? uiState.interested_in_choices : applicationData.interested_in.filter((value) => !value.startsWith('Self-described:'))
-
-  const otherWrap = createElement('div', 'application-other-field')
-  const otherLabel = createElement('label', 'application-label', 'Describe who you are interested in meeting')
-  otherLabel.htmlFor = fieldId(field.name, 'other')
-  const otherInput = document.createElement('input')
-  otherInput.type = 'text'
-  otherInput.id = fieldId(field.name, 'other')
-  otherInput.maxLength = 100
-  otherInput.value = uiState.interested_in_other
-
-  function syncInterestedIn() {
-    const values = [...uiState.interested_in_choices]
-    if (values.includes('self_describe') && sanitizeText(uiState.interested_in_other)) {
-      values.push(`Self-described: ${sanitizeText(uiState.interested_in_other)}`)
-    }
-    applicationData.interested_in = values.filter((value) => value !== 'self_describe')
-  }
-
-  otherInput.addEventListener('input', () => {
-    uiState.interested_in_other = otherInput.value
-    syncInterestedIn()
-  })
-  otherWrap.append(otherLabel, otherInput)
+  choices.dataset.optionCount = String(field.options.length)
+  if (field.options.length >= 5) choices.classList.add('application-choices-many')
 
   field.options.forEach(([value, labelText]) => {
     const label = createElement('label', 'application-choice')
@@ -332,41 +200,286 @@ function buildCheckboxGroupWithOther(field) {
     input.value = value
     input.id = fieldId(field.name, value)
     input.checked = selected.includes(value)
-    connectErrorDescription(input, field)
+    connectError(input, field.name)
     input.addEventListener('change', () => {
-      uiState.interested_in_choices = [...choices.querySelectorAll(`input[name="${field.name}"]:checked`)].map((item) => item.value)
-      const showOther = uiState.interested_in_choices.includes('self_describe')
-      otherWrap.hidden = !showOther
-      otherInput.disabled = !showOther
-      syncInterestedIn()
-      if (showOther) otherInput.focus()
+      applicationData[field.name] = input.checked
+        ? [...selected, value]
+        : selected.filter((item) => item !== value)
+      handleChoiceChange(field)
     })
     label.append(input, createElement('span', '', labelText))
     choices.append(label)
   })
+  if (field.options.length) fieldset.append(choices)
 
-  const showOther = selected.includes('self_describe')
-  otherWrap.hidden = !showOther
-  otherInput.disabled = !showOther
-  fieldset.append(choices, otherWrap)
-  addFieldError(fieldset, field)
+  addFieldError(fieldset, field.name)
+  return fieldset
+}
+
+function handleChoiceChange(field) {
+  const hasConditional = APPLICATION_STEPS[currentStep].fields.some(({ condition }) => condition?.field === field.name)
+  if (attemptedSections.has(currentStep)) validateCurrentStep({ focusErrors: false, refresh: true })
+  else if (hasConditional) renderApplication({ focusHeading: false })
+}
+
+function buildSearchableCombobox(field, { multiple = false } = {}) {
+  const container = createElement('div', 'application-field application-combobox-field')
+  const label = createElement('label', 'application-label', field.label)
+  label.htmlFor = fieldId(field.name)
+  container.append(label)
+  const helpId = addHelpText(container, field)
+
+  const selected = multiple ? applicationData[field.name] : [applicationData[field.name]].filter(Boolean)
+  if (multiple && selected.length) container.append(buildSelectedOptions(field, selected))
+
+  const combobox = createElement('div', 'application-combobox')
+  const input = document.createElement('input')
+  const listbox = createElement('div', 'application-combobox-list')
+  const listboxId = fieldId(field.name, 'listbox')
+  input.type = 'text'
+  input.id = fieldId(field.name)
+  input.name = `${field.name}Search`
+  input.setAttribute('role', 'combobox')
+  input.setAttribute('aria-autocomplete', 'list')
+  input.setAttribute('aria-controls', listboxId)
+  input.setAttribute('aria-expanded', 'false')
+  input.autocomplete = 'off'
+  if (!multiple && selected.length) input.value = field.options.find(([value]) => value === selected[0])?.[1] || ''
+  listbox.id = listboxId
+  listbox.setAttribute('role', 'listbox')
+  if (multiple) listbox.setAttribute('aria-multiselectable', 'true')
+  listbox.hidden = true
+  connectError(input, field.name, helpId)
+
+  let visibleOptions = field.options
+  let activeIndex = 0
+
+  function renderOptions() {
+    listbox.replaceChildren()
+    visibleOptions.forEach(([value, optionLabel], index) => {
+      const option = createElement('button', 'application-combobox-option', optionLabel)
+      option.type = 'button'
+      option.id = fieldId(field.name, `option-${value}`)
+      option.setAttribute('role', 'option')
+      option.setAttribute('aria-selected', String(selected.includes(value)))
+      option.tabIndex = -1
+      if (index === activeIndex) option.classList.add('is-active')
+      option.addEventListener('mousedown', (event) => event.preventDefault())
+      option.addEventListener('click', () => choose(value, optionLabel))
+      listbox.append(option)
+    })
+    const active = listbox.children[activeIndex]
+    if (active) input.setAttribute('aria-activedescendant', active.id)
+    else input.removeAttribute('aria-activedescendant')
+  }
+
+  function open() {
+    listbox.hidden = false
+    input.setAttribute('aria-expanded', 'true')
+    renderOptions()
+  }
+
+  function close() {
+    listbox.hidden = true
+    input.setAttribute('aria-expanded', 'false')
+    input.removeAttribute('aria-activedescendant')
+  }
+
+  function choose(value, optionLabel) {
+    if (multiple) {
+      applicationData[field.name] = selected.includes(value)
+        ? selected.filter((item) => item !== value)
+        : [...selected, value]
+      input.value = ''
+    } else {
+      applicationData[field.name] = value
+      input.value = optionLabel
+    }
+    handleChoiceChange(field)
+    if (!multiple && !attemptedSections.has(currentStep)) close()
+    else if (!APPLICATION_STEPS[currentStep].fields.some(({ condition }) => condition?.field === field.name)) renderApplication({ focusHeading: false })
+  }
+
+  input.addEventListener('focus', () => {
+    if (!multiple) input.select()
+    visibleOptions = field.options
+    activeIndex = Math.max(0, visibleOptions.findIndex(([value]) => value === selected[0]))
+    open()
+  })
+  input.addEventListener('input', () => {
+    const query = input.value.toLocaleLowerCase()
+    visibleOptions = field.options.filter(([, optionLabel]) => optionLabel.toLocaleLowerCase().includes(query))
+    activeIndex = 0
+    open()
+  })
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      if (listbox.hidden) open()
+      const direction = event.key === 'ArrowDown' ? 1 : -1
+      activeIndex = Math.max(0, Math.min(visibleOptions.length - 1, activeIndex + direction))
+      renderOptions()
+    } else if (event.key === 'Enter' && !listbox.hidden && visibleOptions[activeIndex]) {
+      event.preventDefault()
+      choose(...visibleOptions[activeIndex])
+    } else if (event.key === 'Escape') {
+      event.preventDefault()
+      close()
+    }
+  })
+  input.addEventListener('blur', () => {
+    close()
+    if (!multiple) input.value = field.options.find(([value]) => value === applicationData[field.name])?.[1] || ''
+    refreshValidationAfterInteraction()
+  })
+  renderOptions()
+  combobox.append(input, listbox)
+  container.append(combobox)
+  addFieldError(container, field.name)
+  return container
+}
+
+function buildSelectedOptions(field, selected) {
+  const list = createElement('ul', 'application-entry-list')
+  selected.forEach((value) => {
+    const optionLabel = field.options.find(([key]) => key === value)?.[1] || value
+    const item = document.createElement('li')
+    item.append(createElement('span', '', optionLabel))
+    const remove = createButton('Remove', 'application-inline-button')
+    remove.setAttribute('aria-label', `Remove ${optionLabel}`)
+    remove.addEventListener('click', () => {
+      applicationData[field.name] = applicationData[field.name].filter((itemValue) => itemValue !== value)
+      handleChoiceChange(field)
+      if (!attemptedSections.has(currentStep)) renderApplication({ focusHeading: false })
+    })
+    item.append(remove)
+    list.append(item)
+  })
+  return list
+}
+
+function buildHeightControl(field) {
+  const fieldset = createElement('fieldset', 'application-field application-fieldset application-paired-field')
+  fieldset.append(createElement('legend', 'application-label', field.label))
+  const row = createElement('div', 'application-paired-controls')
+  const output = createElement('output', 'application-height-output')
+  const controls = [
+    ['heightFeet', ['4', '5', '6', '7'], 'ft'],
+    ['heightInches', Array.from({ length: 12 }, (_, index) => String(index)), 'in'],
+  ]
+
+  function deriveHeight() {
+    applicationData.heightCm = deriveHeightCm(uiState.heightFeet, uiState.heightInches) ?? ''
+    output.textContent = applicationData.heightCm ? `${applicationData.heightCm} cm` : ''
+    refreshValidationAfterInteraction()
+  }
+
+  controls.forEach(([name, options, suffix]) => {
+    const wrapper = createElement('label', 'application-suffixed-select')
+    const select = document.createElement('select')
+    select.id = fieldId(name)
+    select.name = name
+    select.setAttribute('aria-label', `Height ${suffix}`)
+    const prompt = document.createElement('option')
+    prompt.value = ''
+    prompt.textContent = ''
+    select.append(prompt)
+    options.forEach((value) => {
+      const option = document.createElement('option')
+      option.value = value
+      option.textContent = value
+      option.selected = uiState[name] === value
+      select.append(option)
+    })
+    connectError(select, field.name)
+    select.addEventListener('change', () => {
+      uiState[name] = select.value
+      deriveHeight()
+    })
+    wrapper.append(select, createElement('span', '', suffix))
+    row.append(wrapper)
+  })
+  output.textContent = applicationData.heightCm ? `${applicationData.heightCm} cm` : ''
+  fieldset.append(row, output)
+  addFieldError(fieldset, field.name)
+  return fieldset
+}
+
+function buildAgeSelectPair(fromField, toField) {
+  const fieldset = createElement('fieldset', 'application-field application-fieldset application-paired-field')
+  fieldset.append(createElement('legend', 'application-label', fromField.groupLabel))
+  const row = createElement('div', 'application-paired-controls')
+  ;[fromField, toField].forEach((field) => {
+    const label = createElement('label', 'application-paired-select', field.label)
+    label.htmlFor = fieldId(field.name)
+    const select = document.createElement('select')
+    select.id = fieldId(field.name)
+    select.name = field.name
+    const prompt = document.createElement('option')
+    prompt.value = ''
+    prompt.textContent = ''
+    select.append(prompt)
+    field.options.forEach(([value, optionLabel]) => {
+      const option = document.createElement('option')
+      option.value = value
+      option.textContent = optionLabel
+      option.selected = applicationData[field.name] === value
+      select.append(option)
+    })
+    connectError(select, 'ageRange')
+    select.addEventListener('change', () => {
+      applicationData[field.name] = select.value
+      refreshValidationAfterInteraction()
+    })
+    label.append(select)
+    row.append(label)
+  })
+  fieldset.append(row)
+  addFieldError(fieldset, 'ageRange')
+  return fieldset
+}
+
+function buildStringArray(field) {
+  const fieldset = createElement('fieldset', 'application-field application-fieldset')
+  const legend = createElement('legend', 'application-label', field.label)
+  legend.append(createElement('span', 'application-optional', ' Optional'))
+  fieldset.append(legend)
+  const helpId = addHelpText(fieldset, field)
+  const values = applicationData[field.name]
+  const inputs = createElement('div', 'application-array-inputs')
+  for (let index = 0; index < field.maxItems; index += 1) {
+    const input = document.createElement('input')
+    input.type = 'text'
+    input.name = `${field.name}[${index}]`
+    input.id = fieldId(field.name, index + 1)
+    input.maxLength = field.maxLength
+    input.value = values[index] || ''
+    input.setAttribute('aria-label', `${field.label} ${index + 1}`)
+    connectError(input, field.name, helpId)
+    input.addEventListener('input', () => {
+      const next = [...applicationData[field.name]]
+      next[index] = input.value
+      applicationData[field.name] = next
+    })
+    attachDeferredValidation(input)
+    inputs.append(input)
+  }
+  fieldset.append(inputs)
+  addFieldError(fieldset, field.name)
   return fieldset
 }
 
 function buildField(field) {
-  if (field.type === 'checkbox') return buildCheckbox(field)
-  if (field.type === 'radio') return buildChoiceGroup(field)
-  if (field.type === 'select') return buildSelect(field)
-  if (field.type === 'text-with-optout') return buildTextWithOptOut(field)
-  if (field.type === 'choice-with-other') return buildChoiceWithOther(field)
-  if (field.type === 'checkbox-group-with-other') return buildCheckboxGroupWithOther(field)
+  if (field.type === 'single_select') return buildSingleSelect(field)
+  if (field.type === 'multi_select') return buildMultiSelect(field)
+  if (field.type === 'height') return buildHeightControl(field)
+  if (field.type === 'string[]') return buildStringArray(field)
   return buildTextControl(field)
 }
 
 function buildProgress() {
-  const state = getProgressState(currentStep, APPLICATION_STEPS.length)
+  const state = getProgressState(currentStep, APPLICATION_STEPS)
   if (!state) return null
-
   const wrapper = createElement('div', 'application-progress')
   const label = createElement('p', '', state.label)
   const progress = document.createElement('progress')
@@ -377,19 +490,6 @@ function buildProgress() {
   return wrapper
 }
 
-function buildErrorSummary() {
-  const messages = Object.values(currentErrors)
-  if (!messages.length) return null
-  const summary = createElement('div', 'application-error-summary')
-  summary.setAttribute('role', 'alert')
-  summary.tabIndex = -1
-  summary.append(createElement('h2', '', 'Please check the following.'))
-  const list = document.createElement('ul')
-  messages.forEach((message) => list.append(createElement('li', '', message)))
-  summary.append(list)
-  return summary
-}
-
 function focusScreenHeading() {
   window.requestAnimationFrame(() => root.querySelector('h1')?.focus({ preventScroll: true }))
 }
@@ -397,37 +497,11 @@ function focusScreenHeading() {
 function focusFirstError() {
   const firstName = Object.keys(currentErrors)[0]
   window.requestAnimationFrame(() => {
-    const control = root.querySelector(`#${CSS.escape(fieldId(firstName))}, [name="${CSS.escape(firstName)}"]`)
-    control?.focus({ preventScroll: false })
+    const targetName = firstName === 'ageRange' ? 'ageRangeMin' : firstName
+    const control = root.querySelector(`#${CSS.escape(fieldId(targetName))}, [name^="${CSS.escape(targetName)}"]`)
+    control?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    control?.focus({ preventScroll: true })
   })
-}
-
-function buildGatewayLinks() {
-  const links = createElement('p', 'application-gateway-links')
-
-  if (siteConfig.contactEmail) {
-    const contact = createElement('a', '', 'Contact donna')
-    contact.href = `mailto:${siteConfig.contactEmail}`
-    links.append(contact)
-  } else {
-    const contactPlaceholder = createElement('span', 'application-legal-placeholder', 'Contact method pending launch')
-    contactPlaceholder.setAttribute('aria-disabled', 'true')
-    links.append(contactPlaceholder)
-  }
-
-  links.append(document.createTextNode(' · '))
-
-  if (siteConfig.privacyNoticeUrl) {
-    const privacy = createElement('a', '', 'Privacy Notice')
-    privacy.href = siteConfig.privacyNoticeUrl
-    links.append(privacy)
-  } else {
-    const privacyPlaceholder = createElement('span', 'application-legal-placeholder', 'Privacy Notice (placeholder)')
-    privacyPlaceholder.setAttribute('aria-disabled', 'true')
-    links.append(privacyPlaceholder)
-  }
-
-  return links
 }
 
 function buildGatewayItems(items, className, ordered = false) {
@@ -442,143 +516,89 @@ function buildGatewayItems(items, className, ordered = false) {
 
 function buildGateway() {
   const screen = createElement('section', 'application-screen application-gateway')
-  screen.setAttribute('aria-labelledby', 'application-heading')
-
-  const top = createElement('div', 'application-gateway-top')
-  const introduction = createElement('div', 'application-gateway-introduction')
-  introduction.append(createElement('p', 'eyebrow', APPLICATION_GATEWAY.eyebrow))
+  screen.append(createElement('p', 'eyebrow', APPLICATION_GATEWAY.eyebrow))
   const heading = createElement('h1', '', APPLICATION_GATEWAY.title)
   heading.id = 'application-heading'
   heading.tabIndex = -1
-  introduction.append(heading)
-  introduction.append(createElement('p', 'application-lead', APPLICATION_GATEWAY.supportingCopy))
-  introduction.append(createElement('p', 'application-gateway-preparation', APPLICATION_GATEWAY.preparation))
+  screen.append(heading, createElement('p', 'application-lead', APPLICATION_GATEWAY.supportingCopy))
 
-  const actions = createElement('div', 'application-actions')
+  const before = createElement('section', 'application-gateway-before')
+  before.append(createElement('h2', '', 'Before you begin'))
+  APPLICATION_GATEWAY.beforeBegin.forEach((line) => before.append(createElement('p', '', line)))
+  screen.append(before)
+
   const begin = createButton('Begin application')
   begin.addEventListener('click', () => goToStep(0))
-  const back = createElement('a', 'text-link', 'Back to donna')
+  screen.append(begin)
+  screen.append(createElement('p', 'application-gateway-privacy', APPLICATION_GATEWAY.privacyCopy))
+  screen.append(createElement('p', 'application-gateway-disclaimer', APPLICATION_GATEWAY.pilotDisclaimer))
+  const back = createElement('a', 'application-gateway-back', 'Back to donna')
   back.href = '/index.html'
-  actions.append(begin, back)
-  introduction.append(actions)
-  introduction.append(createElement('p', 'application-gateway-disclaimer', APPLICATION_GATEWAY.pilotDisclaimer))
-
-  const checklist = createElement('aside', 'application-gateway-checklist')
-  checklist.setAttribute('aria-labelledby', 'before-you-begin-title')
-  const checklistTitle = createElement('h2', '', 'Before you begin')
-  checklistTitle.id = 'before-you-begin-title'
-  checklist.append(checklistTitle, createElement('p', '', 'Please have ready:'))
-  const checklistItems = createElement('ul', '')
-  APPLICATION_GATEWAY.checklist.forEach((item) => checklistItems.append(createElement('li', '', item)))
-  checklist.append(checklistItems)
-  top.append(introduction, checklist)
-  screen.append(top)
-
-  const next = createElement('section', 'application-gateway-section application-gateway-next')
-  next.append(createElement('h2', 'application-gateway-label', 'WHAT HAPPENS NEXT'))
-  next.append(buildGatewayItems(APPLICATION_GATEWAY.nextSteps, 'application-gateway-process', true))
-  screen.append(next)
-
-  const control = createElement('section', 'application-gateway-section application-gateway-control')
-  control.append(createElement('h2', 'application-gateway-label', 'YOU STAY IN CONTROL'))
-  control.append(buildGatewayItems(APPLICATION_GATEWAY.controls, 'application-gateway-assurances'))
-  control.append(createElement('p', 'application-gateway-withdrawal', APPLICATION_GATEWAY.withdrawalCopy))
-  control.append(buildGatewayLinks())
-  screen.append(control)
+  screen.append(back)
   return screen
 }
 
-function validateCurrentStep() {
+function validateCurrentStep({ focusErrors = true, refresh = false } = {}) {
   const step = APPLICATION_STEPS[currentStep]
   const errors = {}
-
-  step.fields.forEach((field) => {
-    const value = getStepValue(field)
-    const error = validateField(field, value)
+  let ageRangeChecked = false
+  step.fields.filter((field) => isFieldVisible(field, applicationData)).forEach((field) => {
+    if (field.group === 'ageRange') {
+      if (ageRangeChecked) return
+      ageRangeChecked = true
+      const error = validateAgeRange(applicationData.ageRangeMin, applicationData.ageRangeMax)
+      if (error) errors.ageRange = error
+      return
+    }
+    const error = validateField(field, applicationData[field.name])
     if (error) errors[field.name] = error
-    else if (!field.uiOnly && typeof value === 'string') applicationData[field.name] = sanitizeText(value)
+    else if (typeof applicationData[field.name] === 'string') applicationData[field.name] = sanitizeText(applicationData[field.name])
+    else if (Array.isArray(applicationData[field.name])) applicationData[field.name] = applicationData[field.name].map(sanitizeText).filter(Boolean)
   })
-
-  if (step.id === 'eligibility' && !errors.date_of_birth && !isAtLeast25(applicationData.date_of_birth)) {
-    currentErrors = {}
-    underAgeExit = true
-    renderApplication()
-    return false
-  }
-
-  if (step.id === 'preferences') {
-    const ageError = validateAgeRange(applicationData.preferred_age_min, applicationData.preferred_age_max)
-    if (ageError) errors.preferred_age_max = ageError
-
-    if (uiState.gender_identity_choice === 'self_describe' && !sanitizeText(uiState.gender_identity_other)) {
-      errors.gender_identity = 'Describe your gender identity or choose another option.'
-    }
-    if (uiState.interested_in_choices.includes('self_describe') && !sanitizeText(uiState.interested_in_other)) {
-      errors.interested_in = 'Describe who you are interested in meeting or choose another option.'
-    }
-  }
-
+  if (step.id === 'eligibility' && !errors.dateOfBirth && !isAtLeast25(applicationData.dateOfBirth)) errors.dateOfBirth = UNDER_25_MESSAGE
   currentErrors = errors
-  if (Object.keys(errors).length) {
-    renderApplication({ focusHeading: false })
-    focusFirstError()
-    return false
-  }
-
-  return true
+  const valid = Object.keys(errors).length === 0
+  if (!valid || refresh) renderApplication({ focusHeading: false })
+  if (!valid && focusErrors) focusFirstError()
+  return valid
 }
 
 function buildStandardStep() {
   const step = APPLICATION_STEPS[currentStep]
   const form = createElement('form', 'application-screen application-form')
   form.noValidate = true
-  form.setAttribute('aria-labelledby', 'application-heading')
   form.append(buildProgress())
   const heading = createElement('h1', '', step.title)
   heading.id = 'application-heading'
   heading.tabIndex = -1
-  form.append(heading)
-  if (step.description) form.append(createElement('p', 'application-lead', step.description))
-
-  const errorSummary = buildErrorSummary()
-  if (errorSummary) form.append(errorSummary)
-
+  form.append(heading, createElement('p', 'application-lead', step.description))
+  if (step.framing) form.append(createElement('p', 'application-lead', step.framing))
+  if (step.durationNote) form.append(createElement('p', 'application-lead', step.durationNote))
   const fields = createElement('div', 'application-fields')
-  step.fields.forEach((field) => fields.append(buildField(field)))
+  const visibleFields = step.fields.filter((field) => isFieldVisible(field, applicationData))
+  visibleFields.forEach((field, index) => {
+    if (field.group === 'ageRange') {
+      if (index === 0 || visibleFields[index - 1].group !== 'ageRange') fields.append(buildAgeSelectPair(field, visibleFields[index + 1]))
+      return
+    }
+    fields.append(buildField(field))
+  })
   form.append(fields)
-
   const actions = createElement('div', 'application-navigation')
   const back = createButton('Back', 'button application-button-secondary')
   back.addEventListener('click', () => goToStep(currentStep - 1))
+  const status = createElement('p', 'application-navigation-status')
+  status.setAttribute('aria-live', 'polite')
+  if (Object.keys(currentErrors).length) status.textContent = 'A few answers are still needed below.'
   const next = createButton('Continue', 'button button-primary', 'submit')
-  actions.append(back, next)
+  actions.append(back, status, next)
   form.append(actions)
-
   form.addEventListener('submit', (event) => {
     event.preventDefault()
+    attemptedSections.add(currentStep)
     if (validateCurrentStep()) goToStep(currentStep + 1)
   })
   return form
-}
-
-function buildUnderAgeExit() {
-  const screen = createElement('section', 'application-screen application-exit-state')
-  screen.append(buildProgress())
-  const heading = createElement('h1', '', 'donna’s current pilot is limited to people aged 25 and above.')
-  heading.tabIndex = -1
-  screen.append(heading)
-  screen.append(createElement('p', 'application-lead', 'We have not collected the remainder of your application information.'))
-  const actions = createElement('div', 'application-actions')
-  const edit = createButton('Correct date of birth', 'button application-button-secondary')
-  edit.addEventListener('click', () => {
-    underAgeExit = false
-    renderApplication()
-  })
-  const leave = createElement('a', 'button button-primary', 'Return to donna')
-  leave.href = '/index.html'
-  actions.append(edit, leave)
-  screen.append(actions)
-  return screen
 }
 
 function releasePhoto(slotId) {
@@ -587,12 +607,18 @@ function releasePhoto(slotId) {
   photoState.delete(slotId)
 }
 
+const PHOTO_PRESENTATION = Object.freeze({
+  photoFace: Object.freeze({ label: 'Your face', accessibleName: 'A recent, clear photograph of your face' }),
+  photoEveryday: Object.freeze({ label: 'Everyday life', accessibleName: 'A recent photograph from everyday life' }),
+  photoOptionalOne: Object.freeze({ label: 'Optional', accessibleName: 'An additional photograph, optional' }),
+  photoOptionalTwo: Object.freeze({ label: 'Optional', accessibleName: 'An additional photograph, optional' }),
+})
+
 function buildPhotoSlot(slot) {
   const item = createElement('div', 'application-photo-slot')
-  const heading = createElement('h2', '', slot.label)
-  if (!slot.required) heading.append(createElement('span', 'application-optional', ' Optional'))
+  const presentation = PHOTO_PRESENTATION[slot.id]
+  const heading = createElement('h2', '', presentation.label)
   item.append(heading)
-
   const stored = photoState.get(slot.id)
   if (stored) {
     const preview = createElement('div', 'application-photo-preview')
@@ -609,58 +635,62 @@ function buildPhotoSlot(slot) {
     details.append(remove)
     preview.append(image, details)
     item.append(preview)
-  }
 
+    const consentLabel = createElement('label', 'application-choice application-photo-consent')
+    const consent = document.createElement('input')
+    consent.type = 'checkbox'
+    consent.checked = stored.shareConsent
+    consent.addEventListener('change', () => { stored.shareConsent = consent.checked })
+    consentLabel.append(consent, createElement('span', '', PHOTO_SHARE_CONSENT))
+    item.append(consentLabel)
+  }
   const input = document.createElement('input')
   input.type = 'file'
   input.id = fieldId(slot.id)
   input.name = slot.id
   input.accept = 'image/jpeg,image/png,image/webp'
+  input.setAttribute('aria-label', presentation.accessibleName)
   const label = createElement('label', 'button application-button-secondary application-file-label', stored ? 'Replace photograph' : 'Choose photograph')
   label.htmlFor = input.id
   item.append(input, label)
-  item.append(createElement('p', 'application-field-help', 'JPEG, PNG or WebP. Maximum 10 MB. Kept in this browser tab only.'))
-
   const error = photoErrors.get(slot.id) || currentErrors[slot.id]
   if (error) {
     const errorElement = createElement('p', 'application-field-error', error)
     errorElement.id = fieldId(slot.id, 'error')
-    input.setAttribute('aria-describedby', errorElement.id)
     input.setAttribute('aria-invalid', 'true')
+    input.setAttribute('aria-describedby', errorElement.id)
     item.append(errorElement)
   }
-
   input.addEventListener('change', () => {
     const [file] = input.files
     if (!file) return
-    const fileError = validatePhoto(file)
-    if (fileError) {
-      photoErrors.set(slot.id, fileError)
-      input.value = ''
+    const errorMessage = validatePhoto(file)
+    if (errorMessage) {
+      photoErrors.set(slot.id, errorMessage)
+      currentErrors[slot.id] = errorMessage
       renderApplication({ focusHeading: false })
       return
     }
-
     photoErrors.delete(slot.id)
     releasePhoto(slot.id)
-    photoState.set(slot.id, { file, url: URL.createObjectURL(file) })
-    renderApplication({ focusHeading: false })
+    photoState.set(slot.id, { file, url: URL.createObjectURL(file), shareConsent: false })
+    if (attemptedSections.has(currentStep)) validatePhotographs({ focusErrors: false, refresh: true })
+    else renderApplication({ focusHeading: false })
   })
   return item
 }
 
-function validatePhotographs() {
+function validatePhotographs({ focusErrors = true, refresh = false } = {}) {
   const errors = {}
-  PHOTO_SLOTS.forEach((slot) => {
-    if (slot.required && !photoState.has(slot.id)) errors[slot.id] = `${slot.label} is required.`
+  PHOTO_SLOTS.filter(({ required }) => required).forEach((slot) => {
+    if (photoErrors.has(slot.id)) errors[slot.id] = photoErrors.get(slot.id)
+    else if (!photoState.has(slot.id)) errors[slot.id] = `${slot.label} is required.`
   })
   currentErrors = errors
-  if (Object.keys(errors).length) {
-    renderApplication({ focusHeading: false })
-    focusFirstError()
-    return false
-  }
-  return true
+  const valid = Object.keys(errors).length === 0
+  if (!valid || refresh) renderApplication({ focusHeading: false })
+  if (!valid && focusErrors) focusFirstError()
+  return valid
 }
 
 function buildPhotographs() {
@@ -670,65 +700,70 @@ function buildPhotographs() {
   const heading = createElement('h1', '', step.title)
   heading.tabIndex = -1
   screen.append(heading, createElement('p', 'application-lead', step.description))
-  const errorSummary = buildErrorSummary()
-  if (errorSummary) screen.append(errorSummary)
+  screen.append(createElement('p', 'application-photo-guidance', 'JPEG, PNG or WebP, up to 10 MB each. Kept in this browser tab only.'))
   const grid = createElement('div', 'application-photo-grid')
   PHOTO_SLOTS.forEach((slot) => grid.append(buildPhotoSlot(slot)))
   screen.append(grid)
-
   const actions = createElement('div', 'application-navigation')
   const back = createButton('Back', 'button application-button-secondary')
   back.addEventListener('click', () => goToStep(currentStep - 1))
+  const status = createElement('p', 'application-navigation-status')
+  status.setAttribute('aria-live', 'polite')
+  if (Object.keys(currentErrors).length) status.textContent = 'A few answers are still needed below.'
   const next = createButton('Continue')
   next.addEventListener('click', () => {
+    attemptedSections.add(currentStep)
     if (validatePhotographs()) goToStep(currentStep + 1)
   })
-  actions.append(back, next)
+  actions.append(back, status, next)
   screen.append(actions)
   return screen
 }
 
 function displayValue(field, value) {
-  if (Array.isArray(value)) {
-    if (!value.length) return 'Not provided'
-    return value.map((item) => field.options?.find(([option]) => option === item)?.[1] || item).join(', ')
-  }
+  if (field.type === 'height') return value ? `${value} cm` : 'Not provided'
+  if (Array.isArray(value)) return value.length ? value.map((item) => field.options?.find(([key]) => key === item)?.[1] || item).join(', ') : 'Not provided'
   if (value === '' || value === null || value === undefined) return 'Not provided'
-  if (field.options) return field.options.find(([option]) => option === value)?.[1] || value
-  return value
+  return field.options?.find(([key]) => key === value)?.[1] || value
 }
 
 function buildReviewGroup(step, stepIndex) {
   const section = createElement('section', 'application-review-group')
   const header = createElement('div', 'application-review-header')
-  header.append(createElement('h2', '', step.title.replace(/[.]$/, '')))
+  header.append(createElement('h2', '', step.title))
   const edit = createButton('Edit', 'application-inline-button')
-  edit.setAttribute('aria-label', `Edit ${step.title}`)
   edit.addEventListener('click', () => goToStep(stepIndex))
   header.append(edit)
   section.append(header)
-
   const list = document.createElement('dl')
-  step.fields.filter((field) => !field.uiOnly).forEach((field) => {
+  step.fields.filter((field) => isFieldVisible(field, applicationData)).forEach((field, index, fields) => {
+    if (field.group === 'ageRange') {
+      if (index > 0 && fields[index - 1].group === 'ageRange') return
+      list.append(createElement('dt', '', field.groupLabel), createElement('dd', '', `${applicationData.ageRangeMin}–${applicationData.ageRangeMax}`))
+      return
+    }
     list.append(createElement('dt', '', field.label), createElement('dd', '', displayValue(field, applicationData[field.name])))
   })
+  if (step.id === 'eligibility' && applicationData.availableWithinFourWeeks === 'not_right_now') {
+    list.append(createElement('dt', '', 'Review flag'), createElement('dd', 'application-review-flag', 'Not right now'))
+  }
   section.append(list)
   return section
 }
 
-function buildPhotoReview() {
+function buildPhotoReview(stepIndex) {
   const section = createElement('section', 'application-review-group')
   const header = createElement('div', 'application-review-header')
   header.append(createElement('h2', '', 'Photographs'))
   const edit = createButton('Edit', 'application-inline-button')
-  edit.setAttribute('aria-label', 'Edit photographs')
-  edit.addEventListener('click', () => goToStep(4))
+  edit.addEventListener('click', () => goToStep(stepIndex))
   header.append(edit)
   section.append(header)
-  const list = document.createElement('ul')
+  const list = document.createElement('dl')
   PHOTO_SLOTS.forEach((slot) => {
-    const stored = photoState.get(slot.id)
-    list.append(createElement('li', '', `${slot.label}: ${stored?.file.name || 'Not provided'}`))
+    const photo = photoState.get(slot.id)
+    const summary = photo ? `${photo.file.name} · ${PHOTO_SHARE_CONSENT} ${photo.shareConsent ? 'Yes' : 'No'}` : 'Not provided'
+    list.append(createElement('dt', '', slot.label), createElement('dd', '', summary))
   })
   section.append(list)
   return section
@@ -736,32 +771,22 @@ function buildPhotoReview() {
 
 function buildLegalLinks() {
   const row = createElement('p', 'application-legal-links')
-  const documents = [
-    ['Privacy Notice', siteConfig.privacyNoticeUrl],
-    ['Pilot Terms', siteConfig.pilotTermsUrl],
-  ]
-  documents.forEach(([label, url], index) => {
+  ;[['Privacy Notice', siteConfig.privacyNoticeUrl], ['Pilot Terms', siteConfig.pilotTermsUrl]].forEach(([label, url], index) => {
     if (index) row.append(document.createTextNode(' · '))
     if (url) {
       const link = createElement('a', '', label)
       link.href = url
       row.append(link)
-    } else {
-      const placeholder = createElement('span', 'application-legal-placeholder', `${label} (placeholder)`)
-      placeholder.setAttribute('aria-disabled', 'true')
-      row.append(placeholder)
-    }
+    } else row.append(createElement('span', 'application-legal-placeholder', `${label} (placeholder)`))
   })
   return row
 }
 
-function validateConsents() {
-  const errors = {}
-  CONSENT_SCHEMA.forEach((consent) => {
-    if (consent.required && !consentData[consent.name]) errors[`consent_${consent.name}`] = consent.label
-  })
-  currentErrors = errors
-  return Object.keys(errors).length === 0
+function validateConsents({ refresh = false } = {}) {
+  currentErrors = Object.fromEntries(CONSENT_SCHEMA.filter(({ required, name }) => required && !consentData[name]).map(({ name, label }) => [`consent_${name}`, label]))
+  const valid = Object.keys(currentErrors).length === 0
+  if (refresh) renderApplication({ focusHeading: false })
+  return valid
 }
 
 function buildConsentList() {
@@ -775,10 +800,22 @@ function buildConsentList() {
     checkbox.name = `consent_${consent.name}`
     checkbox.id = fieldId(`consent_${consent.name}`)
     checkbox.checked = consentData[consent.name]
-    checkbox.addEventListener('change', () => { consentData[consent.name] = checkbox.checked })
+    const errorKey = `consent_${consent.name}`
+    if (currentErrors[errorKey]) {
+      checkbox.setAttribute('aria-invalid', 'true')
+      checkbox.setAttribute('aria-describedby', fieldId(errorKey, 'error'))
+    }
+    checkbox.addEventListener('change', () => {
+      consentData[consent.name] = checkbox.checked
+      if (attemptedSections.has(currentStep)) validateConsents({ refresh: true })
+    })
     label.append(checkbox, createElement('span', '', consent.label))
     wrapper.append(label)
-    if (currentErrors[`consent_${consent.name}`]) wrapper.append(createElement('p', 'application-field-error', 'This acknowledgement is required.'))
+    if (currentErrors[errorKey]) {
+      const error = createElement('p', 'application-field-error', 'This acknowledgement is required.')
+      error.id = fieldId(errorKey, 'error')
+      wrapper.append(error)
+    }
     if (consent.legal) wrapper.append(buildLegalLinks())
   })
   return wrapper
@@ -786,57 +823,45 @@ function buildConsentList() {
 
 function buildPreviewComplete() {
   const screen = createElement('section', 'application-screen application-preview-state')
-  screen.setAttribute('aria-live', 'polite')
   screen.append(createElement('p', 'eyebrow', 'Preview complete'))
   const heading = createElement('h1', '', 'This is a UI preview.')
   heading.tabIndex = -1
-  screen.append(heading)
-  screen.append(createElement('p', 'application-lead', 'Your information and photographs have not been submitted or stored.'))
+  screen.append(heading, createElement('p', 'application-lead', 'Your information and photographs have not been submitted or stored.'))
+  const next = createElement('section', 'application-confirmation-next')
+  next.append(createElement('h2', '', 'WHAT HAPPENS NEXT'))
+  next.append(buildGatewayItems(APPLICATION_GATEWAY.nextSteps, 'application-confirmation-process', true))
+  screen.append(next)
   const review = createButton('Return to review', 'button application-button-secondary')
-  review.addEventListener('click', () => {
-    previewComplete = false
-    renderApplication()
-  })
+  review.addEventListener('click', () => { previewComplete = false; renderApplication() })
   screen.append(review)
   return screen
 }
 
 function buildReview() {
   if (previewComplete) return buildPreviewComplete()
-
-  const step = APPLICATION_STEPS[currentStep]
   const form = createElement('form', 'application-screen application-review')
   form.noValidate = true
   form.append(buildProgress())
-  const heading = createElement('h1', '', step.title)
+  const heading = createElement('h1', '', APPLICATION_STEPS[currentStep].title)
   heading.tabIndex = -1
-  form.append(heading, createElement('p', 'application-lead', step.description))
-  const errorSummary = buildErrorSummary()
-  if (errorSummary) form.append(errorSummary)
-
+  form.append(heading)
   const summary = createElement('div', 'application-review-sections')
-  APPLICATION_STEPS.slice(0, 4).forEach((reviewStep, index) => summary.append(buildReviewGroup(reviewStep, index)))
-  summary.append(buildPhotoReview())
-  form.append(summary)
-
-  const permission = createElement('p', 'application-permission-notice', 'Submitting an application does not give donna permission to send your profile to another applicant. donna will request your permission before every proposed introduction.')
-  form.append(permission, buildConsentList())
-
-  if (siteConfig.applicationMode === 'live' && (!siteConfig.privacyNoticeUrl || !siteConfig.pilotTermsUrl)) {
-    form.append(createElement('p', 'application-configuration-notice', 'Live submission is unavailable until the Privacy Notice and Pilot Terms are configured.'))
-  }
-
+  APPLICATION_STEPS.slice(0, 5).forEach((step, index) => summary.append(buildReviewGroup(step, index)))
+  summary.append(buildPhotoReview(5))
+  form.append(summary, buildConsentList())
   const actions = createElement('div', 'application-navigation')
   const back = createButton('Back', 'button application-button-secondary')
   back.addEventListener('click', () => goToStep(currentStep - 1))
-  const submitLabel = siteConfig.applicationMode === 'preview' ? 'Test application' : 'Submission unavailable'
-  const submit = createButton(submitLabel, 'button button-primary', 'submit')
+  const status = createElement('p', 'application-navigation-status')
+  status.setAttribute('aria-live', 'polite')
+  if (Object.keys(currentErrors).length) status.textContent = 'A few answers are still needed below.'
+  const submit = createButton(siteConfig.applicationMode === 'preview' ? 'Test application' : 'Submission unavailable', 'button button-primary', 'submit')
   if (siteConfig.applicationMode !== 'preview') submit.disabled = true
-  actions.append(back, submit)
+  actions.append(back, status, submit)
   form.append(actions)
-
   form.addEventListener('submit', (event) => {
     event.preventDefault()
+    attemptedSections.add(currentStep)
     if (!validateConsents()) {
       renderApplication({ focusHeading: false })
       focusFirstError()
@@ -853,7 +878,6 @@ function buildReview() {
 function goToStep(stepIndex) {
   currentStep = clampApplicationStep(stepIndex, APPLICATION_STEPS.length)
   currentErrors = {}
-  underAgeExit = false
   previewComplete = false
   renderApplication()
   window.scrollTo({ top: 0, behavior: 'auto' })
@@ -861,20 +885,15 @@ function goToStep(stepIndex) {
 
 function renderApplication({ focusHeading = true } = {}) {
   let screen
-  if (underAgeExit) screen = buildUnderAgeExit()
-  else if (currentStep === GATEWAY_STEP) screen = buildGateway()
+  if (currentStep === GATEWAY_STEP) screen = buildGateway()
   else if (APPLICATION_STEPS[currentStep].id === 'photographs') screen = buildPhotographs()
-  else if (APPLICATION_STEPS[currentStep].id === 'review') screen = buildReview()
+  else if (APPLICATION_STEPS[currentStep].id === 'review-and-consent') screen = buildReview()
   else screen = buildStandardStep()
-
   root.replaceChildren(screen)
   root.classList.toggle('is-gateway', currentStep === GATEWAY_STEP)
   if (focusHeading) focusScreenHeading()
 }
 
-window.addEventListener('beforeunload', () => {
-  photoState.forEach(({ url }) => URL.revokeObjectURL(url))
-})
-
+window.addEventListener('beforeunload', () => photoState.forEach(({ url }) => URL.revokeObjectURL(url)))
 renderApplication()
 window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }))

@@ -9,7 +9,7 @@ const introCss = readFileSync(new URL('../src/styles/components/experience-intro
 test('homepage includes a skippable city-image experience intro', () => {
   assert.match(homeHtml, /data-experience-intro/)
   assert.match(homeHtml, /data-experience-skip>Skip intro<\/button>/)
-  assert.match(homeHtml, /We probably know someone for you\./)
+  assert.match(homeHtml, /Every good introduction has three people in it\./)
   assert.doesNotMatch(homeHtml, /data-experience-opening/)
   assert.match(introScript, /\.to\(arrival, \{ opacity: 1, y: 0, duration: 0\.72, ease: 'power3\.out' \}, 2\.25\)/)
 

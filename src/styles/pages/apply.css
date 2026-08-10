@@ -20,7 +20,7 @@
 }
 
 #application-root.is-gateway {
-  width: min(100%, 68rem);
+  width: min(100%, 44rem);
 }
 
 .application-screen {
@@ -95,184 +95,65 @@
   font-size: clamp(3rem, 6vw, 5.25rem);
 }
 
-.application-gateway-top {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
-  gap: clamp(2.5rem, 7vw, 6rem);
-  align-items: end;
+.application-gateway .application-lead {
+  max-width: 68ch;
 }
 
-.application-gateway-preparation {
-  width: fit-content;
-  margin: 1.35rem 0 0;
-  padding-block: 0.75rem;
-  border-block: 1px solid color-mix(in srgb, var(--mushroom) 32%, transparent);
+.application-gateway-before {
+  margin-top: clamp(2.5rem, 6vw, 3.5rem);
+}
+
+.application-gateway-before h2 {
+  margin: 0 0 0.8rem;
   color: var(--graphite-ink);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.035em;
-  line-height: 1.5;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  text-transform: uppercase;
 }
 
-.application-gateway .application-actions {
-  justify-content: flex-start;
-  margin-top: 1.6rem;
+.application-gateway-before p {
+  margin: 0;
+  color: var(--mushroom);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.application-gateway-before p + p {
+  margin-top: 0.35rem;
+}
+
+.application-gateway > .button-primary {
+  margin-top: clamp(2.5rem, 6vw, 3.5rem);
+}
+
+.application-gateway-privacy {
+  max-width: 68ch;
+  margin: 2.5rem 0 0;
+  color: var(--mushroom);
+  line-height: 1.65;
 }
 
 .application-gateway-disclaimer {
-  max-width: 39rem;
-  margin: 1rem 0 0;
+  max-width: 68ch;
+  margin: 1.5rem 0 0;
   color: var(--graphite-muted);
   font-size: 0.82rem;
   line-height: 1.55;
 }
 
-.application-gateway-checklist {
-  padding: clamp(1.25rem, 3vw, 1.7rem);
-  border: 1px solid color-mix(in srgb, var(--mushroom) 36%, transparent);
-  border-radius: 0.5rem;
-  background: color-mix(in srgb, var(--soft-linen) 5%, var(--graphite));
-}
-
-.application-gateway-checklist h2 {
-  font-size: clamp(1.55rem, 3vw, 1.95rem);
-}
-
-.application-gateway-checklist > p {
-  margin: 0.55rem 0 0;
-  color: var(--mushroom);
-  font-size: 0.88rem;
-}
-
-.application-gateway-checklist ul {
-  display: grid;
-  gap: 0.7rem;
-  margin: 1rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.application-gateway-checklist li {
-  position: relative;
-  padding-left: 1.15rem;
-  color: var(--soft-linen);
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.application-gateway-checklist li::before {
-  position: absolute;
-  top: 0.62em;
-  left: 0;
-  width: 0.3rem;
-  height: 0.3rem;
-  border-radius: 50%;
-  background: var(--dusty-rose);
-  content: '';
-}
-
-.application-gateway-section {
-  margin-top: clamp(3.5rem, 8vw, 6rem);
-  padding-top: 1.25rem;
-  border-top: 1px solid color-mix(in srgb, var(--mushroom) 30%, transparent);
-}
-
-.application-gateway-section .application-gateway-label {
-  margin: 0 0 1.5rem;
-  color: var(--graphite-muted);
-  font-family: var(--sans);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  line-height: 1.3;
-}
-
-.application-gateway-process,
-.application-gateway-assurances {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.application-gateway-process {
-  counter-reset: gateway-step;
-}
-
-.application-gateway-process li,
-.application-gateway-assurances li {
-  min-width: 0;
-  padding: 0 clamp(1.1rem, 3vw, 2rem);
-}
-
-.application-gateway-process li {
-  counter-increment: gateway-step;
-}
-
-.application-gateway-process li:first-child,
-.application-gateway-assurances li:first-child {
-  padding-left: 0;
-}
-
-.application-gateway-process li + li,
-.application-gateway-assurances li + li {
-  border-left: 1px solid color-mix(in srgb, var(--mushroom) 26%, transparent);
-}
-
-.application-gateway-process li::before {
-  display: block;
-  margin-bottom: 1.6rem;
-  color: var(--dusty-rose);
-  content: '0' counter(gateway-step);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
-.application-gateway-process h3,
-.application-gateway-assurances h3 {
-  margin: 0;
-  font-family: var(--serif);
-  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
-  font-weight: 500;
-  line-height: 1.1;
-}
-
-.application-gateway-process p,
-.application-gateway-assurances p {
-  margin: 0.7rem 0 0;
-  color: var(--mushroom);
-  font-size: 0.9rem;
-  line-height: 1.6;
-}
-
-.application-gateway-control {
-  padding: clamp(1.35rem, 4vw, 2.25rem);
-  border: 1px solid color-mix(in srgb, var(--mushroom) 34%, transparent);
-  border-radius: 0.5rem;
-  background: color-mix(in srgb, var(--soft-linen) 5%, var(--graphite));
-}
-
-.application-gateway-withdrawal {
-  margin: 1.8rem 0 0;
-  padding-top: 1.25rem;
-  border-top: 1px solid color-mix(in srgb, var(--mushroom) 24%, transparent);
-  color: var(--mushroom);
-  font-size: 0.86rem;
-  line-height: 1.55;
-}
-
-.application-gateway-links {
-  margin: 0.55rem 0 0;
-  color: var(--graphite-muted);
-  font-size: 0.82rem;
-}
-
-.application-gateway-links a {
+.application-gateway-back {
+  display: inline-block;
+  width: fit-content;
+  margin-top: 3rem;
   color: var(--graphite-ink);
+  font-size: 0.82rem;
+  font-weight: 600;
   text-decoration: underline;
-  text-underline-offset: 0.2em;
+  text-decoration-color: currentColor;
+  text-underline-offset: 0.25em;
 }
 
 .application-facts {
@@ -339,7 +220,11 @@
 
 .application-fields {
   display: grid;
-  gap: 1.6rem;
+  gap: 0;
+}
+
+.application-field + .application-field {
+  margin-top: 2rem;
 }
 
 .application-field,
@@ -353,7 +238,7 @@
 .application-label,
 .application-fieldset legend {
   display: block;
-  margin-bottom: 0.55rem;
+  margin-bottom: 0.35rem;
   color: var(--soft-linen);
 }
 
@@ -422,16 +307,158 @@
   text-align: right;
 }
 
-.application-choices {
+.application-height-output {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--mushroom);
+  font-size: 0.86rem;
+}
+
+.application-custom-entry {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.application-custom-entry-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+}
+
+.application-array-inputs input {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--mushroom) 55%, transparent);
+  border-radius: 0.35rem;
+  outline: none;
+  background: color-mix(in srgb, var(--soft-linen) 7%, var(--graphite));
+  color: var(--soft-linen);
+  font: inherit;
+}
+
+.application-entry-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.application-entry-list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.35rem 0.25rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--mushroom) 45%, transparent);
+  border-radius: 999px;
+}
+
+.application-array-inputs {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.application-paired-controls {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.application-paired-select {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--mushroom);
+  font-size: 0.86rem;
+}
+
+.application-paired-select select,
+.application-suffixed-select select {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--mushroom) 55%, transparent);
+  border-radius: 0.35rem;
+  outline: none;
+  background: color-mix(in srgb, var(--soft-linen) 7%, var(--graphite));
+  color: var(--soft-linen);
+  font: inherit;
+}
+
+.application-suffixed-select {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--mushroom);
+}
+
+.application-combobox {
+  position: relative;
+}
+
+.application-combobox-list {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 0.3rem);
+  right: 0;
+  left: 0;
+  max-height: 17rem;
+  overflow-y: auto;
+  padding: 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--mushroom) 55%, transparent);
+  border-radius: 0.35rem;
+  background: var(--graphite);
+  box-shadow: 0 0.8rem 2rem color-mix(in srgb, var(--espresso) 18%, transparent);
+}
+
+.application-combobox-list[hidden] {
+  display: none;
+}
+
+.application-combobox-option {
+  display: block;
+  width: 100%;
+  padding: 0.7rem 0.75rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--soft-linen);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.application-combobox-option.is-active,
+.application-combobox-option:focus-visible,
+.application-combobox-option[aria-selected='true'] {
+  background: color-mix(in srgb, var(--dusty-rose) 18%, transparent);
+}
+
+.application-photo-consent {
+  margin: 1rem 1.1rem 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.application-review-flag {
+  color: var(--dusty-rose);
+  font-weight: 600;
+}
+
+.application-choices {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.65rem;
+  align-items: stretch;
 }
 
 .application-choice {
   position: relative;
   display: flex;
   align-items: center;
+  height: 100%;
   min-height: 3.25rem;
   padding: 0.75rem 0.85rem;
   border: 1px solid color-mix(in srgb, var(--mushroom) 45%, transparent);
@@ -480,19 +507,6 @@
   accent-color: var(--dusty-rose);
 }
 
-.application-error-summary {
-  margin-bottom: 1.75rem;
-  padding: 1rem 1.1rem;
-  border-left: 3px solid var(--terracotta);
-  background: color-mix(in srgb, var(--terracotta) 12%, transparent);
-}
-
-.application-error-summary:focus {
-  outline: 2px solid var(--terracotta);
-  outline-offset: 3px;
-}
-
-.application-error-summary p,
 .application-field-error {
   margin: 0;
   color: var(--soft-linen);
@@ -500,12 +514,6 @@
   line-height: 1.5;
 }
 
-.application-error-summary ul {
-  margin: 0.6rem 0 0;
-  padding-left: 1.1rem;
-}
-
-.application-error-summary a,
 .application-field-error a {
   color: inherit;
 }
@@ -522,6 +530,15 @@
   justify-content: space-between;
   gap: 0.8rem;
   margin-top: clamp(2.25rem, 6vw, 3.75rem);
+}
+
+.application-navigation-status {
+  flex: 1;
+  margin: 0;
+  color: var(--dusty-rose);
+  font-size: 0.84rem;
+  line-height: 1.4;
+  text-align: right;
 }
 
 .application-primary,
@@ -580,6 +597,14 @@
   gap: 1rem;
 }
 
+.application-photo-guidance {
+  max-width: 42rem;
+  margin: 0.65rem 0 1.75rem;
+  color: var(--mushroom);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
 .application-photo-slot {
   position: relative;
   min-width: 0;
@@ -606,7 +631,6 @@
   line-height: 1.1;
 }
 
-.application-photo-slot > .application-field-help,
 .application-photo-slot > .application-field-error {
   margin-inline: 1.1rem;
   margin-bottom: 1.1rem;
@@ -752,6 +776,36 @@
   margin-top: 2rem;
 }
 
+.application-confirmation-next {
+  margin-top: 2.5rem;
+}
+
+.application-confirmation-next > h2 {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.application-confirmation-process {
+  display: grid;
+  gap: 1.25rem;
+  margin: 1.25rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.application-confirmation-process h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.application-confirmation-process p {
+  margin: 0.35rem 0 0;
+  color: var(--mushroom);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
 .application-review-group ul {
   margin: 1rem 0 0;
   padding-left: 1.15rem;
@@ -805,45 +859,21 @@
   }
 }
 
+@media (min-width: 768px) {
+  .application-choices[data-option-count='2'],
+  .application-choices[data-option-count='4'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .application-choices[data-option-count='3'],
+  .application-choices.application-choices-many {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 48rem) {
   .application-main {
     padding-top: 7rem;
-  }
-
-  .application-gateway-top {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-  }
-
-  .application-gateway-checklist {
-    width: min(100%, 32rem);
-  }
-
-  .application-gateway-process,
-  .application-gateway-assurances {
-    grid-template-columns: 1fr;
-  }
-
-  .application-gateway-process li,
-  .application-gateway-assurances li,
-  .application-gateway-process li:first-child,
-  .application-gateway-assurances li:first-child {
-    padding: 1.25rem 0;
-  }
-
-  .application-gateway-process li:first-child,
-  .application-gateway-assurances li:first-child {
-    padding-top: 0;
-  }
-
-  .application-gateway-process li + li,
-  .application-gateway-assurances li + li {
-    border-top: 1px solid color-mix(in srgb, var(--mushroom) 26%, transparent);
-    border-left: 0;
-  }
-
-  .application-gateway-process li::before {
-    margin-bottom: 0.75rem;
   }
 
   .application-facts {
@@ -879,11 +909,6 @@
     flex-direction: column-reverse;
   }
 
-  .application-gateway .application-actions {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
   .application-actions .application-primary,
   .application-actions .application-secondary,
   .application-navigation .button {
@@ -897,6 +922,14 @@
 
   .application-review-group dd + dt {
     margin-top: 0.6rem;
+  }
+
+  .application-paired-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .application-navigation-status {
+    text-align: left;
   }
 }
 

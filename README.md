@@ -1,8 +1,29 @@
 # donna
 
-Static Vite site for **donna**, a manually operated matchmaking pilot. The site uses vanilla HTML, CSS and JavaScript; there is no frontend framework or backend.
+Web front end for donna, a human-operated introduction service for people
+looking to marry. Currently piloting in Bangalore.
 
-Checkpoint: 4 August 2026.
+Applications are reviewed by a person. There is no matching algorithm, no
+browsable directory, and no search. One introduction is proposed at a time,
+and contact details are exchanged only after both people agree.
+
+## Contents
+
+- Marketing pages: home, FAQ, safety
+- A seven-section application form (`src/application/`)
+- Shared styles and site config
+
+## Status
+
+The application form is **preview-only**. Answers and photographs are held in
+browser memory and are not submitted, stored, or transmitted. Persistence is
+not implemented.
+
+The Privacy Notice and Pilot Terms referenced in the application do not yet
+exist. `privacyNoticeUrl` and `pilotTermsUrl` in `src/config/site.js` are
+empty, and the section-seven consent checkbox references documents that have
+not been written. These must exist before any real application data is
+collected.
 
 ## Run locally
 
