@@ -61,8 +61,8 @@ test('conditional fields render only for their specified values', () => {
   assert.equal(isFieldVisible(field('languagesOther'), { languages: ['english'] }), false)
 })
 
-test('all four required long-form questions reject empty values and cap at 600', () => {
-  ;['partnerRole', 'friendsDescribe', 'tuesdayEvening', 'learnedAboutSelf'].forEach((name) => {
+test('all required long-form questions reject empty values and cap at 600', () => {
+  ;['partnerRole', 'friendsDescribe', 'friendsTease', 'tuesdayEvening', 'learnedAboutSelf'].forEach((name) => {
     assert.match(validateField(field(name), ''), /required/)
     assert.equal(validateField(field(name), 'a'.repeat(600)), '')
     assert.match(validateField(field(name), 'a'.repeat(601)), /600 characters or fewer/)

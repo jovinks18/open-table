@@ -183,15 +183,6 @@
   margin-bottom: clamp(2.5rem, 6vw, 4rem);
 }
 
-.application-progress > p {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
-  color: var(--mushroom);
-  font-size: 0.82rem;
-}
-
 .application-progress progress {
   display: block;
   width: 100%;
@@ -840,6 +831,321 @@
   border-radius: 0.5rem;
 }
 
+.application-mascot-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-bottom: clamp(1.5rem, 4vw, 2rem);
+}
+
+.application-mascot {
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  background: color-mix(in srgb, var(--soft-linen) 10%, var(--graphite));
+  box-shadow: 0 0.35rem 0.9rem color-mix(in srgb, var(--espresso) 22%, transparent);
+}
+
+.application-mascot-bubble {
+  min-width: 0;
+  max-width: 34rem;
+  padding: 0.85rem 1.05rem;
+  border: 1px solid color-mix(in srgb, var(--mushroom) 40%, transparent);
+  border-radius: 0 0.75rem 0.75rem 0.75rem;
+  background: color-mix(in srgb, var(--soft-linen) 6%, var(--graphite));
+}
+
+.application-mascot-tag {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--dusty-rose);
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.application-mascot-bubble p {
+  margin: 0;
+  color: var(--soft-linen);
+  font-family: var(--sans);
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.application-eyebrow {
+  margin: 0 0 0.6rem;
+}
+
+.application-chip-group {
+  margin-top: 1rem;
+}
+
+.application-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.application-chip {
+  padding: 0.5rem 0.85rem;
+  border: 1px dashed color-mix(in srgb, var(--mushroom) 55%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--soft-linen) 5%, var(--graphite));
+  color: var(--mushroom);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.application-chip:hover:not(:disabled) {
+  border-color: var(--dusty-rose);
+  color: var(--soft-linen);
+}
+
+.application-chip:focus-visible {
+  outline: 2px solid var(--dusty-rose);
+  outline-offset: 2px;
+}
+
+.application-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+/* Conversation mode (Chapters I–VI) */
+
+.application-conversation-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 auto clamp(1.5rem, 4vw, 2rem);
+  max-width: 40rem;
+}
+
+.application-conversation-nav .application-inline-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.application-conversation-layout {
+  position: relative;
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+.application-conversation-mascot-col {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: transform 480ms ease;
+}
+
+.application-transcript {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2rem;
+  padding-left: 3.25rem;
+}
+
+.application-transcript.is-transitioning {
+  animation: application-transcript-fade 480ms ease forwards;
+}
+
+.application-exchange {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.application-message-donna {
+  align-self: flex-start;
+  min-width: 4.5rem;
+  max-width: 32rem;
+  padding: 0.7rem 1rem;
+  border-radius: 0 0.85rem 0.85rem 0.85rem;
+  background: color-mix(in srgb, var(--soft-linen) 6%, var(--graphite));
+}
+
+.application-message-donna-tag {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--dusty-rose);
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.application-message-donna p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--soft-linen);
+  font-family: var(--sans);
+  font-size: 1.05rem;
+  line-height: 1.42;
+}
+
+.application-message-donna p + p {
+  margin-top: 0.4rem;
+}
+
+.application-typing {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 0 0.85rem 0.85rem 0.85rem;
+  background: color-mix(in srgb, var(--soft-linen) 6%, var(--graphite));
+}
+
+.application-typing span {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--mushroom);
+  animation: application-typing-bounce 1.1s ease-in-out infinite;
+}
+
+.application-typing span:nth-child(2) { animation-delay: 0.15s; }
+.application-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+.application-reply {
+  align-self: flex-end;
+  min-width: 4.5rem;
+  max-width: 32rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--mushroom) 30%, transparent);
+  border-radius: 0.85rem 0.85rem 0 0.85rem;
+  background: color-mix(in srgb, var(--dusty-rose) 12%, transparent);
+  cursor: pointer;
+  text-align: right;
+  transition: border-color 160ms ease;
+}
+
+.application-reply:hover,
+.application-reply:focus-visible {
+  border-color: var(--dusty-rose);
+  outline: none;
+}
+
+.application-reply-tag {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--graphite-muted);
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: right;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.application-reply:hover .application-reply-tag,
+.application-reply:focus-visible .application-reply-tag {
+  opacity: 1;
+}
+
+.application-reply p {
+  margin: 0;
+  color: var(--soft-linen);
+  font-size: 0.98rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.application-exchange-input {
+  align-self: stretch;
+  max-width: 32rem;
+}
+
+.application-exchange-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.application-exchange-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@keyframes application-transcript-fade {
+  to {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+}
+
+@keyframes application-typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-0.28rem); opacity: 1; }
+}
+
+@keyframes application-mascot-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes application-mascot-speak {
+  0% { transform: scale(1) rotate(0deg); }
+  35% { transform: scale(1.08) rotate(-4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+.application-mascot {
+  animation: application-mascot-float 4.2s ease-in-out infinite;
+}
+
+.application-mascot.is-speaking {
+  animation: application-mascot-speak 550ms ease;
+}
+
+.application-mascot.is-listening {
+  animation: none;
+  transform: translateY(0) scale(0.96);
+  transition: transform 400ms ease;
+}
+
+.application-mascot.is-attentive {
+  animation: none;
+  transform: translateY(-4px) rotate(-6deg);
+  transition: transform 600ms ease;
+}
+
+@media (max-width: 30rem) {
+  .application-message-donna,
+  .application-typing {
+    max-width: 100%;
+  }
+
+  .application-reply {
+    max-width: 92%;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+}
+
 .application-noscript {
   width: min(100%, 42rem);
   margin-inline: auto;
@@ -943,5 +1249,28 @@
   .application-field select,
   .application-choice {
     transition: none;
+  }
+
+  .application-mascot,
+  .application-mascot.is-speaking,
+  .application-mascot.is-listening,
+  .application-mascot.is-attentive {
+    animation: none;
+    transform: none;
+    transition: none;
+  }
+
+  .application-conversation-mascot-col {
+    transition: none;
+    transform: none;
+  }
+
+  .application-typing {
+    display: none;
+  }
+
+  .application-transcript.is-transitioning {
+    animation: none;
+    opacity: 0;
   }
 }
