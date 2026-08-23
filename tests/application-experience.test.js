@@ -398,6 +398,36 @@ test('renders long lists as native searchable comboboxes, reused inline', () => 
   })
 })
 
+test('combobox options show hover, keyboard-focus and selected as visually distinct, non-colour-only states', () => {
+  const hoverRule = styleSource.match(/\.application-combobox-option:hover,[\s\S]*?\}/)[0]
+  assert.match(hoverRule, /\.application-combobox-option\.is-active/)
+  assert.match(hoverRule, /\.application-combobox-option:focus-visible/)
+  const focusRule = styleSource.match(/(?<!:hover,\n)\.application-combobox-option\.is-active,\n\.application-combobox-option:focus-visible \{[^}]*\}/)[0]
+  assert.match(focusRule, /outline:/)
+  const selectedRule = styleSource.match(/\.application-combobox-option\[aria-selected='true'\] \{[^}]*\}/)[0]
+  assert.match(selectedRule, /font-weight:\s*600/)
+  const checkmarkRule = styleSource.match(/\.application-combobox-option\[aria-selected='true'\]::after \{[^}]*\}/)[0]
+  assert.match(checkmarkRule, /content:\s*'\\2713'/)
+  assert.match(appSource, /option\.setAttribute\('aria-selected', String\(isSelected\(value\)\)\)/)
+})
+
+test('multi-select comboboxes offer Clear/Done, stay open per pick, and keep chips/menu/state in sync', () => {
+  assert.match(appSource, /function removeSelected\(value\)/)
+  assert.match(appSource, /selectedValue = onRemove\(value\) \?\? selectedValue/)
+  assert.match(appSource, /selectedValue = onChoose\(value\) \?\? selectedValue/)
+  assert.match(appSource, /application-combobox-actions/)
+  assert.match(appSource, /createButton\('Clear', 'application-inline-button'\)/)
+  assert.match(appSource, /createButton\('Done', 'application-inline-button'\)/)
+  // The multi-select branch never calls close() from choose() — the menu
+  // stays open after a pick; Done is the only thing that closes it.
+  const chooseFn = appSource.match(/function choose\(value, optionLabel\)[\s\S]*?\n  \}\n/)[0]
+  const multipleBranch = chooseFn.match(/if \(multiple\) \{[\s\S]*?\n    \}/)[0]
+  assert.doesNotMatch(multipleBranch, /close\(\)/)
+  // Both multi-select call sites return the freshly computed array so the
+  // combobox's local selectedValue binding never goes stale.
+  assert.equal((appSource.match(/return applicationData\[field\.name\]/g) || []).length, 4)
+})
+
 /* ---- Part A3/C4 — the Chapter VI→VII transition ---- */
 
 test('the Chapter VI→VII transition never returns to conversation mode', () => {
@@ -459,10 +489,26 @@ test('the conversation column is centred with a max width around 640px', () => {
 test('bubbles respect a minimum width and a maximum around 80% of the column', () => {
   const donnaBlock = styleSource.match(/\.application-message-donna \{[^}]*\}/)[0]
   const replyBlock = styleSource.match(/\.application-reply \{[^}]*\}/)[0]
-  ;[donnaBlock, replyBlock].forEach((block) => {
-    assert.match(block, /min-width:\s*4\.5rem/)
-    assert.match(block, /max-width:\s*32rem/)
-  })
+  assert.match(donnaBlock, /min-width:\s*4\.5rem/)
+  assert.match(donnaBlock, /max-width:\s*32rem/)
+  // The user-answer bubble additionally caps at 65% of the column on wide
+  // screens, per the answer-positioning spec.
+  assert.match(replyBlock, /min-width:\s*4\.5rem/)
+  assert.match(replyBlock, /max-width:\s*min\(65%,\s*32rem\)/)
+})
+
+test('desktop/mobile answer width and question-answer/exchange spacing match the positioning spec', () => {
+  assert.match(styleSource, /\.application-reply\s*\{[^}]*max-width:\s*min\(65%,\s*32rem\)/s)
+  assert.match(styleSource, /@media \(max-width: 30rem\) \{[\s\S]*\.application-reply\s*\{\s*max-width:\s*85%/)
+  const exchangeGapPx = Number(styleSource.match(/\.application-exchange\s*{[^}]*gap:\s*([\d.]+)rem/s)[1]) * 16
+  assert.ok(exchangeGapPx >= 12 && exchangeGapPx <= 16, `expected 12-16px between question and answer, got ${exchangeGapPx}px`)
+  const transcriptGapPx = Number(styleSource.match(/\.application-transcript\s*{[^}]*gap:\s*([\d.]+)rem/s)[1]) * 16
+  assert.ok(transcriptGapPx >= 24 && transcriptGapPx <= 32, `expected 24-32px between exchanges, got ${transcriptGapPx}px`)
+})
+
+test('user answers use flex/flow layout inside the transcript column, not absolute positioning', () => {
+  assert.doesNotMatch(styleSource, /\.application-reply\s*\{[^}]*position:\s*absolute/s)
+  assert.match(styleSource, /\.application-reply\s*\{[^}]*align-self:\s*flex-end/s)
 })
 
 test('the gap between exchanges is visibly larger than the gap within one', () => {
@@ -490,12 +536,36 @@ test('donna travels down the column instead of staying sticky, and settles besid
   assert.match(appSource, /window\.requestAnimationFrame\(positionMascot\)/)
 })
 
-test('mascot motion: rest float, speaking, listening, attentive — all as CSS transforms', () => {
-  assert.match(styleSource, /@keyframes application-mascot-float/)
-  assert.match(styleSource, /50% { transform: translateY\(-7px\); }/)
-  assert.match(styleSource, /\.application-mascot\.is-speaking\s*{\s*animation: application-mascot-speak/)
-  assert.match(styleSource, /\.application-mascot\.is-listening\s*{[^}]*animation: none/s)
-  assert.match(styleSource, /\.application-mascot\.is-attentive\s*{[^}]*animation: none/s)
+test('mascot motion is restrained: no idle loop, one bounded speak animation, still listening, clamped attentive lean', () => {
+  // No continuous/looping idle animation (float, bounce, glow) at rest —
+  // scoped to the mascot rules only; the separate typing-indicator dots
+  // keep their own unrelated infinite loop.
+  assert.doesNotMatch(styleSource, /@keyframes application-mascot-float/)
+  const restRules = [...styleSource.matchAll(/\.application-mascot\s*{[^}]*}/gs)].map(([block]) => block)
+  assert.ok(restRules.length > 0, 'expected at least one bare .application-mascot rule')
+  restRules.forEach((block) => {
+    assert.doesNotMatch(block, /infinite/)
+    assert.doesNotMatch(block, /animation:\s*(?!none)\S/)
+  })
+
+  const speakKeyframes = styleSource.match(/@keyframes application-mascot-speak\s*{[\s\S]*?\n}/)[0]
+  assert.match(speakKeyframes, /scale\(1\.03\)/)
+  assert.doesNotMatch(speakKeyframes, /scale\(1\.0[4-9]|scale\(1\.[1-9]/)
+  assert.match(speakKeyframes, /translateY\(-2px\)/)
+  assert.match(speakKeyframes, /rotate\(1deg\)/)
+
+  const speakRule = styleSource.match(/\.application-mascot\.is-speaking\s*{[^}]*}/s)[0]
+  assert.match(speakRule, /animation: application-mascot-speak (3[0-9]{2}|400)ms/)
+
+  const listeningRule = styleSource.match(/\.application-mascot\.is-listening\s*{[^}]*}/s)[0]
+  assert.match(listeningRule, /animation: none/)
+  assert.match(listeningRule, /transform:\s*scale\(1\)/)
+
+  const attentiveRule = styleSource.match(/\.application-mascot\.is-attentive\s*{[^}]*}/s)[0]
+  assert.match(attentiveRule, /animation: none/)
+  assert.match(attentiveRule, /translateY\(-2px\)/)
+  assert.match(attentiveRule, /rotate\(-2deg\)/)
+
   assert.match(appSource, /exchange\.id === 'nonNegotiables'/)
   assert.match(appSource, /attentive: true/)
 })
@@ -507,10 +577,57 @@ test('all mascot motion, including travel, is disabled under prefers-reduced-mot
   assert.match(fn, /if \(prefersReducedMotion\(\)\)/)
 })
 
-test('the mascot is one persistent instance in conversation mode, not one per message', () => {
-  const conversationBuilder = appSource.match(/function buildConversationScreen[\s\S]*?\n}/)[0]
-  assert.equal((conversationBuilder.match(/buildMascotImg\(\)/g) || []).length, 1)
-  assert.doesNotMatch(appSource, /renderExchangeRow[\s\S]{0,400}buildMascotImg/)
+test('the conversation mascot wrapper and image are built exactly once, not rebuilt per render or per message', () => {
+  assert.match(appSource, /function ensureConversationMascot\(\)/)
+  const ensureFn = appSource.match(/function ensureConversationMascot\(\)[\s\S]*?\n}/)[0]
+  assert.match(ensureFn, /if \(conversationMascotColEl\) return conversationMascotColEl/)
+  // renderConversationScreen (called on every conversation render) must not
+  // construct a fresh mascot — it only reuses the persistent one.
+  const renderScreenFn = appSource.match(/function renderConversationScreen\(\)[\s\S]*?\n}/)[0]
+  assert.doesNotMatch(renderScreenFn, /createElement\('div', 'application-conversation-mascot-col'\)/)
+  assert.doesNotMatch(appSource, /renderExchangeRow[\s\S]{0,400}ensureConversationMascot/)
+  // ensureConversationShell wires the persistent mascot into the persistent
+  // layout exactly once, and never rebuilds it on subsequent calls.
+  const shellFn = appSource.match(/function ensureConversationShell\(\)[\s\S]*?\n}/)[0]
+  assert.match(shellFn, /if \(conversationScreenEl\) return conversationScreenEl/)
+  assert.match(shellFn, /ensureConversationMascot\(\)/)
+})
+
+test('renderConversationScreen only replaces the progress/nav hosts and the transcript — never an ancestor of the mascot', () => {
+  const renderFn = appSource.match(/function renderConversationScreen\(\)[\s\S]*?\n}/)[0]
+  const replaceChildrenCalls = [...renderFn.matchAll(/(\w+)\.replaceChildren/g)].map(([, target]) => target)
+  assert.deepEqual(replaceChildrenCalls, ['conversationProgressHost', 'conversationNavHost', 'conversationTranscriptEl'])
+  assert.doesNotMatch(renderFn, /conversationMascotColEl/)
+  assert.doesNotMatch(renderFn, /conversationLayoutEl\.replaceChildren/)
+})
+
+test('root only replaces its child when the screen actually changed, so the mounted conversation shell is left alone', () => {
+  assert.match(appSource, /if \(root\.firstElementChild !== screen\) root\.replaceChildren\(screen\)/)
+})
+
+test('is-speaking is cleared by the animation actually finishing (animationend), not a hand-tuned duplicate timer', () => {
+  assert.match(appSource, /addEventListener\('animationend', \(event\) => {/)
+  assert.match(appSource, /event\.animationName !== 'application-mascot-speak'/)
+  assert.match(appSource, /setConversationMascotState\('is-listening'\)/)
+  // The old fixed-260ms "switch to listening" call must be gone from
+  // playDonnaReveal — onSettled is all that timer does now.
+  const revealFn = appSource.match(/function playDonnaReveal\([\s\S]*?\n}/)[0]
+  assert.doesNotMatch(revealFn, /setConversationMascotState\('is-listening'\)/)
+})
+
+test('a stale reveal sequence cannot clobber a faster navigation (token-guarded timers)', () => {
+  assert.match(appSource, /let conversationActionToken = 0/)
+  assert.match(appSource, /function beginConversationAction\(\)/)
+  assert.match(appSource, /if \(token !== conversationActionToken\) return/)
+  const editFn = appSource.match(/function openExchangeForEdit\(exchangeId\)[\s\S]*?\n}/)[0]
+  assert.match(editFn, /beginConversationAction\(\)/)
+})
+
+test('positionMascot reads the persistent wrapper directly and is reused (not re-queried) across resize and navigation (#14)', () => {
+  const fn = appSource.match(/function positionMascot\(\)[\s\S]*?\n}/)[0]
+  assert.doesNotMatch(fn, /querySelector/)
+  assert.match(fn, /conversationMascotColEl/)
+  assert.match(appSource, /window\.addEventListener\('resize', \(\) => {\s*if \(mode === 'conversation'\) window\.requestAnimationFrame\(positionMascot\)/)
 })
 
 /* ---- Part G — navigation within a chapter ---- */

@@ -38,7 +38,22 @@ test('validates contact fields', () => {
   assert.equal(isValidEmail('person@example.com'), true)
   assert.equal(isValidEmail('person@invalid'), false)
   assert.equal(isValidPhone('+91 98765 43210'), true)
-  assert.equal(isValidPhone('98765 43210'), false)
+  // The leading '+' is optional (international numbers are accepted either way);
+  // digit count is what's enforced.
+  assert.equal(isValidPhone('98765 43210'), true)
+})
+
+test('phone: accepts international formats with an optional leading +, 8-15 digits, ignoring spaces/hyphens/parens', () => {
+  assert.equal(isValidPhone('+91 98765 43210'), true)
+  assert.equal(isValidPhone('+919876543210'), true)
+  assert.equal(isValidPhone('+1 (415) 555-0136'), true)
+  assert.equal(isValidPhone('415-555-0136'), true) // no '+', hyphens only
+  assert.equal(isValidPhone(''), false)
+  assert.equal(isValidPhone('12345'), false) // 5 digits, below the 8-digit floor
+  assert.equal(isValidPhone('+91 987'), false) // 5 digits after the country code
+  assert.equal(isValidPhone('+91 98765 4321098765'), false) // 17 digits, above the 15-digit ceiling
+  assert.equal(isValidPhone('abc-def-ghij'), false) // no digits at all
+  assert.equal(isValidPhone('+91-98765-43210'), true) // hyphens instead of spaces
 })
 
 test('accepts only LinkedIn profile URLs', () => {
