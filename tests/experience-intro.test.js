@@ -9,9 +9,13 @@ const introCss = readFileSync(new URL('../src/styles/components/experience-intro
 test('homepage includes a skippable city-image experience intro', () => {
   assert.match(homeHtml, /data-experience-intro/)
   assert.match(homeHtml, /data-experience-skip>Skip intro<\/button>/)
-  assert.match(homeHtml, /Every good introduction has three people in it\./)
-  assert.doesNotMatch(homeHtml, /data-experience-opening/)
-  assert.match(introScript, /\.to\(arrival, \{ opacity: 1, y: 0, duration: 0\.72, ease: 'power3\.out' \}, 2\.25\)/)
+  assert.match(homeHtml, /data-experience-title/)
+  assert.match(homeHtml, /<h2 aria-label="donna">donna<\/h2>/)
+  assert.doesNotMatch(homeHtml, /data-experience-counter/)
+  assert.doesNotMatch(introScript, /counterState|data-experience-counter/)
+  assert.doesNotMatch(homeHtml, /Every good introduction has three people in it\./)
+  assert.match(introScript, /clipPath: 'polygon\(0% 0%, 100% 0%, 100% 0%, 0% 0%\)'/)
+  assert.match(introScript, /stagger: -0\.075/)
 
   const imagePaths = [...homeHtml.matchAll(/data-src="(\/images\/intro\/[^"]+)"/g)]
     .map(([, imagePath]) => imagePath)
@@ -31,4 +35,5 @@ test('intro is session-aware, accessible and safe for reduced motion', () => {
   assert.match(introScript, /prefers-reduced-motion: reduce/)
   assert.match(introCss, /@media \(prefers-reduced-motion: reduce\)/)
   assert.match(introCss, /\.experience-intro__image:nth-child\(n \+ 5\)/)
+  assert.match(introCss, /clip-path: polygon\(20% 20%, 80% 20%, 80% 80%, 20% 80%\)/)
 })
