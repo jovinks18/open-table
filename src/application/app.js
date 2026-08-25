@@ -155,6 +155,10 @@ function connectError(control, describedBy, hasError) {
 /* Mascot                                                                  */
 /* ---------------------------------------------------------------------- */
 
+// Focus mode (Chapter VII, photographs, review) rebuilds its whole screen
+// per step regardless, so this mascot is rebuilt along with it — there is no
+// travel/glide animation to preserve there. Conversation mode has its own
+// persistent mascot below, since that one must survive re-renders.
 let mascotElement = null
 let mascotDesiredState = null
 
@@ -170,16 +174,59 @@ function buildMascotImg() {
   return img
 }
 
-// The mascot is rebuilt on every render (Part C3 — one persistent instance,
-// not one per message), so the desired animation state is tracked here and
-// re-applied to the freshly built element rather than read back off the old
-// (about to be discarded) one.
 function setMascotState(state) {
   mascotDesiredState = state
   if (mascotElement) {
     mascotElement.classList.remove('is-speaking', 'is-listening', 'is-attentive')
     if (state) mascotElement.classList.add(state)
   }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Conversation-mode mascot — one persistent wrapper and image for the     */
+/* whole conversation. Recreating them on every render left CSS transitions*/
+/* nothing to animate from (a brand-new element has no prior painted       */
+/* transform), so the mascot teleported between questions instead of       */
+/* gliding. Both nodes are now built once and only ever moved/mutated.     */
+/* ---------------------------------------------------------------------- */
+
+let conversationMascotColEl = null
+let conversationMascotImgEl = null
+
+// Bumped by anything that starts a new reveal sequence or navigation, so
+// in-flight setTimeout callbacks from a superseded sequence can recognise
+// they're stale and no-op instead of clobbering current state (#12).
+let conversationActionToken = 0
+
+function beginConversationAction() {
+  conversationActionToken += 1
+  return conversationActionToken
+}
+
+function ensureConversationMascot() {
+  if (conversationMascotColEl) return conversationMascotColEl
+  conversationMascotColEl = createElement('div', 'application-conversation-mascot-col')
+  conversationMascotImgEl = document.createElement('img')
+  conversationMascotImgEl.className = 'application-mascot'
+  conversationMascotImgEl.src = '/images/application/donna-mascot.webp'
+  conversationMascotImgEl.alt = ''
+  conversationMascotImgEl.width = 40
+  conversationMascotImgEl.height = 40
+  // The authoritative signal that the one-shot speak animation (#8/#9) has
+  // finished — not a second, hand-tuned timer duplicating its 350ms
+  // duration, which could drift out of sync with the CSS (#10).
+  conversationMascotImgEl.addEventListener('animationend', (event) => {
+    if (event.animationName !== 'application-mascot-speak') return
+    if (conversationMascotImgEl.classList.contains('is-speaking')) setConversationMascotState('is-listening')
+  })
+  conversationMascotColEl.append(conversationMascotImgEl)
+  return conversationMascotColEl
+}
+
+function setConversationMascotState(state) {
+  if (!conversationMascotImgEl) return
+  conversationMascotImgEl.classList.remove('is-speaking', 'is-listening', 'is-attentive')
+  if (state) conversationMascotImgEl.classList.add(state)
 }
 
 function buildEyebrow() {
@@ -301,9 +348,19 @@ function buildCombobox(field, { multiple, selectedValue, onChoose, onRemove }) {
   const chipHost = createElement('div', '')
   if (multiple) container.append(chipHost)
 
+  // onChoose/onRemove reassign applicationData[field.name] to a *new* array
+  // and return it, so this local binding is kept in sync rather than going
+  // stale after the first pick — the root cause of chips/menu/state
+  // disagreeing with each other.
+  function removeSelected(value) {
+    selectedValue = onRemove(value) ?? selectedValue
+    refreshChips()
+    renderOptions()
+  }
+
   function refreshChips() {
     chipHost.replaceChildren()
-    if (multiple && selectedValue.length) chipHost.append(buildSelectedOptions(field, selectedValue, onRemove))
+    if (multiple && selectedValue.length) chipHost.append(buildSelectedOptions(field, selectedValue, removeSelected))
   }
   refreshChips()
 
@@ -348,6 +405,22 @@ function buildCombobox(field, { multiple, selectedValue, onChoose, onRemove }) {
       option.addEventListener('click', () => choose(value, optionLabel))
       listbox.append(option)
     })
+    if (multiple) {
+      const actions = createElement('div', 'application-combobox-actions')
+      const clearButton = createButton('Clear', 'application-inline-button')
+      clearButton.disabled = selectedValue.length === 0
+      clearButton.addEventListener('mousedown', (event) => event.preventDefault())
+      clearButton.addEventListener('click', () => {
+        selectedValue.slice().forEach((value) => { selectedValue = onRemove(value) ?? selectedValue })
+        refreshChips()
+        renderOptions()
+      })
+      const doneButton = createButton('Done', 'application-inline-button')
+      doneButton.addEventListener('mousedown', (event) => event.preventDefault())
+      doneButton.addEventListener('click', () => close())
+      actions.append(clearButton, doneButton)
+      listbox.append(actions)
+    }
     const active = listbox.children[activeIndex]
     if (active) input.setAttribute('aria-activedescendant', active.id)
     else input.removeAttribute('aria-activedescendant')
@@ -367,7 +440,7 @@ function buildCombobox(field, { multiple, selectedValue, onChoose, onRemove }) {
 
   function choose(value, optionLabel) {
     if (multiple) {
-      onChoose(value)
+      selectedValue = onChoose(value) ?? selectedValue
       input.value = ''
       refreshChips()
       renderOptions()
@@ -687,10 +760,12 @@ function startConversation() {
   nextSequenceIndex = 0
   openExchangeId = null
   previousOpenExchangeId = null
-  mascotDesiredState = null
   showTranscriptTransition = false
   currentChapterNumber = null
   globalRevealedCount = 0
+  beginConversationAction()
+  ensureConversationMascot()
+  setConversationMascotState(null)
   renderApplication()
   advanceConversation()
 }
@@ -727,12 +802,14 @@ function enterChapter(chapterNumber, index) {
     openBrief()
     return
   }
+  const token = beginConversationAction()
   showTranscriptTransition = true
   renderApplication()
   const fadeWait = prefersReducedMotion() ? 0 : 480
   setTimeout(() => {
+    if (token !== conversationActionToken) return
     showTranscriptTransition = false
-    mascotDesiredState = null
+    setConversationMascotState(null)
     openBrief()
     window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
   }, fadeWait)
@@ -778,18 +855,21 @@ function beginChapterTransition() {
   revealedExchangeIds.push(transitionId)
   openExchangeId = null
   playDonnaReveal(transitionId, { attentive: true }, () => {
+    const token = beginConversationAction()
     renderApplication()
     scrollToId(`exchange-${transitionId}`)
     const wait = prefersReducedMotion() ? 0 : 1100
     setTimeout(() => {
+      if (token !== conversationActionToken) return
       showTranscriptTransition = true
       renderApplication()
       const fadeWait = prefersReducedMotion() ? 0 : 480
       setTimeout(() => {
+        if (token !== conversationActionToken) return
         mode = 'focus'
         currentFocusStep = 0
         currentErrors = {}
-        mascotDesiredState = null
+        setConversationMascotState(null)
         renderApplication()
         window.scrollTo({ top: 0, behavior: 'auto' })
       }, fadeWait)
@@ -797,23 +877,28 @@ function beginChapterTransition() {
   })
 }
 
+// The 350ms speak animation's end is what actually clears is-speaking (see
+// the animationend listener in ensureConversationMascot) — this function
+// only handles state/timing around it, not the class removal itself.
 function playDonnaReveal(exchangeId, { attentive = false } = {}, onSettled) {
+  const token = beginConversationAction()
   if (prefersReducedMotion()) {
     settledMessageIds.add(exchangeId)
-    setMascotState(attentive ? 'is-attentive' : null)
+    setConversationMascotState(attentive ? 'is-attentive' : null)
     onSettled()
     return
   }
-  setMascotState(attentive ? 'is-attentive' : null)
+  setConversationMascotState(attentive ? 'is-attentive' : null)
   renderApplication()
   const delay = attentive ? 900 : 480
   setTimeout(() => {
+    if (token !== conversationActionToken) return
     settledMessageIds.add(exchangeId)
-    setMascotState('is-speaking')
+    setConversationMascotState('is-speaking')
     renderApplication()
     scrollToId(`exchange-${exchangeId}`)
     setTimeout(() => {
-      setMascotState('is-listening')
+      if (token !== conversationActionToken) return
       onSettled()
     }, 260)
   }, delay)
@@ -939,6 +1024,15 @@ function syncConditionalDependents(editedFieldName) {
 }
 
 function openExchangeForEdit(exchangeId) {
+  // Invalidates any in-flight playDonnaReveal timers so a fast Back/Forward
+  // or edit click can't be clobbered by a stale sequence firing later (#12).
+  // That invalidation can itself leave the target exchange stuck on its
+  // typing indicator if the user navigated to it before its own reveal ever
+  // reached settledMessageIds — settle it directly instead, since the user
+  // is now actively engaging with it and there's nothing left to wait for.
+  beginConversationAction()
+  settledMessageIds.add(exchangeId)
+  setConversationMascotState('is-listening')
   if (openExchangeId && openExchangeId !== exchangeId) previousOpenExchangeId = openExchangeId
   openExchangeId = exchangeId
   rerenderCurrent()
@@ -1037,8 +1131,12 @@ function buildExchangeControl(exchange) {
         onChoose: (value) => {
           const selected = applicationData[field.name]
           applicationData[field.name] = selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value]
+          return applicationData[field.name]
         },
-        onRemove: (value) => { applicationData[field.name] = applicationData[field.name].filter((item) => item !== value) },
+        onRemove: (value) => {
+          applicationData[field.name] = applicationData[field.name].filter((item) => item !== value)
+          return applicationData[field.name]
+        },
       }))
     } else {
       form.append(buildCheckboxCards(field, {
@@ -1087,6 +1185,11 @@ function buildExchangeControl(exchange) {
 
   // text, email, tel, url, date
   const form = createElement('form', 'application-exchange-form')
+  // buildTextInput sets the control's native `required` attribute. Without
+  // noValidate, the browser's own constraint validation silently blocks the
+  // 'submit' event on an empty required field (phone included) before our
+  // handler — and therefore our custom error message — ever runs.
+  form.noValidate = true
   const { container } = buildTextInput(field, { onInput: () => {} })
   form.append(container)
   const error = buildExchangeErrorNode(exchange.id)
@@ -1192,44 +1295,75 @@ function buildConversationNav() {
   return nav
 }
 
-function buildConversationScreen() {
-  const screen = createElement('section', 'application-screen application-conversation')
+// Conversation mode mounts this shell exactly once and mutates it in place
+// on every subsequent render (progress/nav content replaced, transcript rows
+// replaced) rather than rebuilding the screen from scratch. The mascot
+// wrapper and image live outside anything this touches, so their node
+// identity — and the CSS transition riding on it — survives every exchange.
+let conversationScreenEl = null
+let conversationHeadingEl = null
+let conversationProgressHost = null
+let conversationNavHost = null
+let conversationLayoutEl = null
+let conversationTranscriptEl = null
+
+function ensureConversationShell() {
+  if (conversationScreenEl) return conversationScreenEl
+
+  conversationScreenEl = createElement('section', 'application-screen application-conversation')
+  conversationHeadingEl = createElement('h1', 'sr-only', 'Application conversation')
+  conversationHeadingEl.id = 'application-heading'
+  conversationHeadingEl.tabIndex = -1
+  conversationProgressHost = createElement('div')
+  conversationNavHost = createElement('div')
+  conversationLayoutEl = createElement('div', 'application-conversation-layout')
+  conversationTranscriptEl = createElement('div', 'application-transcript')
+  conversationTranscriptEl.setAttribute('aria-live', 'polite')
+
+  conversationLayoutEl.append(ensureConversationMascot(), conversationTranscriptEl)
+  conversationScreenEl.append(conversationHeadingEl, conversationProgressHost, conversationNavHost, conversationLayoutEl)
+  return conversationScreenEl
+}
+
+// Called on every conversation-mode render. Updates the persistent shell's
+// contents in place — replaceChildren() here only ever targets the progress/
+// nav hosts or the transcript, none of which is an ancestor of the mascot.
+function renderConversationScreen() {
+  ensureConversationShell()
+
+  conversationProgressHost.replaceChildren()
   const progress = buildProgress()
-  if (progress) screen.append(progress)
+  if (progress) conversationProgressHost.append(progress)
+
+  conversationNavHost.replaceChildren()
   const nav = buildConversationNav()
-  if (nav) screen.append(nav)
-  const layout = createElement('div', 'application-conversation-layout')
-  const mascotCol = createElement('div', 'application-conversation-mascot-col')
-  mascotCol.append(buildMascotImg())
-  const transcript = createElement('div', 'application-transcript')
-  transcript.setAttribute('aria-live', 'polite')
-  if (showTranscriptTransition) transcript.classList.add('is-transitioning')
-  const heading = createElement('h1', 'sr-only', 'Application conversation')
-  heading.id = 'application-heading'
-  heading.tabIndex = -1
-  screen.prepend(heading)
-  revealedExchangeIds.forEach((id) => transcript.append(renderExchangeRow(id)))
-  layout.append(mascotCol, transcript)
-  screen.append(layout)
-  return screen
+  if (nav) conversationNavHost.append(nav)
+
+  conversationTranscriptEl.classList.toggle('is-transitioning', showTranscriptTransition)
+  conversationTranscriptEl.replaceChildren(...revealedExchangeIds.map(renderExchangeRow))
+
+  return conversationScreenEl
 }
 
 // Part F1 — donna travels down the column to sit beside the newest message
 // and settles there while its input is open, instead of staying sticky.
+// Reads the persistent wrapper directly (not a query) since it's never torn
+// down; the offset is measured after the transcript above has rendered, and
+// applied on the render's next animation frame so the browser has a prior
+// painted transform to animate from rather than a fresh mount (#11).
 function positionMascot() {
-  const mascotCol = root.querySelector('.application-conversation-mascot-col')
-  if (!mascotCol) return
+  if (mode !== 'conversation' || !conversationMascotColEl) return
   if (prefersReducedMotion()) {
-    mascotCol.style.transform = ''
+    conversationMascotColEl.style.transform = ''
     return
   }
   const targetId = openExchangeId || revealedExchangeIds[revealedExchangeIds.length - 1]
   const targetRow = targetId && document.getElementById(`exchange-${targetId}`)
   // targetRow's offsetParent is .application-conversation-layout (the
-  // nearest positioned ancestor, which mascotCol shares), so its offsetTop
-  // is already layout-relative — no further subtraction needed.
+  // nearest positioned ancestor, which the mascot wrapper shares), so its
+  // offsetTop is already layout-relative — no further subtraction needed.
   const offset = targetRow ? targetRow.offsetTop : 0
-  mascotCol.style.transform = `translateY(${offset}px)`
+  conversationMascotColEl.style.transform = `translateY(${offset}px)`
 }
 
 /* ---------------------------------------------------------------------- */
@@ -1501,8 +1635,12 @@ function buildInlineReviewValue(field) {
           onChoose: (value) => {
             const selected = applicationData[field.name]
             applicationData[field.name] = selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value]
+            return applicationData[field.name]
           },
-          onRemove: (value) => { applicationData[field.name] = applicationData[field.name].filter((item) => item !== value) },
+          onRemove: (value) => {
+            applicationData[field.name] = applicationData[field.name].filter((item) => item !== value)
+            return applicationData[field.name]
+          },
         })
         : buildCheckboxCards(field, {
           selected: applicationData[field.name],
@@ -1771,16 +1909,25 @@ function buildGateway() {
 function renderApplication({ focusHeading = true } = {}) {
   let screen
   if (mode === 'gateway') screen = buildGateway()
-  else if (mode === 'conversation') screen = buildConversationScreen()
+  else if (mode === 'conversation') screen = renderConversationScreen()
   else if (FOCUS_STEPS[currentFocusStep]?.id === 'photographs') screen = buildPhotographs()
   else if (FOCUS_STEPS[currentFocusStep]?.id === 'review-and-consent') screen = buildReview()
   else screen = buildFocusStep()
-  root.replaceChildren(screen)
+  // Every other mode rebuilds `screen` fresh each call, so this is always
+  // true for them. Conversation mode returns the same persistent element on
+  // every render, so once mounted this is a no-op — the mascot's ancestor
+  // chain is never touched by root again (#4).
+  if (root.firstElementChild !== screen) root.replaceChildren(screen)
   root.classList.toggle('is-gateway', mode === 'gateway')
   if (focusHeading && mode !== 'conversation') focusScreenHeading()
   if (mode === 'conversation') window.requestAnimationFrame(positionMascot)
 }
 
 window.addEventListener('beforeunload', () => photoState.forEach(({ url }) => URL.revokeObjectURL(url)))
+// Keeps the mascot aligned with its target row if the viewport is resized
+// mid-conversation (#14) — reflowed text can move a row's offsetTop.
+window.addEventListener('resize', () => {
+  if (mode === 'conversation') window.requestAnimationFrame(positionMascot)
+})
 renderApplication()
 window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }))

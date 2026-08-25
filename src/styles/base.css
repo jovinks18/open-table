@@ -66,10 +66,16 @@ h3 {
 }
 
 .wordmark {
-  font-family: var(--serif);
-  font-size: 1.75rem;
-  font-style: italic;
-  letter-spacing: -0.05em;
+  display: block;
+  width: clamp(5.75rem, 7vw, 7rem);
+  overflow: hidden;
+  border-radius: 0.25rem;
+}
+
+.wordmark img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .site-header nav {

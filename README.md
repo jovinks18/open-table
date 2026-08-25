@@ -10,7 +10,7 @@ and contact details are exchanged only after both people agree.
 ## Contents
 
 - Marketing pages: home, FAQ, safety
-- A seven-section application form (`src/application/`)
+- A 33-screen application and member-journey prototype (`src/application/journey/`)
 - Shared styles and site config
 
 ## Status
@@ -47,7 +47,7 @@ npm run preview   # Serves the production build locally
 | `/` or `/index.html` | Experience intro, homepage and how donna works |
 | `/safety.html` | Safety guidance and reporting contact |
 | `/faq.html` | Two-column FAQ with expandable answers |
-| `/apply.html` | Six-step application preview |
+| `/apply.html` | Applicant, referral and member-journey preview |
 
 Every page uses the same warm-ivory background, shared navigation and footer. User-facing references to **donna** remain lowercase.
 
@@ -57,7 +57,8 @@ Every page uses the same warm-ivory background, shared navigation and footer. Us
 index.html, safety.html, faq.html, apply.html
 public/images/intro/             Local city photographs
 src/config/site.js               Contact and launch configuration
-src/application/                 Application schema, validation and UI
+src/application/journey/         Active journey template, state, controller and API boundary
+src/application/*.js             Earlier schema, validation and UI modules retained for reference
 src/scripts/modules/             Intro, menu, links and homepage motion
 src/styles/tokens.css            Shared colours and font stacks
 src/styles/components/           Reusable component styles
@@ -79,20 +80,19 @@ vite.config.js                   Multi-page production build
 
 The photographs in `public/images/intro/` are local copies selected from Unsplash city collections for Bengaluru, Mumbai, Delhi and Hyderabad. Replace or confirm production usage before launch.
 
-## Application status
+## Application architecture
 
-The application is a **client-side preview**. It validates and reviews answers in memory, but does not submit, upload, persist or transmit applicant data. Refreshing the page clears the form.
+The active journey is a **client-side preview**. It keeps answers in memory but does not submit, upload, persist or transmit applicant data. Refreshing the page clears the journey.
 
-The gateway is separate from the six application steps:
+- `apply.html` is the route shell only.
+- `src/application/journey/template.html` owns the supplied 33-screen markup.
+- `styles.css` and `controller.js` own presentation and existing interactions.
+- `fields.js` maps controls to stable applicant and referrer field paths.
+- `store.js` owns versioned, serializable in-memory state.
+- `api.js` is the single future backend boundary and is intentionally inactive.
+- Large journey media lives in `public/images/application/` and `public/video/application/`.
 
-1. Eligibility
-2. Basics
-3. About you
-4. Preferences
-5. Photographs
-6. Review and consent
-
-Do not add the gateway to `APPLICATION_STEPS`; progress calculations depend on the six-step model.
+Keep network calls, persistence and uploads out of UI/controller modules. When a backend is introduced, implement the methods in `api.js` and keep the state field paths stable so backend payloads do not depend on visible copy or DOM order.
 
 ## Configuration
 

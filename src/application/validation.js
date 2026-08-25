@@ -36,7 +36,7 @@ export function isValidEmail(value) {
 
 export function isValidPhone(value) {
   const phone = sanitizeText(value)
-  if (!/^\+[\d\s()-]+$/.test(phone)) return false
+  if (!/^\+?[\d\s()-]+$/.test(phone)) return false
   const digits = phone.replace(/\D/g, '')
   return digits.length >= 8 && digits.length <= 15
 }

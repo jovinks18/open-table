@@ -1,10 +1,50 @@
 .home-page {
-  --graphite: var(--warm-ivory);
-  --graphite-ink: var(--espresso);
-  --graphite-muted: var(--warm-taupe);
+  --graphite: #26080d;
+  --graphite-ink: #f7ece6;
+  --graphite-muted: rgb(247 236 230 / 72%);
+  --deep-brick: #f29985;
+  --terracotta: #bf5349;
+  --line: rgb(242 153 133 / 22%);
+  --line-subtle: rgb(242 153 133 / 16%);
 
-  background: var(--warm-ivory);
-  color: var(--espresso);
+  background:
+    radial-gradient(ellipse 900px 700px at 50% 0%, rgb(191 83 73 / 30%), transparent 60%),
+    radial-gradient(ellipse 800px 800px at 100% 100%, rgb(89 25 25 / 50%), transparent 60%),
+    linear-gradient(160deg, #1c0509 0%, #26080d 45%, #34090d 100%);
+  color: var(--graphite-ink);
+}
+
+.home-page .donna-page {
+  background:
+    radial-gradient(ellipse 900px 700px at 50% 0%, rgb(191 83 73 / 30%), transparent 60%),
+    radial-gradient(ellipse 800px 800px at 100% 100%, rgb(89 25 25 / 50%), transparent 60%),
+    linear-gradient(160deg, #1c0509 0%, #26080d 45%, #34090d 100%);
+}
+
+.home-page .hero,
+.home-page .card-story,
+.home-page .story-card-stage,
+.home-page .final-cta,
+.home-page .site-footer {
+  background: transparent;
+}
+
+.home-page .hero {
+  background-image:
+    linear-gradient(180deg, rgb(20 4 6 / 55%), rgb(20 4 6 / 75%)),
+    url("/images/donna-home-background.png");
+  background-position: center;
+  background-size: cover;
+}
+
+.home-page .button-primary {
+  background: #bf5349;
+  color: #f7ece6;
+}
+
+.home-page .button-primary:hover {
+  background: #f29985;
+  color: #1c0509;
 }
 
 .hero {

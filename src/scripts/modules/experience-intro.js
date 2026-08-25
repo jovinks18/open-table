@@ -1,22 +1,6 @@
 const EXPERIENCE_STORAGE_KEY = 'donnaExperienceSeen'
 
-const desktopPositions = [
-  { x: -39, y: -31, rotation: -7 },
-  { x: -15, y: -34, rotation: 5 },
-  { x: 16, y: -31, rotation: -4 },
-  { x: 39, y: -28, rotation: 7 },
-  { x: -39, y: 20, rotation: 5 },
-  { x: -14, y: 28, rotation: -6 },
-  { x: 16, y: 27, rotation: 5 },
-  { x: 39, y: 19, rotation: -5 },
-]
-
-const mobilePositions = [
-  { x: -27, y: -28, rotation: -6 },
-  { x: 27, y: -25, rotation: 5 },
-  { x: -28, y: 27, rotation: 5 },
-  { x: 28, y: 29, rotation: -4 },
-]
+const tileRotations = [7.5, -2.5, -10, 12.5, -5, 5, -8, 9]
 
 function shouldShowExperienceIntro() {
   const forceIntro = new URLSearchParams(window.location.search).get('intro') === '1'
@@ -46,6 +30,23 @@ function hydrateImages(tiles) {
   })
 }
 
+function splitTitle(title) {
+  if (!title) return []
+
+  const text = title.textContent.trim()
+  title.textContent = ''
+  title.setAttribute('aria-label', text)
+
+  return [...text].map((character) => {
+    const span = document.createElement('span')
+    span.className = 'experience-intro__char'
+    span.setAttribute('aria-hidden', 'true')
+    span.textContent = character
+    title.append(span)
+    return span
+  })
+}
+
 export function initExperienceIntro() {
   const root = document.documentElement
   const overlay = document.querySelector('[data-experience-intro]')
@@ -60,11 +61,11 @@ export function initExperienceIntro() {
 
   const motion = window.gsap
   const skipButton = overlay.querySelector('[data-experience-skip]')
-  const arrival = overlay.querySelector('[data-experience-arrival]')
+  const title = overlay.querySelector('[data-experience-title] h2')
+  const titleCharacters = splitTitle(title)
   const tiles = [...overlay.querySelectorAll('.experience-intro__image')]
   const isMobile = window.matchMedia('(max-width: 640px)').matches
-  const positions = isMobile ? mobilePositions : desktopPositions
-  const activeTiles = isMobile ? tiles.slice(0, positions.length) : tiles
+  const activeTiles = isMobile ? tiles.slice(0, 4) : tiles
   let timeline
   let complete = false
 
@@ -75,72 +76,99 @@ export function initExperienceIntro() {
   page.setAttribute('inert', '')
   page.setAttribute('aria-hidden', 'true')
 
-  function cleanup({ focusPage = false } = {}) {
+  function finishCleanup({ focusPage = false } = {}) {
     if (complete) return
     complete = true
     timeline?.kill()
+    root.classList.remove('experience-active', 'experience-pending')
+    page.removeAttribute('inert')
+    page.removeAttribute('aria-hidden')
+    overlay.remove()
 
-    const finishCleanup = () => {
-      root.classList.remove('experience-active', 'experience-pending')
-      page.removeAttribute('inert')
-      page.removeAttribute('aria-hidden')
-      overlay.remove()
-
-      if (focusPage) {
-        document.querySelector('#hero-title')?.focus({ preventScroll: true })
-      }
+    if (focusPage) {
+      document.querySelector('#hero-title')?.focus({ preventScroll: true })
     }
+  }
+
+  function revealPage({ focusPage = false } = {}) {
+    if (complete) return
+    timeline?.kill()
 
     if (!motion) {
       overlay.classList.add('is-leaving')
-      window.setTimeout(finishCleanup, 650)
+      window.setTimeout(() => finishCleanup({ focusPage }), 650)
       return
     }
 
-    motion.timeline({ onComplete: finishCleanup })
-      .to(overlay, { opacity: 0, duration: 0.85, ease: 'power2.inOut' })
+    motion.timeline({ onComplete: () => finishCleanup({ focusPage }) })
+      .to(overlay, {
+        clipPath: 'polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)',
+        duration: 0.7,
+        ease: 'power3.inOut',
+      })
       .fromTo(
         '.hero-copy',
-        { opacity: 0.45, y: 18, scale: 0.985 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.85, ease: 'power2.out' },
-        '<0.08',
+        { opacity: 0.7, y: 18 },
+        { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out' },
+        '<0.18',
       )
   }
 
-  skipButton?.addEventListener('click', () => cleanup({ focusPage: true }), { once: true })
+  skipButton?.addEventListener('click', () => revealPage({ focusPage: true }), { once: true })
 
-  if (!motion || !arrival || !activeTiles.length) {
-    window.setTimeout(() => cleanup(), 1200)
+  if (!motion || !titleCharacters.length || !activeTiles.length) {
+    window.setTimeout(() => revealPage(), 1200)
     return
   }
 
-  motion.set(arrival, { opacity: 0, y: 18 })
-  motion.set(tiles, {
-    top: '50%',
-    left: '50%',
+  motion.set(activeTiles, {
     xPercent: -50,
     yPercent: -50,
-    scale: 0.04,
-    opacity: 0,
+    scale: 0,
+    rotation: (index) => tileRotations[index],
+    clipPath: 'polygon(20% 20%, 80% 20%, 80% 80%, 20% 80%)',
   })
+  motion.set(titleCharacters, { yPercent: 110 })
 
-  timeline = motion.timeline({ defaults: { overwrite: 'auto' } })
+  timeline = motion.timeline({
+    delay: 0.5,
+    onComplete: finishCleanup,
+  })
     .to(activeTiles, {
-      opacity: 1,
       scale: 1,
-      duration: 0.62,
-      stagger: 0.07,
-      ease: 'power3.out',
-    }, 0.55)
-    .to(activeTiles, {
-      x: (index) => `${positions[index].x}vw`,
-      y: (index) => `${positions[index].y}vh`,
-      rotation: (index) => positions[index].rotation,
-      scale: isMobile ? 0.42 : 0.4,
-      duration: 1.15,
-      stagger: 0.04,
+      clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
+      duration: 1,
       ease: 'power3.inOut',
-    }, 1.6)
-    .to(arrival, { opacity: 1, y: 0, duration: 0.72, ease: 'power3.out' }, 2.25)
-    .add(() => cleanup(), '+=2')
+      stagger: 0.16,
+    }, 0)
+    .to(titleCharacters, {
+      yPercent: 0,
+      duration: 1,
+      ease: 'power4.inOut',
+      stagger: { each: 0.1, from: 'random' },
+    }, 0.35)
+    .to(titleCharacters, {
+      yPercent: -110,
+      duration: 0.75,
+      ease: 'power4.inOut',
+      stagger: { each: 0.1, from: 'random' },
+    }, 3.25)
+    .to(activeTiles, {
+      scale: 0,
+      clipPath: 'polygon(20% 20%, 80% 20%, 80% 80%, 20% 80%)',
+      duration: 1,
+      ease: 'power4.inOut',
+      stagger: -0.075,
+    }, 3.5)
+    .to(overlay, {
+      clipPath: 'polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)',
+      duration: 1,
+      ease: 'power4.inOut',
+    }, 4.35)
+    .fromTo(
+      '.hero-copy',
+      { opacity: 0.7, y: 18 },
+      { opacity: 1, y: 0, duration: 0.85, ease: 'power3.out' },
+      4.65,
+    )
 }
