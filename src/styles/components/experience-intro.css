@@ -4,11 +4,9 @@
   z-index: 100;
   display: none;
   overflow: hidden;
-  background: #1c0509;
+  background: transparent;
   color: #fff;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
   animation: experience-failsafe 0.7s ease 9s forwards;
-  will-change: clip-path;
 }
 
 .experience-pending .experience-intro {
@@ -27,6 +25,21 @@
 .experience-active,
 .experience-active body {
   overflow: hidden;
+}
+
+.experience-active .nav-wordmark .donna-wordmark,
+.experience-active .mobile-wordmark .donna-wordmark {
+  opacity: 0;
+}
+
+.experience-intro__curtain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  background: #1c0509;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  will-change: clip-path;
 }
 
 .experience-intro__skip {
@@ -52,6 +65,7 @@
   z-index: 3;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  will-change: transform;
 }
 
 .experience-intro__title h2 {

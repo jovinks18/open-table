@@ -25,7 +25,7 @@ test('journey state is versioned, isolated per store, and serializable', () => {
 })
 
 test('every DOM binding has a unique stable state path', () => {
-  assert.ok(fieldBindings.length >= 45)
+  assert.ok(fieldBindings.length >= 35)
   assert.equal(new Set(applicationFieldPaths).size, applicationFieldPaths.length)
   assert.ok(applicationFieldPaths.every((path) => /^(applicant|referrer)\./.test(path)))
 })

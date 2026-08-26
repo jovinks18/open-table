@@ -1,23 +1,45 @@
 import { journeyStore } from './store.js';
+import { initChapterOne } from './chapter-one.js';
 
 let firstName = '';
 
-function initChapterSteppers(){
-  document.querySelectorAll('.progress-wrap').forEach((wrap) => {
-    const count = wrap.querySelector('.chapter-count');
-    const chapter = Number.parseInt(count?.textContent || '', 10);
-    if (!Number.isFinite(chapter)) return;
+const CHAPTERS = Object.freeze(['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']);
 
-    wrap.querySelectorAll(':scope > .track, :scope > .substep-dots').forEach((element) => element.remove());
-    const stepper = document.createElement('div');
-    stepper.className = 'chapter-stepper';
-    stepper.style.setProperty('--chapter', chapter);
-    stepper.setAttribute('role', 'progressbar');
-    stepper.setAttribute('aria-label', `Chapter ${chapter} of 7`);
-    stepper.setAttribute('aria-valuemin', '1');
-    stepper.setAttribute('aria-valuemax', '7');
-    stepper.setAttribute('aria-valuenow', String(chapter));
-    wrap.appendChild(stepper);
+function chapterForScreen(screen){
+  const chapterMatch = screen.id.match(/^ch([1-7])(?:-|$)/);
+  if (chapterMatch) return Number(chapterMatch[1]);
+  return 1;
+}
+
+function renderChapterProgress(wrap, currentChapter){
+  const indicator = document.createElement('div');
+  const label = document.createElement('span');
+  const numeral = document.createElement('span');
+
+  indicator.className = 'chapter-indicator';
+  indicator.setAttribute('role', 'progressbar');
+  indicator.setAttribute('aria-label', `Chapter ${currentChapter} of ${CHAPTERS.length}`);
+  indicator.setAttribute('aria-valuemin', '1');
+  indicator.setAttribute('aria-valuemax', String(CHAPTERS.length));
+  indicator.setAttribute('aria-valuenow', String(currentChapter));
+  indicator.setAttribute('aria-valuetext', `Chapter ${CHAPTERS[currentChapter - 1]} of VII`);
+
+  label.className = 'chapter-indicator__label';
+  label.textContent = 'Chapter';
+  numeral.className = 'chapter-indicator__numeral';
+  numeral.textContent = CHAPTERS[currentChapter - 1];
+  indicator.append(label, numeral);
+
+  wrap.replaceChildren(indicator);
+}
+
+function initJourneyHeaders(){
+  document.querySelectorAll('.progress-wrap').forEach((wrap) => {
+    const screen = wrap.closest('.screen');
+    if (!screen) return;
+    screen.classList.add('journey-screen');
+    screen.querySelectorAll('.exit').forEach((exit) => exit.remove());
+    renderChapterProgress(wrap, chapterForScreen(screen));
   });
 }
 
@@ -58,10 +80,11 @@ function initAgeRange(){
   syncAgeRange();
 }
 
-initChapterSteppers();
+initJourneyHeaders();
 initAgeRange();
 
 function goTo(id){
+  if (id === 'signup-choice') id = 'landing';
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.getElementById('journey-root').dispatchEvent(new CustomEvent('journey:navigate', {
@@ -70,6 +93,8 @@ function goTo(id){
   }));
   window.scrollTo(0,0);
 }
+
+initChapterOne(goTo);
 
 function updateName(val){
   firstName = val.trim().split(' ')[0];
@@ -88,13 +113,6 @@ function selectChoice(el){
   if (parent.closest('#signup-choice')) {
     journeyStore.setField('route', [...parent.children].indexOf(el) === 1 ? 'referrer' : 'applicant');
   }
-}
-
-function goSignupNext(){
-  const cards = document.querySelectorAll('#signup-choice .choice-card');
-  const friendChosen = cards[1] && cards[1].classList.contains('selected');
-  journeyStore.setField('route', friendChosen ? 'referrer' : 'applicant');
-  goTo(friendChosen ? 'friend-verification' : 'welcome');
 }
 
 function selectPill(el){
@@ -202,50 +220,6 @@ const CITIES = [
 const cityTagInput = makeTagInput({ boxId:'cityTagBox', inputId:'cityInput', dropdownId:'cityDropdown', list: CITIES, statePath:'applicant.relocationCities' });
 function filterCities(val){ cityTagInput.filter(val); }
 function cityKeydown(evt){ cityTagInput.keydown(evt); }
-
-function filterCurrentCity(val){
-  const dropdown = document.getElementById('currentCityDropdown');
-  if (!val.trim()){
-    renderCurrentCityOptions(CITIES.slice(0, 8));
-    return;
-  }
-  const matches = CITIES.filter(c => c.toLowerCase().includes(val.toLowerCase()));
-  renderCurrentCityOptions(matches.slice(0, 8));
-}
-
-function renderCurrentCityOptions(list){
-  const dropdown = document.getElementById('currentCityDropdown');
-  if (list.length === 0){ dropdown.classList.remove('show'); return; }
-  dropdown.innerHTML = list.map(c => `<div class="tag-option">${c}</div>`).join('');
-  [...dropdown.children].forEach((el, i) => el.onclick = () => {
-    document.getElementById('currentCityInput').value = list[i];
-    document.getElementById('currentCityInput').dispatchEvent(new Event('input', { bubbles: true }));
-    dropdown.classList.remove('show');
-  });
-  dropdown.classList.add('show');
-}
-
-function currentCityKeydown(evt){
-  if (evt.key === 'Enter') document.getElementById('currentCityDropdown').classList.remove('show');
-  if (evt.key === 'Escape') document.getElementById('currentCityDropdown').classList.remove('show');
-}
-
-function populateDob(){
-  const daySel = document.getElementById('dobDay');
-  const yearSel = document.getElementById('dobYear');
-  for (let d = 1; d <= 31; d++){
-    const opt = document.createElement('option');
-    opt.textContent = d;
-    daySel.appendChild(opt);
-  }
-  const currentYear = new Date().getFullYear();
-  for (let y = currentYear - 18; y >= currentYear - 75; y--){
-    const opt = document.createElement('option');
-    opt.textContent = y;
-    yearSel.appendChild(opt);
-  }
-}
-populateDob();
 
 function selectLivingSituation(el){
   selectPill(el);
@@ -405,27 +379,21 @@ document.addEventListener('click', (e) => {
   if (!e.target.closest('.tag-input-wrap')){
     closeLangDropdown();
     document.getElementById('cityDropdown').classList.remove('show');
-    document.getElementById('currentCityDropdown').classList.remove('show');
   }
 });
 
 Object.assign(window, {
-  initChapterSteppers,
+  initJourneyHeaders,
   initAgeRange,
   goTo,
   updateName,
   selectChoice,
-  goSignupNext,
   selectPill,
   toggleChip,
   clearLinkedInError,
   makeTagInput,
   filterCities,
   cityKeydown,
-  filterCurrentCity,
-  renderCurrentCityOptions,
-  currentCityKeydown,
-  populateDob,
   selectLivingSituation,
   setHeightUnit,
   validateLinkedIn,

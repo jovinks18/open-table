@@ -1,5 +1,6 @@
 import { siteConfig } from '../config/site.js'
 import { initMobileMenu } from './modules/mobile-menu.js'
+import { initSiteNavigation } from './modules/site-navigation.js'
 import { buildMailtoHref, isConfiguredHttpUrl } from './modules/site-links.js'
 
 function initContactLink() {
@@ -36,6 +37,7 @@ function initPrivacyLink() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initSiteNavigation()
   initContactLink()
   initPrivacyLink()
   initMobileMenu()

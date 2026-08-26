@@ -5,7 +5,7 @@ export const JOURNEY_STATE_VERSION = 1
 export const initialJourneyState = Object.freeze({
   version: JOURNEY_STATE_VERSION,
   mode: 'preview',
-  currentScreen: 'signup-choice',
+  currentScreen: 'ch1-1',
   route: 'applicant',
   applicant: {
     fullName: '',
@@ -17,6 +17,13 @@ export const initialJourneyState = Object.freeze({
     email: '',
     countryCode: '🇮🇳 +91',
     phone: '',
+    chapterOne: {
+      intent: '',
+      marriageTimeline: '',
+      familySearchInvolvement: '',
+      familyDecisionInfluence: '',
+      meetingReadiness: '',
+    },
     intent: '',
     marriageTimeline: '',
     availableWithinFourWeeks: '',

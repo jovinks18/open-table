@@ -78,7 +78,7 @@ vite.config.js                   Multi-page production build
 - Reduced-motion users bypass the sequence.
 - Desktop loads eight photographs; screens up to 640px load four.
 
-The photographs in `public/images/intro/` are local copies selected from Unsplash city collections for Bengaluru, Mumbai, Delhi and Hyderabad. Replace or confirm production usage before launch.
+The photographs in `public/images/intro/` are local copies selected from Unsplash and Pexels city collections for Bengaluru, Mumbai, Delhi and Hyderabad. Replace or confirm production usage before launch.
 
 ## Application architecture
 

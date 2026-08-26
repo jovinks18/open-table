@@ -9,6 +9,7 @@ export default defineConfig({
         apply: resolve(import.meta.dirname, 'apply.html'),
         safety: resolve(import.meta.dirname, 'safety.html'),
         faq: resolve(import.meta.dirname, 'faq.html'),
+        story: resolve(import.meta.dirname, 'our-story.html'),
       },
     },
   },

@@ -47,13 +47,35 @@ function splitTitle(title) {
   })
 }
 
+function getWordmarkTarget() {
+  const selector = window.matchMedia('(max-width: 899px)').matches
+    ? '.mobile-wordmark .donna-wordmark'
+    : '.nav-wordmark .donna-wordmark'
+  const wordmark = document.querySelector(selector)
+  const header = document.querySelector('[data-site-header]')
+
+  if (!wordmark || !header) return null
+
+  const wordmarkRect = wordmark.getBoundingClientRect()
+  const headerRect = header.getBoundingClientRect()
+
+  return {
+    centerX: wordmarkRect.left + (wordmarkRect.width / 2),
+    centerY: wordmarkRect.height
+      ? wordmarkRect.top + (wordmarkRect.height / 2)
+      : headerRect.top + (headerRect.height / 2),
+    width: wordmarkRect.width,
+  }
+}
+
 export function initExperienceIntro() {
   const root = document.documentElement
   const overlay = document.querySelector('[data-experience-intro]')
+  const curtain = overlay?.querySelector('[data-experience-curtain]')
   const page = document.querySelector('.donna-page')
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-  if (!overlay || !page || !shouldShowExperienceIntro() || reducedMotion) {
+  if (!overlay || !curtain || !page || !shouldShowExperienceIntro() || reducedMotion) {
     root.classList.remove('experience-pending')
     overlay?.remove()
     return
@@ -101,7 +123,7 @@ export function initExperienceIntro() {
     }
 
     motion.timeline({ onComplete: () => finishCleanup({ focusPage }) })
-      .to(overlay, {
+      .to(curtain, {
         clipPath: 'polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)',
         duration: 0.7,
         ease: 'power3.inOut',
@@ -120,6 +142,16 @@ export function initExperienceIntro() {
     window.setTimeout(() => revealPage(), 1200)
     return
   }
+
+  const titleRect = title.getBoundingClientRect()
+  const wordmarkTarget = getWordmarkTarget()
+  const titleDestination = wordmarkTarget
+    ? {
+        x: wordmarkTarget.centerX - (titleRect.left + (titleRect.width / 2)),
+        y: wordmarkTarget.centerY - (titleRect.top + (titleRect.height / 2)),
+        scale: Math.min(1, wordmarkTarget.width / titleRect.width),
+      }
+    : { yPercent: -110 }
 
   motion.set(activeTiles, {
     xPercent: -50,
@@ -147,12 +179,6 @@ export function initExperienceIntro() {
       ease: 'power4.inOut',
       stagger: { each: 0.1, from: 'random' },
     }, 0.35)
-    .to(titleCharacters, {
-      yPercent: -110,
-      duration: 0.75,
-      ease: 'power4.inOut',
-      stagger: { each: 0.1, from: 'random' },
-    }, 3.25)
     .to(activeTiles, {
       scale: 0,
       clipPath: 'polygon(20% 20%, 80% 20%, 80% 80%, 20% 80%)',
@@ -160,15 +186,20 @@ export function initExperienceIntro() {
       ease: 'power4.inOut',
       stagger: -0.075,
     }, 3.5)
-    .to(overlay, {
-      clipPath: 'polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)',
-      duration: 1,
+    .to(title, {
+      ...titleDestination,
+      duration: 1.15,
       ease: 'power4.inOut',
-    }, 4.35)
+    }, 3.5)
+    .to(curtain, {
+      clipPath: 'polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)',
+      duration: 1.2,
+      ease: 'power4.inOut',
+    }, 3.62)
     .fromTo(
       '.hero-copy',
       { opacity: 0.7, y: 18 },
       { opacity: 1, y: 0, duration: 0.85, ease: 'power3.out' },
-      4.65,
+      3.9,
     )
 }
