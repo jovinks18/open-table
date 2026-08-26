@@ -1,0 +1,21 @@
+.story-page {
+  --graphite: var(--warm-ivory);
+  --graphite-ink: var(--espresso);
+  --graphite-muted: var(--warm-taupe);
+  min-height: 100vh;
+  background: var(--graphite);
+  color: var(--graphite-ink);
+}
+
+.story-page main {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 7rem 1.25rem 2rem;
+}
+
+.story-page main p {
+  font-family: var(--serif);
+  font-size: clamp(2.25rem, 5vw, 4.5rem);
+  letter-spacing: -0.04em;
+}

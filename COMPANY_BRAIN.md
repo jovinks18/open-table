@@ -49,7 +49,7 @@ This is not a browsable dating app. There is no directory, search, swipe interfa
 ## Voice and brand rules
 
 - Write the brand as **donna**, including at the start of a sentence. The lowercase form is enforced by tests.
-- The supplied visual mark lives at `public/images/donna-logo-transparent.png` and is used for page wordmarks and application top bars. Ordinary written mentions remain lowercase text rather than being replaced with the image.
+- Marketing-page wordmarks use the lowercase text treatment introduced by the homepage transition. The older image mark remains available at `public/images/donna-logo-transparent.png` for the application prototype. Ordinary written mentions remain lowercase text.
 - Sound direct, warm, specific, and human. Avoid corporate or app-marketplace language.
 - Describe donna as people doing the work, not software doing it.
 - Do not imply certainty, guaranteed compatibility, guaranteed identity, or guaranteed safety.

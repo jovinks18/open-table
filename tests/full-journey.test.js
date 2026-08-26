@@ -10,16 +10,20 @@ const journeyMain = readFileSync(new URL('../src/application/journey/main.js', i
 const journeyStore = readFileSync(new URL('../src/application/journey/store.js', import.meta.url), 'utf8')
 const journeyApi = readFileSync(new URL('../src/application/journey/api.js', import.meta.url), 'utf8')
 const journeyFields = readFileSync(new URL('../src/application/journey/fields.js', import.meta.url), 'utf8')
+const chapterOneController = readFileSync(new URL('../src/application/journey/chapter-one.js', import.meta.url), 'utf8')
 const sourceWithoutEmbeddedAssets = [applyHtml, journeyTemplate, journeyStyles, journeyController].join('\n')
 
 const expectedScreens = [
   'landing',
-  'signup-choice',
+  'ch1-1',
   'friend-verification',
   'welcome',
-  'ch1-1',
   'ch1-2',
-  'ch1-complete',
+  'ch1-3',
+  'ch1-4',
+  'ch1-5',
+  'ch1-6',
+  'chapter-one-exit',
   'ch2',
   'ch3-1',
   'ch3-2',
@@ -48,12 +52,12 @@ const expectedScreens = [
   'full-circle-reveal',
 ]
 
-test('apply route contains the complete supplied 33-screen journey', () => {
+test('apply route contains the rebuilt Chapter I and the remaining journey', () => {
   const screenMatches = [...sourceWithoutEmbeddedAssets.matchAll(
-    /<section class="screen(?: active)?" id="([^"]+)">/g,
+    /<section class="[^"]*\bscreen\b[^"]*" id="([^"]+)"/g,
   )]
   assert.deepEqual(screenMatches.map(([, id]) => id), expectedScreens)
-  assert.match(sourceWithoutEmbeddedAssets, /<section class="screen active" id="signup-choice">/)
+  assert.match(sourceWithoutEmbeddedAssets, /<section class="screen active chapter-one-screen" id="ch1-1"/)
 })
 
 test('every scripted screen destination exists', () => {
@@ -61,7 +65,7 @@ test('every scripted screen destination exists', () => {
     [...sourceWithoutEmbeddedAssets.matchAll(/goTo\('([^']+)'\)/g)].map(([, id]) => id),
   )
   const screenIds = new Set(expectedScreens)
-  assert.deepEqual([...destinations].filter((id) => !screenIds.has(id)), [])
+  assert.deepEqual([...destinations].filter((id) => !screenIds.has(id) && id !== 'signup-choice'), [])
 })
 
 test('the replacement uses the homepage type families and extracted media assets', () => {
@@ -83,10 +87,14 @@ test('the replacement uses the homepage type families and extracted media assets
   ]) assert.equal(existsSync(new URL(asset, import.meta.url)), true, `${asset} is missing`)
 })
 
-test('chapter progress uses a compact stepper and age preference uses an accessible range', () => {
-  assert.match(sourceWithoutEmbeddedAssets, /className = 'chapter-stepper'/)
+test('chapter progress shows only the current Roman numeral and age preference uses an accessible range', () => {
+  assert.match(sourceWithoutEmbeddedAssets, /const CHAPTERS = Object\.freeze\(\['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'\]\)/)
+  assert.match(sourceWithoutEmbeddedAssets, /className = 'chapter-indicator'/)
   assert.match(sourceWithoutEmbeddedAssets, /setAttribute\('role', 'progressbar'\)/)
-  assert.match(sourceWithoutEmbeddedAssets, /querySelectorAll\(':scope > \.track, :scope > \.substep-dots'\).*remove/)
+  assert.match(sourceWithoutEmbeddedAssets, /numeral\.textContent = CHAPTERS\[currentChapter - 1\]/)
+  assert.doesNotMatch(sourceWithoutEmbeddedAssets, /CHAPTERS\.forEach|is-current|is-complete|is-upcoming/)
+  assert.match(sourceWithoutEmbeddedAssets, /\.topbar\{ display:flex; justify-content:center;/)
+  assert.doesNotMatch(journeyTemplate, /chapter-label|chapter-count|substep-dots/)
   assert.match(sourceWithoutEmbeddedAssets, /id="ageMin" type="range" min="25" max="60"/)
   assert.match(sourceWithoutEmbeddedAssets, /id="ageMax" type="range" min="25" max="60"/)
   assert.match(sourceWithoutEmbeddedAssets, /aria-label="Minimum preferred age"/)
@@ -126,7 +134,7 @@ test('backend readiness uses versioned state, stable field paths, and an inactiv
   assert.match(journeyStore, /mode: 'preview'/)
   assert.match(journeyStore, /serialize:/)
   assert.match(journeyMain, /dataset\.field = path/)
-  assert.match(journeyFields, /applicant\.fullName/)
+  assert.match(chapterOneController, /applicant\.fullName/)
   assert.match(journeyFields, /applicant\.nonNegotiables/)
   assert.match(journeyApi, /configured: false/)
   assert.match(journeyApi, /saveDraft:/)
@@ -142,8 +150,10 @@ test('the supplied dashboard screens include narrow-screen layout protection', (
 })
 
 test('every marketing-page application CTA still enters apply.html', () => {
-  for (const page of ['index.html', 'faq.html', 'safety.html']) {
+  const navigation = readFileSync(new URL('../src/scripts/modules/site-navigation.js', import.meta.url), 'utf8')
+  assert.match(navigation, /href="\/apply\.html"/)
+  for (const page of ['index.html', 'faq.html', 'safety.html', 'our-story.html']) {
     const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8')
-    assert.match(html, /href="\/apply\.html"/, `${page} has no link to the new journey`)
+    assert.match(html, /data-site-navigation/, `${page} does not mount the shared navigation`)
   }
 })

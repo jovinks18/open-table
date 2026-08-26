@@ -38,23 +38,52 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 899px) {
   .site-header {
-    padding: 1.1rem 1.15rem;
+    min-height: 4.75rem;
   }
 
-  .site-header .wordmark,
+  .site-header__inner {
+    min-height: 4.75rem;
+    justify-content: space-between;
+    padding: 0 1.15rem;
+  }
+
+  .mobile-wordmark,
   .menu-toggle {
     position: relative;
     z-index: 2;
   }
 
-  .site-header .desktop-nav {
+  .desktop-nav,
+  .header-cta {
     display: none;
+  }
+
+  .mobile-wordmark {
+    display: flex;
+    min-width: 6.75rem;
   }
 
   .menu-toggle {
     display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 0.65rem 1rem;
+    background: transparent;
+    color: inherit;
+    font: 600 0.78rem/1 var(--sans);
+    cursor: pointer;
+  }
+
+  .menu-toggle:hover,
+  .menu-toggle:focus-visible,
+  .menu-toggle[aria-expanded='true'] {
+    background: var(--deep-brick);
+    color: var(--warm-white);
   }
 
   .mobile-menu {
@@ -63,10 +92,25 @@
     z-index: 1;
     display: grid;
     place-items: center;
-    padding: 6.5rem 1.15rem 2rem;
+    padding: 5.75rem 1.15rem 2rem;
     overflow-y: auto;
     overscroll-behavior: contain;
     background: var(--graphite);
+    color: var(--graphite-ink);
+  }
+
+  .mobile-menu__close {
+    position: absolute;
+    top: 1rem;
+    right: 1.15rem;
+    min-height: 2.75rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 0.65rem 1rem;
+    background: transparent;
+    color: inherit;
+    font: 600 0.78rem/1 var(--sans);
+    cursor: pointer;
   }
 
   .mobile-menu nav {
@@ -77,7 +121,7 @@
     letter-spacing: 0;
   }
 
-  .mobile-menu nav > a:not(.button) {
+  .mobile-menu nav > a {
     border-bottom: 1px solid var(--line);
     padding: 1.25rem 0;
     font-family: var(--serif);
@@ -87,9 +131,12 @@
     line-height: 1;
   }
 
-  .mobile-menu .button {
-    margin-top: 2rem;
+  .mobile-menu nav > a[aria-current='page'] {
+    color: var(--terracotta);
   }
+}
+
+@media (max-width: 640px) {
 
   .hero {
     padding-inline: 1.15rem;
