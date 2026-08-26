@@ -3,34 +3,91 @@ import { initChapterOne } from './chapter-one.js';
 
 let firstName = '';
 
-const CHAPTERS = Object.freeze(['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']);
+const CHAPTERS = Object.freeze(['I', 'II', 'III', 'IV', 'V', 'VI']);
 
 function chapterForScreen(screen){
   const chapterMatch = screen.id.match(/^ch([1-7])(?:-|$)/);
-  if (chapterMatch) return Number(chapterMatch[1]);
+  if (chapterMatch) return Math.min(Number(chapterMatch[1]), CHAPTERS.length);
   return 1;
 }
 
 function renderChapterProgress(wrap, currentChapter){
-  const indicator = document.createElement('div');
-  const label = document.createElement('span');
-  const numeral = document.createElement('span');
+  const sequence = document.createElement('ol');
+  sequence.className = 'chapter-sequence';
+  sequence.setAttribute('role', 'progressbar');
+  sequence.setAttribute('aria-label', `Progress: ${currentChapter} of ${CHAPTERS.length}`);
+  sequence.setAttribute('aria-valuemin', '1');
+  sequence.setAttribute('aria-valuemax', String(CHAPTERS.length));
+  sequence.setAttribute('aria-valuenow', String(currentChapter));
+  sequence.setAttribute('aria-valuetext', `${CHAPTERS[currentChapter - 1]} of VI`);
 
-  indicator.className = 'chapter-indicator';
-  indicator.setAttribute('role', 'progressbar');
-  indicator.setAttribute('aria-label', `Chapter ${currentChapter} of ${CHAPTERS.length}`);
-  indicator.setAttribute('aria-valuemin', '1');
-  indicator.setAttribute('aria-valuemax', String(CHAPTERS.length));
-  indicator.setAttribute('aria-valuenow', String(currentChapter));
-  indicator.setAttribute('aria-valuetext', `Chapter ${CHAPTERS[currentChapter - 1]} of VII`);
+  CHAPTERS.forEach((romanNumeral, index) => {
+    const item = document.createElement('li');
+    const itemNumber = index + 1;
+    item.className = itemNumber === currentChapter
+      ? 'is-current'
+      : itemNumber < currentChapter ? 'is-complete' : 'is-upcoming';
+    item.textContent = romanNumeral;
+    if (itemNumber === currentChapter) item.setAttribute('aria-current', 'step');
+    sequence.append(item);
+  });
 
-  label.className = 'chapter-indicator__label';
-  label.textContent = 'Chapter';
-  numeral.className = 'chapter-indicator__numeral';
-  numeral.textContent = CHAPTERS[currentChapter - 1];
-  indicator.append(label, numeral);
+  wrap.replaceChildren(sequence);
+}
 
-  wrap.replaceChildren(indicator);
+function upgradeClickableControls(screen){
+  const selector = '.pill, .unit-pill, .chip, .choice-card';
+  screen.querySelectorAll(selector).forEach((control) => {
+    if (control.tagName === 'BUTTON') return;
+    const button = document.createElement('button');
+    [...control.attributes].forEach(({ name, value }) => button.setAttribute(name, value));
+    button.type = 'button';
+    button.setAttribute('aria-pressed', String(control.classList.contains('selected')));
+    button.innerHTML = control.innerHTML;
+    control.replaceWith(button);
+  });
+}
+
+function associateFieldLabels(screen){
+  screen.querySelectorAll('.field').forEach((field, index) => {
+    const label = field.querySelector(':scope > label');
+    if (!label) return;
+    if (!label.id) label.id = `${screen.id}-field-label-${index + 1}`;
+
+    const control = field.querySelector(':scope > input, :scope > select, :scope > textarea');
+    if (control) {
+      if (!control.id) control.id = `${screen.id}-field-${index + 1}`;
+      label.htmlFor = control.id;
+      return;
+    }
+
+    const group = field.querySelector('.pill-group, .unit-toggle, .tag-input-wrap, .age-range, .slider-track');
+    if (group) {
+      if (!group.hasAttribute('role')) group.setAttribute('role', 'group');
+      group.setAttribute('aria-labelledby', label.id);
+    }
+  });
+}
+
+function prepareJourneyLayout(screen){
+  const stage = screen.querySelector('.donna-stage');
+  const question = stage?.querySelector(':scope > .donna-row');
+  const answer = stage?.querySelector(':scope > .answer-zone, :scope > .answer-card');
+  const actions = stage?.querySelector(':scope > .actions') || answer?.querySelector(':scope > .actions');
+
+  if (!stage || !question || !answer || !actions) return;
+
+  question.classList.add('question-block');
+  answer.classList.add('answer-region');
+  answer.tabIndex = 0;
+  answer.setAttribute('aria-label', 'Answer area');
+  answer.addEventListener('focusin', ({ target }) => {
+    target.scrollIntoView({ block: 'nearest' });
+  });
+  actions.classList.add('journey-actions');
+  stage.append(actions);
+  upgradeClickableControls(screen);
+  associateFieldLabels(screen);
 }
 
 function initJourneyHeaders(){
@@ -39,6 +96,7 @@ function initJourneyHeaders(){
     if (!screen) return;
     screen.classList.add('journey-screen');
     screen.querySelectorAll('.exit').forEach((exit) => exit.remove());
+    prepareJourneyLayout(screen);
     renderChapterProgress(wrap, chapterForScreen(screen));
   });
 }
@@ -101,15 +159,19 @@ function updateName(val){
   const h = document.getElementById('ch1Headline');
   if (h) h.textContent = firstName ? `Nice to meet you, ${firstName}` : "Who are we talking to?";
   const ch1c = document.getElementById('ch1CompleteHeadline');
-  if (ch1c) ch1c.textContent = firstName ? `Nicely done, ${firstName}.` : "Chapter one, done.";
+  if (ch1c) ch1c.textContent = firstName ? `Nicely done, ${firstName}.` : "That section is done.";
   const finalH = document.getElementById('finalHeadline');
   if (finalH) finalH.textContent = firstName ? `That's everything, ${firstName}.` : "That's everything, for now.";
 }
 
 function selectChoice(el){
   const parent = el.parentElement;
-  [...parent.children].forEach(c => c.classList.remove('selected'));
+  [...parent.children].forEach(c => {
+    c.classList.remove('selected');
+    c.setAttribute('aria-pressed', 'false');
+  });
   el.classList.add('selected');
+  el.setAttribute('aria-pressed', 'true');
   if (parent.closest('#signup-choice')) {
     journeyStore.setField('route', [...parent.children].indexOf(el) === 1 ? 'referrer' : 'applicant');
   }
@@ -117,8 +179,12 @@ function selectChoice(el){
 
 function selectPill(el){
   const parent = el.parentElement;
-  [...parent.children].forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');}
+  [...parent.children].forEach(c => {
+    c.classList.remove('selected');
+    c.setAttribute('aria-pressed', 'false');
+  });
+  el.classList.add('selected');
+  el.setAttribute('aria-pressed', 'true');}
 
 const selectedChips = new Set();
 function toggleChip(el, label){
@@ -126,9 +192,11 @@ function toggleChip(el, label){
   if (selectedChips.has(label)) {
     selectedChips.delete(label);
     el.classList.remove('selected');
+    el.setAttribute('aria-pressed', 'false');
   } else {
     selectedChips.add(label);
     el.classList.add('selected');
+    el.setAttribute('aria-pressed', 'true');
   }
   textarea.value = Array.from(selectedChips).join(', ');
   textarea.dispatchEvent(new Event('input', { bubbles: true }));
@@ -229,8 +297,12 @@ function selectLivingSituation(el){
 
 function setHeightUnit(unit, el){
   const parent = el.parentElement;
-  [...parent.children].forEach(c => c.classList.remove('selected'));
+  [...parent.children].forEach(c => {
+    c.classList.remove('selected');
+    c.setAttribute('aria-pressed', 'false');
+  });
   el.classList.add('selected');
+  el.setAttribute('aria-pressed', 'true');
   document.getElementById('heightFtRow').style.display = unit === 'ft' ? 'grid' : 'none';
   document.getElementById('heightCmInput').style.display = unit === 'cm' ? 'block' : 'none';
   journeyStore.setField('applicant.height.unit', unit);

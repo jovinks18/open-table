@@ -87,12 +87,11 @@ test('the replacement uses the homepage type families and extracted media assets
   ]) assert.equal(existsSync(new URL(asset, import.meta.url)), true, `${asset} is missing`)
 })
 
-test('chapter progress shows only the current Roman numeral and age preference uses an accessible range', () => {
-  assert.match(sourceWithoutEmbeddedAssets, /const CHAPTERS = Object\.freeze\(\['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'\]\)/)
-  assert.match(sourceWithoutEmbeddedAssets, /className = 'chapter-indicator'/)
+test('chapter progress renders six Roman numerals and age preference uses an accessible range', () => {
+  assert.match(sourceWithoutEmbeddedAssets, /const CHAPTERS = Object\.freeze\(\['I', 'II', 'III', 'IV', 'V', 'VI'\]\)/)
+  assert.match(sourceWithoutEmbeddedAssets, /className = 'chapter-sequence'/)
   assert.match(sourceWithoutEmbeddedAssets, /setAttribute\('role', 'progressbar'\)/)
-  assert.match(sourceWithoutEmbeddedAssets, /numeral\.textContent = CHAPTERS\[currentChapter - 1\]/)
-  assert.doesNotMatch(sourceWithoutEmbeddedAssets, /CHAPTERS\.forEach|is-current|is-complete|is-upcoming/)
+  assert.match(sourceWithoutEmbeddedAssets, /CHAPTERS\.forEach[\s\S]*is-current[\s\S]*is-complete[\s\S]*is-upcoming/)
   assert.match(sourceWithoutEmbeddedAssets, /\.topbar\{ display:flex; justify-content:center;/)
   assert.doesNotMatch(journeyTemplate, /chapter-label|chapter-count|substep-dots/)
   assert.match(sourceWithoutEmbeddedAssets, /id="ageMin" type="range" min="25" max="60"/)
