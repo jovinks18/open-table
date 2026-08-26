@@ -130,7 +130,7 @@ test('option visual states use chrome-free rows and clay inversion without broad
   assert.match(styles, /@media \(prefers-reduced-motion:reduce\)\{[\s\S]*\.chapter-one-option\{ transition:none; \}/)
 })
 
-test('Chapter I uses a viewport-locked fixed stage with a reserved answer zone', () => {
+test('the journey uses one centred fixed-panel stack at every breakpoint', () => {
   for (let screen = 1; screen <= 6; screen += 1) {
     const start = template.indexOf(`id="ch1-${screen}"`)
     const content = template.slice(start, template.indexOf('</section>', start))
@@ -138,15 +138,15 @@ test('Chapter I uses a viewport-locked fixed stage with a reserved answer zone',
   }
 
   assert.match(styles, /html,body,#journey-root\{height:100%; overflow:hidden;\}/)
-  assert.match(styles, /height:100dvh/)
-  assert.match(styles, /top:calc\(34% - 44px\)/)
-  assert.match(styles, /width:min\(720px,calc\(100% - 32px\)\); max-width:720px/)
-  assert.match(styles, /grid-template-rows:auto 237px 44px/)
-  assert.match(styles, /\.answer-zone\{[\s\S]*height:237px; min-height:237px;[\s\S]*overflow-y:auto/)
-  assert.match(styles, /\.donna-stage:has\(\.chapter-one-options\)\{ grid-template-rows:auto auto 44px; \}/)
-  assert.match(styles, /\.answer-zone:has\(\.chapter-one-options\)\{ height:auto; min-height:0; overflow:visible; \}/)
-  assert.match(styles, /\.chapter-one-options\{[^}]*gap:6px/)
-  assert.match(styles, /\.option-actions\{ width:calc\(100% - 125px\); margin-left:125px; \}/)
+  assert.match(styles, /\.journey-screen\.active\{[\s\S]*height:100dvh;[\s\S]*overflow:hidden;/)
+  assert.match(styles, /top:max\(0px,min\(calc\(34% - 31px\),calc\(100% - 551px\)\)\)/)
+  assert.match(styles, /width:min\(620px,calc\(100% - 48px\)\);[\s\S]*max-width:620px;/)
+  assert.match(styles, /grid-template-rows:96px 367px 64px/)
+  assert.match(styles, /\.chapter-one-screen \.answer-card\{[\s\S]*height:367px;[\s\S]*padding:8px;[\s\S]*border-radius:12px;/)
+  assert.match(styles, /@media \(max-width:899px\)[\s\S]*grid-template-rows:150px minmax\(0,1fr\) 64px;[\s\S]*overflow-y:auto;/)
+  assert.doesNotMatch(styles, /grid-template-columns:300px|max-width:1000px|border-right:/)
+  assert.match(styles, /\.journey-screen \.next-btn:disabled\{[\s\S]*background:rgba\(247,236,230,0\.04\);[\s\S]*cursor:not-allowed;/)
+  assert.match(styles, /\.journey-screen \.next-btn:not\(:disabled\)\{[\s\S]*background:var\(--rose\);[\s\S]*color:#26080D;/)
 })
 
 test('input autofill retains the journey palette in every WebKit autofill state', () => {
