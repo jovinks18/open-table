@@ -8,31 +8,21 @@ const CHAPTERS = Object.freeze(['I', 'II', 'III', 'IV', 'V', 'VI']);
 function chapterForScreen(screen){
   const chapterMatch = screen.id.match(/^ch([1-7])(?:-|$)/);
   if (chapterMatch) return Math.min(Number(chapterMatch[1]), CHAPTERS.length);
-  return 1;
+  return null;
 }
 
 function renderChapterProgress(wrap, currentChapter){
-  const sequence = document.createElement('ol');
-  sequence.className = 'chapter-sequence';
-  sequence.setAttribute('role', 'progressbar');
-  sequence.setAttribute('aria-label', `Progress: ${currentChapter} of ${CHAPTERS.length}`);
-  sequence.setAttribute('aria-valuemin', '1');
-  sequence.setAttribute('aria-valuemax', String(CHAPTERS.length));
-  sequence.setAttribute('aria-valuenow', String(currentChapter));
-  sequence.setAttribute('aria-valuetext', `${CHAPTERS[currentChapter - 1]} of VI`);
+  if (!currentChapter) {
+    wrap.replaceChildren();
+    return;
+  }
 
-  CHAPTERS.forEach((romanNumeral, index) => {
-    const item = document.createElement('li');
-    const itemNumber = index + 1;
-    item.className = itemNumber === currentChapter
-      ? 'is-current'
-      : itemNumber < currentChapter ? 'is-complete' : 'is-upcoming';
-    item.textContent = romanNumeral;
-    if (itemNumber === currentChapter) item.setAttribute('aria-current', 'step');
-    sequence.append(item);
-  });
-
-  wrap.replaceChildren(sequence);
+  const numeral = document.createElement('span');
+  numeral.className = 'chapter-numeral';
+  numeral.textContent = CHAPTERS[currentChapter - 1];
+  numeral.setAttribute('aria-label', `Chapter ${currentChapter} of ${CHAPTERS.length}`);
+  numeral.setAttribute('aria-current', 'step');
+  wrap.replaceChildren(numeral);
 }
 
 function upgradeClickableControls(screen){
@@ -141,15 +131,51 @@ function initAgeRange(){
 initJourneyHeaders();
 initAgeRange();
 
-function goTo(id){
+function showScreen(id){
   if (id === 'signup-choice') id = 'landing';
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const target = document.getElementById(id);
+  target.classList.add('active');
   document.getElementById('journey-root').dispatchEvent(new CustomEvent('journey:navigate', {
     bubbles: true,
     detail: { screenId: id },
   }));
   window.scrollTo(0,0);
+  return target;
+}
+
+let chapterTransitionTimer = null;
+
+function goTo(id){
+  if (id === 'signup-choice') id = 'landing';
+  const current = document.querySelector('.screen.active');
+  const target = document.getElementById(id);
+  const currentChapter = current ? chapterForScreen(current) : null;
+  const targetChapter = target ? chapterForScreen(target) : null;
+  const chapterChanged = currentChapter !== null && targetChapter !== null && currentChapter !== targetChapter;
+
+  window.clearTimeout(chapterTransitionTimer);
+
+  if (!chapterChanged) {
+    const shown = showScreen(id);
+    if (currentChapter === null && targetChapter !== null) {
+      const incoming = shown.querySelector('.chapter-numeral');
+      if (incoming) {
+        incoming.classList.add('is-entering');
+        requestAnimationFrame(() => incoming.classList.remove('is-entering'));
+      }
+    }
+    return;
+  }
+
+  current.querySelector('.chapter-numeral')?.classList.add('is-leaving');
+  chapterTransitionTimer = window.setTimeout(() => {
+    const shown = showScreen(id);
+    const incoming = shown.querySelector('.chapter-numeral');
+    if (!incoming) return;
+    incoming.classList.add('is-entering');
+    requestAnimationFrame(() => incoming.classList.remove('is-entering'));
+  }, 180);
 }
 
 initChapterOne(goTo);

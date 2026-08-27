@@ -89,9 +89,12 @@ test('the replacement uses the homepage type families and extracted media assets
 
 test('chapter progress renders six Roman numerals and age preference uses an accessible range', () => {
   assert.match(sourceWithoutEmbeddedAssets, /const CHAPTERS = Object\.freeze\(\['I', 'II', 'III', 'IV', 'V', 'VI'\]\)/)
-  assert.match(sourceWithoutEmbeddedAssets, /className = 'chapter-sequence'/)
-  assert.match(sourceWithoutEmbeddedAssets, /setAttribute\('role', 'progressbar'\)/)
-  assert.match(sourceWithoutEmbeddedAssets, /CHAPTERS\.forEach[\s\S]*is-current[\s\S]*is-complete[\s\S]*is-upcoming/)
+  assert.match(sourceWithoutEmbeddedAssets, /className = 'chapter-numeral'/)
+  assert.match(sourceWithoutEmbeddedAssets, /textContent = CHAPTERS\[currentChapter - 1\]/)
+  assert.match(sourceWithoutEmbeddedAssets, /aria-current', 'step'/)
+  assert.doesNotMatch(sourceWithoutEmbeddedAssets, /chapter-sequence|is-complete|is-upcoming|CHAPTERS\.forEach/)
+  assert.match(sourceWithoutEmbeddedAssets, /transition:opacity 180ms ease-out/)
+  assert.match(sourceWithoutEmbeddedAssets, /currentChapter !== targetChapter/)
   assert.match(sourceWithoutEmbeddedAssets, /\.topbar\{ display:flex; justify-content:center;/)
   assert.doesNotMatch(journeyTemplate, /chapter-label|chapter-count|substep-dots/)
   assert.match(sourceWithoutEmbeddedAssets, /id="ageMin" type="range" min="25" max="60"/)
