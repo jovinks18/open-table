@@ -57,7 +57,24 @@ test('apply route contains the rebuilt Chapter I and the remaining journey', () 
     /<section class="[^"]*\bscreen\b[^"]*" id="([^"]+)"/g,
   )]
   assert.deepEqual(screenMatches.map(([, id]) => id), expectedScreens)
-  assert.match(sourceWithoutEmbeddedAssets, /<section class="screen active chapter-one-screen" id="ch1-1"/)
+  assert.match(sourceWithoutEmbeddedAssets, /<section class="screen active" id="welcome"/)
+  assert.match(sourceWithoutEmbeddedAssets, /<section class="screen chapter-one-screen" id="ch1-1"/)
+})
+
+test('entry screen uses the verbatim six-chapter brief and one Start action', () => {
+  const start = journeyTemplate.indexOf('<section class="screen active" id="welcome">')
+  const entry = journeyTemplate.slice(start, journeyTemplate.indexOf('</section>', start))
+  assert.match(entry, /<h1 class="headline">Before you start\.<\/h1>/)
+  for (const copy of [
+    'Six chapters. About fifteen minutes.',
+    "Some of the questions are blunt. That's on purpose — it's how we avoid wasting your evening on someone who was never going to work.",
+    "You'll get one introduction at a time. You'll meet in a public place before anyone has a phone number. Afterwards you both write down how it went.",
+    'Not everyone who applies gets an introduction.',
+  ]) assert.ok(entry.includes(`<p class="sub">${copy}</p>`))
+  assert.equal((entry.match(/<button/g) || []).length, 1)
+  assert.match(entry, /<button class="next-btn" onclick="goTo\('ch1-1'\)">Start<\/button>/)
+  assert.doesNotMatch(entry, /donna-icon|progress-wrap|chapter-numeral|eyebrow/)
+  assert.match(journeyStore, /currentScreen: 'welcome'/)
 })
 
 test('every scripted screen destination exists', () => {
@@ -87,7 +104,7 @@ test('the replacement uses the homepage type families and extracted media assets
   ]) assert.equal(existsSync(new URL(asset, import.meta.url)), true, `${asset} is missing`)
 })
 
-test('chapter progress renders six Roman numerals and age preference uses an accessible range', () => {
+test('chapter progress renders only the current Roman numeral and age preference uses accessible anchored steppers', () => {
   assert.match(sourceWithoutEmbeddedAssets, /const CHAPTERS = Object\.freeze\(\['I', 'II', 'III', 'IV', 'V', 'VI'\]\)/)
   assert.match(sourceWithoutEmbeddedAssets, /className = 'chapter-numeral'/)
   assert.match(sourceWithoutEmbeddedAssets, /textContent = CHAPTERS\[currentChapter - 1\]/)
@@ -97,11 +114,23 @@ test('chapter progress renders six Roman numerals and age preference uses an acc
   assert.match(sourceWithoutEmbeddedAssets, /currentChapter !== targetChapter/)
   assert.match(sourceWithoutEmbeddedAssets, /\.topbar\{ display:flex; justify-content:center;/)
   assert.doesNotMatch(journeyTemplate, /chapter-label|chapter-count|substep-dots/)
-  assert.match(sourceWithoutEmbeddedAssets, /id="ageMin" type="range" min="25" max="60"/)
-  assert.match(sourceWithoutEmbeddedAssets, /id="ageMax" type="range" min="25" max="60"/)
-  assert.match(sourceWithoutEmbeddedAssets, /aria-label="Minimum preferred age"/)
-  assert.match(sourceWithoutEmbeddedAssets, /aria-label="Maximum preferred age"/)
-  assert.doesNotMatch(sourceWithoutEmbeddedAssets, /placeholder="Min age"|placeholder="Max age"/)
+  assert.match(sourceWithoutEmbeddedAssets, /id="agePreferenceAnchor" hidden>You’re <span id="applicantAge">31<\/span>\. How far either side\?/)
+  for (const label of ['Fewer years younger', 'More years younger', 'Fewer years older', 'More years older']) {
+    assert.match(sourceWithoutEmbeddedAssets, new RegExp(`aria-label="${label}"`))
+  }
+  assert.match(sourceWithoutEmbeddedAssets, /id="ageRangeOutput" aria-live="polite"/)
+  assert.match(sourceWithoutEmbeddedAssets, /let younger = 3;/)
+  assert.match(sourceWithoutEmbeddedAssets, /let older = 7;/)
+  assert.match(sourceWithoutEmbeddedAssets, /Math\.max\(22,age - younger\)/)
+  assert.match(sourceWithoutEmbeddedAssets, /journeyStore\.setField\('applicant\.preferredAge\.minimum',minimum\)/)
+  assert.match(sourceWithoutEmbeddedAssets, /journeyStore\.setField\('applicant\.preferredAge\.maximum',maximum\)/)
+  assert.match(sourceWithoutEmbeddedAssets, /'Minimum age' : 'Maximum age'|anchored \? 'Younger by' : 'Minimum age'/)
+  assert.match(sourceWithoutEmbeddedAssets, /\.age-stepper button\{ min-width:44px; min-height:44px;/)
+  assert.match(sourceWithoutEmbeddedAssets, /\.age-preference__steppers\{ display:flex; align-items:flex-start; justify-content:flex-start; gap:18px; \}/)
+  assert.match(sourceWithoutEmbeddedAssets, /\.age-stepper-group\{[^}]*flex:0 0 130px; width:130px;/)
+  assert.match(sourceWithoutEmbeddedAssets, /\.age-stepper\{ display:grid; width:130px; grid-template-columns:44px 40px 44px;/)
+  assert.doesNotMatch(sourceWithoutEmbeddedAssets, /@media \(max-width:374px\)/)
+  assert.doesNotMatch(sourceWithoutEmbeddedAssets, /type="range"|age-range__track|age-range__fill|slider-thumb|ageMinOutput|ageMaxOutput/)
 })
 
 test('user-facing journey branding stays lowercase donna', () => {

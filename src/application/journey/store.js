@@ -5,7 +5,7 @@ export const JOURNEY_STATE_VERSION = 1
 export const initialJourneyState = Object.freeze({
   version: JOURNEY_STATE_VERSION,
   mode: 'preview',
-  currentScreen: 'ch1-1',
+  currentScreen: 'welcome',
   route: 'applicant',
   applicant: {
     fullName: '',

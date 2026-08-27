@@ -42,9 +42,11 @@ test('the homepage retains its content and intro while using the onboarding back
   assert.match(styles, /linear-gradient\(180deg, rgb\(20 4 6 \/ 55%\), rgb\(20 4 6 \/ 75%\)\)/)
 })
 
-test('apply links enter the first onboarding question instead of its marketing landing screen', () => {
+test('apply links enter the onboarding brief instead of its marketing landing screen', () => {
   assert.match(journeyTemplate, /<section class="screen" id="landing">/)
-  assert.match(journeyTemplate, /<section class="screen active chapter-one-screen" id="ch1-1"/)
+  assert.match(journeyTemplate, /<section class="screen active" id="welcome">/)
+  assert.match(journeyTemplate, /<h1 class="headline">Before you start\.<\/h1>/)
+  assert.match(journeyTemplate, /<button class="next-btn" onclick="goTo\('ch1-1'\)">Start<\/button>/)
   assert.match(journeyTemplate, />What are you looking for\?<\/h1>/)
   assert.doesNotMatch(journeyTemplate, /Let's start with the obvious one/)
 })

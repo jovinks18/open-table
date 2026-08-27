@@ -23,6 +23,33 @@ export function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim())
 }
 
+export function datePartsFromValue(value, today = new Date()) {
+  const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!match) return null
+  const [, yearText, monthText, dayText] = match
+  const year = Number(yearText)
+  const month = Number(monthText)
+  const day = Number(dayText)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null
+  const todayStart = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())
+  if (date.getTime() > todayStart) return null
+  return { day, month, year }
+}
+
+export function dateValueFromParts(parts) {
+  if (!parts?.year || !parts?.month || !parts?.day) return ''
+  return `${parts.year}-${String(parts.month).padStart(2, '0')}-${String(parts.day).padStart(2, '0')}`
+}
+
+export function calculateAgeFromDateOfBirth(value, today = new Date()) {
+  const parts = datePartsFromValue(value, today)
+  if (!parts) return null
+  let age = today.getFullYear() - parts.year
+  if (today.getMonth() + 1 < parts.month || (today.getMonth() + 1 === parts.month && today.getDate() < parts.day)) age -= 1
+  return age
+}
+
 function setPressed(button, pressed) {
   button.setAttribute('aria-pressed', String(pressed))
   button.classList.toggle('selected', pressed)
@@ -41,11 +68,14 @@ function syncContinue(screen) {
 
 function validateContact(screen) {
   const nameInput = screen.querySelector('#chapterOneName')
+  const dateOfBirthInput = screen.querySelector('#chapterOneDateOfBirth')
   const phoneInput = screen.querySelector('#chapterOnePhone')
   const emailInput = screen.querySelector('#chapterOneEmail')
   const normalizedPhone = normalizeIndianMobile(phoneInput.value)
+  const dateOfBirth = datePartsFromValue(dateOfBirthInput.value)
   const checks = [
     [nameInput, nameInput.value.trim().length >= 2],
+    [dateOfBirthInput, Boolean(dateOfBirth)],
     [phoneInput, Boolean(normalizedPhone)],
     [emailInput, isValidEmail(emailInput.value)],
   ]
@@ -64,6 +94,7 @@ function validateContact(screen) {
   }
 
   journeyStore.setField('applicant.fullName', nameInput.value.trim())
+  journeyStore.setField('applicant.dateOfBirth', dateOfBirth)
   journeyStore.setField('applicant.phone', normalizedPhone)
   journeyStore.setField('applicant.email', emailInput.value.trim())
   return true
@@ -92,6 +123,7 @@ function restoreControls() {
   })
 
   document.getElementById('chapterOneName').value = state.applicant.fullName
+  document.getElementById('chapterOneDateOfBirth').value = dateValueFromParts(state.applicant.dateOfBirth)
   document.getElementById('chapterOnePhone').value = state.applicant.phone
   document.getElementById('chapterOneEmail').value = state.applicant.email
   document.querySelectorAll('[data-chapter-one-screen]').forEach(syncContinue)
@@ -126,13 +158,17 @@ export function initChapterOne(goTo) {
 
   const contactFields = [
     ['chapterOneName', 'applicant.fullName'],
+    ['chapterOneDateOfBirth', 'applicant.dateOfBirth', datePartsFromValue],
     ['chapterOnePhone', 'applicant.phone'],
     ['chapterOneEmail', 'applicant.email'],
   ]
-  contactFields.forEach(([id, path]) => {
+  contactFields.forEach(([id, path, transform]) => {
     const input = document.getElementById(id)
     input.addEventListener('input', () => {
-      journeyStore.setField(path, input.value)
+      const value = transform
+        ? transform(input.value) || { day: '', month: '', year: '' }
+        : input.value
+      journeyStore.setField(path, value)
       input.classList.remove('error')
       input.setAttribute('aria-invalid', 'false')
       document.getElementById(input.getAttribute('aria-describedby')).hidden = true

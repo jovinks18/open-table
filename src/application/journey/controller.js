@@ -1,5 +1,5 @@
 import { journeyStore } from './store.js';
-import { initChapterOne } from './chapter-one.js';
+import { calculateAgeFromDateOfBirth, dateValueFromParts, initChapterOne } from './chapter-one.js';
 
 let firstName = '';
 
@@ -51,7 +51,7 @@ function associateFieldLabels(screen){
       return;
     }
 
-    const group = field.querySelector('.pill-group, .unit-toggle, .tag-input-wrap, .age-range, .slider-track');
+    const group = field.querySelector('.pill-group, .unit-toggle, .tag-input-wrap, .age-preference, .slider-track');
     if (group) {
       if (!group.hasAttribute('role')) group.setAttribute('role', 'group');
       group.setAttribute('aria-labelledby', label.id);
@@ -91,45 +91,96 @@ function initJourneyHeaders(){
   });
 }
 
-function initAgeRange(){
-  const minimumInput = document.getElementById('ageMin');
-  const maximumInput = document.getElementById('ageMax');
-  const minimumOutput = document.getElementById('ageMinOutput');
-  const maximumOutput = document.getElementById('ageMaxOutput');
-  const fill = document.getElementById('ageRangeFill');
-  if (!minimumInput || !maximumInput || !minimumOutput || !maximumOutput || !fill) return;
+function initAgePreference(){
+  const root = document.querySelector('[data-age-preference]');
+  const dateInput = document.getElementById('chapterOneDateOfBirth');
+  const anchor = document.getElementById('agePreferenceAnchor');
+  const applicantAge = document.getElementById('applicantAge');
+  const youngerLabel = document.getElementById('youngerLabel');
+  const olderLabel = document.getElementById('olderLabel');
+  const youngerOutput = document.getElementById('youngerOffset');
+  const olderOutput = document.getElementById('olderOffset');
+  const minimumOutput = document.getElementById('ageRangeMinimum');
+  const maximumOutput = document.getElementById('ageRangeMaximum');
+  if (!root || !dateInput || !anchor || !applicantAge || !youngerLabel || !olderLabel || !youngerOutput || !olderOutput || !minimumOutput || !maximumOutput) return;
 
-  const lowerBound = Number(minimumInput.min);
-  const upperBound = Number(minimumInput.max);
-  const minimumGap = 1;
+  const buttons = [...root.querySelectorAll('[data-age-step]')];
+  let younger = 3;
+  let older = 7;
+  let fallbackMinimum = Math.max(22,Math.min(55,journeyStore.getState().applicant.preferredAge.minimum));
+  let fallbackMaximum = Math.max(fallbackMinimum,Math.min(55,journeyStore.getState().applicant.preferredAge.maximum));
 
-  function syncAgeRange(changedInput){
-    let minimum = Number(minimumInput.value);
-    let maximum = Number(maximumInput.value);
-
-    if (changedInput === minimumInput && minimum > maximum - minimumGap) minimum = maximum - minimumGap;
-    if (changedInput === maximumInput && maximum < minimum + minimumGap) maximum = minimum + minimumGap;
-
-    minimumInput.value = String(minimum);
-    maximumInput.value = String(maximum);
-    minimumInput.setAttribute('aria-valuemax', String(maximum - minimumGap));
-    maximumInput.setAttribute('aria-valuemin', String(minimum + minimumGap));
-    minimumOutput.value = String(minimum);
-    maximumOutput.value = maximum === upperBound ? `${maximum}+` : String(maximum);
-
-    const minimumPosition = ((minimum - lowerBound) / (upperBound - lowerBound)) * 100;
-    const maximumPosition = ((maximum - lowerBound) / (upperBound - lowerBound)) * 100;
-    fill.style.left = `${minimumPosition}%`;
-    fill.style.width = `${maximumPosition - minimumPosition}%`;
+  function setButton(button, label, disabled){
+    button.setAttribute('aria-label', label);
+    button.disabled = disabled;
   }
 
-  minimumInput.addEventListener('input', () => syncAgeRange(minimumInput));
-  maximumInput.addEventListener('input', () => syncAgeRange(maximumInput));
-  syncAgeRange();
+  function sync(){
+    const age = calculateAgeFromDateOfBirth(dateInput.value || dateValueFromParts(journeyStore.getState().applicant.dateOfBirth));
+    const anchored = age !== null;
+    anchor.hidden = !anchored;
+    if (anchored) {
+      root.setAttribute('aria-labelledby','agePreferenceAnchor');
+      root.removeAttribute('aria-label');
+    } else {
+      root.removeAttribute('aria-labelledby');
+      root.setAttribute('aria-label','Age range');
+    }
+    youngerLabel.textContent = anchored ? 'Younger by' : 'Minimum age';
+    olderLabel.textContent = anchored ? 'Older by' : 'Maximum age';
+
+    let minimum;
+    let maximum;
+    if (anchored) {
+      const maximumYounger = Math.max(0,Math.min(20,age - 22));
+      younger = Math.min(younger,maximumYounger);
+      older = Math.max(0,Math.min(20,older));
+      minimum = Math.max(22,age - younger);
+      maximum = age + older;
+      applicantAge.textContent = String(age);
+      youngerOutput.value = String(younger);
+      olderOutput.value = String(older);
+      setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'decrement'),'Fewer years younger',younger === 0);
+      setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'increment'),'More years younger',younger === maximumYounger);
+      setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'decrement'),'Fewer years older',older === 0);
+      setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'increment'),'More years older',older === 20);
+    } else {
+      minimum = fallbackMinimum;
+      maximum = fallbackMaximum;
+      youngerOutput.value = String(minimum);
+      olderOutput.value = String(maximum);
+      setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'decrement'),'Lower minimum age',minimum === 22);
+      setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'increment'),'Raise minimum age',minimum === maximum);
+      setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'decrement'),'Lower maximum age',maximum === minimum);
+      setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'increment'),'Raise maximum age',maximum === 55);
+    }
+
+    minimumOutput.value = String(minimum);
+    maximumOutput.value = String(maximum);
+    journeyStore.setField('applicant.preferredAge.minimum',minimum);
+    journeyStore.setField('applicant.preferredAge.maximum',maximum);
+  }
+
+  buttons.forEach((button) => button.addEventListener('click', () => {
+    const direction = button.dataset.direction === 'increment' ? 1 : -1;
+    const age = calculateAgeFromDateOfBirth(dateInput.value || dateValueFromParts(journeyStore.getState().applicant.dateOfBirth));
+    if (age !== null) {
+      if (button.dataset.ageStep === 'younger') younger += direction;
+      else older += direction;
+    } else if (button.dataset.ageStep === 'younger') {
+      fallbackMinimum += direction;
+    } else {
+      fallbackMaximum += direction;
+    }
+    sync();
+  }));
+
+  dateInput.addEventListener('input', sync);
+  sync();
 }
 
 initJourneyHeaders();
-initAgeRange();
+initAgePreference();
 
 function showScreen(id){
   if (id === 'signup-choice') id = 'landing';
@@ -482,7 +533,7 @@ document.addEventListener('click', (e) => {
 
 Object.assign(window, {
   initJourneyHeaders,
-  initAgeRange,
+  initAgePreference,
   goTo,
   updateName,
   selectChoice,
