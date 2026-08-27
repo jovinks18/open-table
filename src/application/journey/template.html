@@ -45,7 +45,7 @@
   </div>
   <div class="land-footer-strip"><span class="land-logo"><img src="/images/donna-logo-transparent.png" alt="donna"></span><span>Private by design · Attentive by nature</span></div>
 </section>
-<section class="screen active chapter-one-screen" id="ch1-1" data-chapter-one-screen>
+<section class="screen chapter-one-screen" id="ch1-1" data-chapter-one-screen>
   <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
   <div class="progress-wrap"></div>
   <main><div class="donna-stage">
@@ -81,14 +81,15 @@
     </div>
   </div></main>
 </section>
-<section class="screen" id="welcome">
+<section class="screen active" id="welcome">
   <main>
     <div class="center-card">
-      <div class="donna-icon large"></div>
-      <div class="eyebrow">A NOTE FROM YOUR MATCHMAKER</div>
-      <div class="headline">Hi. I'm donna.</div>
-      <div class="sub">I'll ask you a few things. Let's get real, honest, and specific — it's how I'll set you up better.</div>
-      <button class="next-btn" onclick="goTo('ch1-1')">Let's begin</button>
+      <h1 class="headline">Before you start.</h1>
+      <p class="sub">Six chapters. About fifteen minutes.</p>
+      <p class="sub">Some of the questions are blunt. That's on purpose — it's how we avoid wasting your evening on someone who was never going to work.</p>
+      <p class="sub">You'll get one introduction at a time. You'll meet in a public place before anyone has a phone number. Afterwards you both write down how it went.</p>
+      <p class="sub">Not everyone who applies gets an introduction.</p>
+      <button class="next-btn" onclick="goTo('ch1-1')">Start</button>
     </div>
   </main>
 </section>
@@ -147,6 +148,7 @@
   <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-6">How can we reach you?</h1></div></div>
     <div class="answer-zone"><div class="card answer-card" aria-labelledby="question-ch1-6">
       <div class="field"><label for="chapterOneName">Your name</label><input id="chapterOneName" type="text" required minlength="2" autocomplete="name" aria-describedby="chapterOneNameError"><p class="chapter-one-error" id="chapterOneNameError" hidden>Enter at least 2 characters.</p></div>
+      <div class="field"><label for="chapterOneDateOfBirth">Date of birth</label><input id="chapterOneDateOfBirth" type="date" required autocomplete="bday" aria-describedby="chapterOneDateOfBirthError"><p class="chapter-one-error" id="chapterOneDateOfBirthError" hidden>Enter a valid date of birth.</p></div>
       <div class="field"><label for="chapterOnePhone">Phone number</label><input id="chapterOnePhone" type="tel" required inputmode="tel" autocomplete="tel" aria-describedby="chapterOnePhoneError"><p class="chapter-one-error" id="chapterOnePhoneError" hidden>Enter a valid Indian mobile number.</p></div>
       <div class="field"><label for="chapterOneEmail">Email</label><input id="chapterOneEmail" type="email" required autocomplete="email" aria-describedby="chapterOneEmailError"><p class="chapter-one-error" id="chapterOneEmailError" hidden>Enter a valid email address.</p></div>
     </div></div>
@@ -181,18 +183,27 @@
         <div class="pill-group"><div class="pill" onclick="selectPill(this)">Yes</div><div class="pill" onclick="selectPill(this)">Not just yet</div></div>
       </div>
       <div class="field"><label>WHAT AGE RANGE ARE YOU COMFORTABLE MEETING?</label>
-        <div class="age-range" data-age-range>
-          <div class="age-range__values" aria-live="polite">
-            <output id="ageMinOutput" for="ageMin">25</output>
-            <span>to</span>
-            <output id="ageMaxOutput" for="ageMax">40</output>
+        <div class="age-preference" data-age-preference role="group" aria-label="Age range">
+          <p class="age-preference__anchor" id="agePreferenceAnchor" hidden>You’re <span id="applicantAge">31</span>. How far either side?</p>
+          <div class="age-preference__steppers">
+            <div class="age-stepper-group">
+              <span class="age-stepper-group__label" id="youngerLabel">Younger by</span>
+              <div class="age-stepper" aria-labelledby="youngerLabel">
+                <button type="button" data-age-step="younger" data-direction="decrement" aria-label="Fewer years younger">−</button>
+                <output id="youngerOffset">3</output>
+                <button type="button" data-age-step="younger" data-direction="increment" aria-label="More years younger">+</button>
+              </div>
+            </div>
+            <div class="age-stepper-group">
+              <span class="age-stepper-group__label" id="olderLabel">Older by</span>
+              <div class="age-stepper" aria-labelledby="olderLabel">
+                <button type="button" data-age-step="older" data-direction="decrement" aria-label="Fewer years older">−</button>
+                <output id="olderOffset">7</output>
+                <button type="button" data-age-step="older" data-direction="increment" aria-label="More years older">+</button>
+              </div>
+            </div>
           </div>
-          <div class="age-range__control">
-            <div class="age-range__track" aria-hidden="true"><div class="age-range__fill" id="ageRangeFill"></div></div>
-            <input id="ageMin" type="range" min="25" max="60" value="25" aria-label="Minimum preferred age">
-            <input id="ageMax" type="range" min="25" max="60" value="40" aria-label="Maximum preferred age">
-          </div>
-          <div class="age-range__limits" aria-hidden="true"><span>25</span><span>60+</span></div>
+          <p class="age-preference__result" id="ageRangeOutput" aria-live="polite"><output id="ageRangeMinimum">28</output> to <output id="ageRangeMaximum">38</output></p>
         </div>
       </div>
 
