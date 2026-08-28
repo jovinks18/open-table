@@ -4,19 +4,22 @@ import test from 'node:test'
 
 import {
   calculateAgeFromDateOfBirth,
+  dateOfBirthBounds,
   datePartsFromValue,
   dateValueFromParts,
   isValidEmail,
   normalizeIndianMobile,
+  validateApplicantDateOfBirth,
 } from '../src/application/journey/chapter-one.js'
 
 const template = readFileSync(new URL('../src/application/journey/template.html', import.meta.url), 'utf8')
 const controller = readFileSync(new URL('../src/application/journey/chapter-one.js', import.meta.url), 'utf8')
+const store = readFileSync(new URL('../src/application/journey/store.js', import.meta.url), 'utf8')
 const styles = readFileSync(new URL('../src/application/journey/styles.css', import.meta.url), 'utf8')
 
-test('Chapter I contains six screens, with date of birth only on its contact screen', () => {
-  for (let screen = 1; screen <= 6; screen += 1) assert.match(template, new RegExp(`id="ch1-${screen}"`))
-  assert.doesNotMatch(template, /id="ch1-7"/)
+test('Chapter I contains seven screens, with date of birth only on its contact screen', () => {
+  for (let screen = 1; screen <= 7; screen += 1) assert.match(template, new RegExp(`id="ch1-${screen}"`))
+  assert.doesNotMatch(template, /id="ch1-8"/)
   assert.doesNotMatch(template, /id="ch1-complete"|id="dobDay"|id="currentCityInput"/)
   assert.equal((template.match(/id="chapterOneDateOfBirth"/g) || []).length, 1)
   assert.match(template, /id="chapter-one-exit"/)
@@ -35,7 +38,8 @@ test('the controller enforces every Chapter I gate and persists answers in journ
   assert.match(controller, /function canAdvance\(screen\)/)
   assert.match(controller, /journeyStore\.setField\(group\.dataset\.singleField/)
   assert.match(controller, /journeyStore\.setField\(group\.dataset\.multiField/)
-  assert.match(controller, /'ch1-5': 'applicant\.chapterOne\.meetingReadiness'/)
+  assert.match(controller, /'ch1-2': \['applicant\.gender', 'applicant\.seeking'\]/)
+  assert.match(controller, /'ch1-6': \['applicant\.chapterOne\.meetingReadiness'\]/)
   assert.match(controller, /goTo\('chapter-one-exit'\)/)
   assert.match(controller, /firstInvalid\[0\]\.focus\(\)/)
 })
@@ -59,13 +63,28 @@ test('date of birth is stored as parts and computes age at the birthday boundary
   assert.equal(datePartsFromValue('2027-01-01', today), null)
 })
 
+test('date of birth accepts ages 21 through 70 and provides matching native bounds', () => {
+  const today = new Date(2026, 7, 28)
+  assert.deepEqual(dateOfBirthBounds(today), { min: '1955-08-29', max: '2005-08-28' })
+  assert.deepEqual(validateApplicantDateOfBirth('2005-08-28', today), { valid: true, message: '' })
+  assert.deepEqual(validateApplicantDateOfBirth('1955-08-29', today), { valid: true, message: '' })
+  assert.deepEqual(validateApplicantDateOfBirth('2005-08-29', today), {
+    valid: false,
+    message: 'You need to be 21 or older to apply.',
+  })
+  assert.deepEqual(validateApplicantDateOfBirth('1955-08-28', today), {
+    valid: false,
+    message: 'This pilot is for applicants up to 70.',
+  })
+  assert.match(controller, /dateOfBirthInput\.min = bounds\.min/)
+  assert.match(controller, /dateOfBirthInput\.max = bounds\.max/)
+})
+
 test('question screens place one semantic question in the mascot bubble and no heading in the card', () => {
   const questionScreens = [
-    'friend-verification',
-    'ch1-1', 'ch1-2', 'ch1-3', 'ch1-4', 'ch1-5', 'ch1-6',
+    'ch1-1', 'ch1-2', 'ch1-3', 'ch1-4', 'ch1-5', 'ch1-6', 'ch1-7',
     'ch2', 'ch3-1', 'ch3-2', 'ch4-1', 'ch4-2', 'ch5-1', 'ch5-2', 'ch6',
-    'ch7-1', 'ch7-2', 'ch7-3', 'ch7-4', 'ch7-5', 'ch7-6', 'ch7-friend-prompt',
-    'write-note',
+    'ch7-1', 'ch7-2', 'ch7-3', 'ch7-4', 'ch7-5', 'ch7-6',
   ]
 
   questionScreens.forEach((screenId) => {
@@ -77,19 +96,39 @@ test('question screens place one semantic question in the mascot bubble and no h
   })
 })
 
-test('I.2 keeps only its four answers and navigation without a card', () => {
+test('I.2 combines gender and seeking as two required labelled pill groups', () => {
   const start = template.indexOf('id="ch1-2"')
   const end = template.indexOf('</section>', start)
   const screen = template.slice(start, end)
 
-  assert.match(screen, /<h1 class="bubble-question" id="question-ch1-2">If you met the right person, when would you want to be married\?<\/h1>/)
+  assert.match(screen, /<h1 class="bubble-question" id="question-ch1-2">Who you are, and who you're after\.<\/h1>/)
+  assert.match(screen, /<span class="chapter-one-label" id="gender-label">You are<\/span>/)
+  assert.match(screen, /role="group" aria-labelledby="gender-label" data-single-field="applicant\.gender"/)
+  assert.match(screen, /<span class="chapter-one-label" id="seeking-label">Looking to meet<\/span>/)
+  assert.match(screen, /role="group" aria-labelledby="seeking-label" data-single-field="applicant\.seeking"/)
+  assert.deepEqual(
+    [...screen.matchAll(/data-value="([^"]+)" aria-pressed="false"><span>([^<]+)<\/span>/g)].map(([, value, label]) => [value, label]),
+    [['woman', 'Woman'], ['man', 'Man'], ['non_binary', 'Non-binary'], ['men', 'Men'], ['women', 'Women'], ['open_to_both', 'Open to both']],
+  )
+  assert.match(screen, /data-back="ch1-1"/)
+  assert.match(screen, /data-chapter-one-continue data-next="ch1-3" disabled/)
+  assert.match(store, /gender: '',\s+seeking: '',/)
+  assert.doesNotMatch(screen, /reason|hint|prefer not to say/i)
+})
+
+test('I.3 keeps only its four timeline answers and navigation without a card', () => {
+  const start = template.indexOf('id="ch1-3"')
+  const end = template.indexOf('</section>', start)
+  const screen = template.slice(start, end)
+
+  assert.match(screen, /<h1 class="bubble-question" id="question-ch1-3">If you met the right person, when would you want to be married\?<\/h1>/)
   assert.equal((screen.match(/class="chapter-one-option"/g) || []).length, 4)
   assert.doesNotMatch(screen, /class="card|class="answer-card"/)
   assert.match(screen, />Back<\/button>.*>Continue<\/button>/s)
 })
 
 test('the surviving bubble heading labels controls and retains required field labels', () => {
-  assert.match(template, /role="group" aria-labelledby="question-ch1-2"/)
+  assert.match(template, /role="group" aria-labelledby="question-ch1-3"/)
   for (const [id, label] of [
     ['chapterOneName', 'Your name'],
     ['chapterOneDateOfBirth', 'Date of birth'],
@@ -101,39 +140,39 @@ test('the surviving bubble heading labels controls and retains required field la
   assert.match(styles, /@media \(max-width:760px\)[\s\S]*\.bubble-question\{ font-size:25px; line-height:1\.12; \}/)
 })
 
-test('I.5 asks one four-week readiness question with three required single-select answers', () => {
-  const start = template.indexOf('id="ch1-5"')
+test('I.6 asks one four-week readiness question with three required single-select answers', () => {
+  const start = template.indexOf('id="ch1-6"')
   const screen = template.slice(start, template.indexOf('</section>', start))
 
-  assert.match(screen, /<h1 class="bubble-question" id="question-ch1-5">Could you realistically meet someone in the next four weeks\?<\/h1>/)
+  assert.match(screen, /<h1 class="bubble-question" id="question-ch1-6">Could you realistically meet someone in the next four weeks\?<\/h1>/)
   assert.match(screen, /data-single-field="applicant\.chapterOne\.meetingReadiness"/)
   assert.doesNotMatch(screen, /data-multi-field|meeting-soon-label|And how soon\?|meetingAvailability|meetingTimeline/)
   assert.deepEqual(
     [...screen.matchAll(/data-value="([^"]+)" aria-pressed="false"><span>([^<]+)<\/span>/g)].map(([, value, label]) => [value, label]),
     [['yes', 'Yes'], ['probably', "Probably — I'd need to sort out when"], ['no', 'No']],
   )
-  assert.match(screen, /data-chapter-one-continue data-next="ch1-6" disabled/)
+  assert.match(screen, /data-chapter-one-continue data-next="ch1-7" disabled/)
 })
 
-test('the removed obstacle screen leaves I.5 and contact as adjacent screens', () => {
+test('the removed obstacle screen leaves I.6 and contact as adjacent screens', () => {
   assert.doesNotMatch(template, /datingObstacle/)
-  const start = template.indexOf('id="ch1-6"')
+  const start = template.indexOf('id="ch1-7"')
   const contact = template.slice(start, template.indexOf('</section>', start))
-  assert.match(contact, /data-back="ch1-5"/)
+  assert.match(contact, /data-back="ch1-6"/)
   assert.match(contact, /data-next="ch2"/)
   assert.match(contact, /id="chapterOneDateOfBirth" type="date" required/)
   assert.ok(template.indexOf('id="chapterOneDateOfBirth"') < template.indexOf('id="ch2"'))
 })
 
 test('option-only Chapter I screens are wrapperless and text-entry screens retain cards', () => {
-  for (const screenId of ['ch1-1', 'ch1-2', 'ch1-3', 'ch1-4', 'ch1-5']) {
+  for (const screenId of ['ch1-1', 'ch1-2', 'ch1-3', 'ch1-4', 'ch1-5', 'ch1-6']) {
     const start = template.indexOf(`id="${screenId}"`)
     const screen = template.slice(start, template.indexOf('</section>', start))
     assert.doesNotMatch(screen, /class="card(?: |")|class="answer-card"/)
     assert.match(screen, /class="chapter-one-options[^"]*option-surface/)
   }
 
-  for (const screenId of ['ch1-6']) {
+  for (const screenId of ['ch1-7']) {
     const start = template.indexOf(`id="${screenId}"`)
     const screen = template.slice(start, template.indexOf('</section>', start))
     assert.match(screen, /class="card answer-card"/)
@@ -149,8 +188,17 @@ test('option visual states use bordered rows and clay inversion without broad tr
   assert.match(styles, /@media \(prefers-reduced-motion:reduce\)\{[\s\S]*\.chapter-one-option\{ transition:none; \}/)
 })
 
+test('only I.2 renders content-sized inline pills with the specified spacing', () => {
+  assert.match(styles, /\.chapter-one-label\{[^}]*margin-bottom:12px;[^}]*font-size:12px;/)
+  assert.match(styles, /\.chapter-one-pill-group \+ \.chapter-one-pill-group\{ margin-top:28px; \}/)
+  assert.match(styles, /#ch1-2 \.answer-zone\{ padding:8px 0; border:0; background:transparent; \}/)
+  assert.match(styles, /#ch1-2 \.chapter-one-options\{ flex-flow:row wrap; gap:8px; \}/)
+  assert.match(styles, /#ch1-2 \.chapter-one-option\{[\s\S]*width:auto; min-height:44px; height:44px; flex:0 0 auto; padding:0 20px; border-radius:22px;/)
+  assert.doesNotMatch(styles, /#ch1-(?:1|3|4|5|6|7) \.chapter-one-option/)
+})
+
 test('the journey uses one fixed-top, content-sized stack at every breakpoint', () => {
-  for (let screen = 1; screen <= 6; screen += 1) {
+  for (let screen = 1; screen <= 7; screen += 1) {
     const start = template.indexOf(`id="ch1-${screen}"`)
     const content = template.slice(start, template.indexOf('</section>', start))
     assert.match(content, /class="answer-zone"/)
@@ -167,6 +215,7 @@ test('the journey uses one fixed-top, content-sized stack at every breakpoint', 
   assert.doesNotMatch(styles, /height:367px|min-height:367px|34%|grid-template-columns:300px|max-width:1000px|border-right:/)
   assert.match(styles, /\.journey-screen \.next-btn:disabled\{[\s\S]*background:rgba\(247,236,230,0\.04\);[\s\S]*cursor:not-allowed;/)
   assert.match(styles, /\.journey-screen \.next-btn:not\(:disabled\)\{[\s\S]*background:var\(--rose\);[\s\S]*color:#26080D;/)
+  assert.doesNotMatch(styles, /chapter-one-options--primary/)
 })
 
 test('input autofill retains the journey palette in every WebKit autofill state', () => {

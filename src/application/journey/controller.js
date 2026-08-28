@@ -1,9 +1,13 @@
 import { journeyStore } from './store.js';
 import { calculateAgeFromDateOfBirth, dateValueFromParts, initChapterOne } from './chapter-one.js';
-
-let firstName = '';
+import { calculateAnchoredAgeRange } from './age-range.js';
 
 const CHAPTERS = Object.freeze(['I', 'II', 'III', 'IV', 'V', 'VI']);
+let journeyRoot;
+let screenMarkup;
+let mountFieldBindings;
+let faithSliderAbort;
+const visitedScreens = new Set();
 
 function chapterForScreen(screen){
   const chapterMatch = screen.id.match(/^ch([1-7])(?:-|$)/);
@@ -26,7 +30,7 @@ function renderChapterProgress(wrap, currentChapter){
 }
 
 function upgradeClickableControls(screen){
-  const selector = '.pill, .unit-pill, .chip, .choice-card';
+  const selector = '.pill, .unit-pill, .chip';
   screen.querySelectorAll(selector).forEach((control) => {
     if (control.tagName === 'BUTTON') return;
     const button = document.createElement('button');
@@ -80,8 +84,8 @@ function prepareJourneyLayout(screen){
   associateFieldLabels(screen);
 }
 
-function initJourneyHeaders(){
-  document.querySelectorAll('.progress-wrap').forEach((wrap) => {
+function initJourneyHeaders(screen = document){
+  screen.querySelectorAll('.progress-wrap').forEach((wrap) => {
     const screen = wrap.closest('.screen');
     if (!screen) return;
     screen.classList.add('journey-screen');
@@ -91,24 +95,25 @@ function initJourneyHeaders(){
   });
 }
 
-function initAgePreference(){
-  const root = document.querySelector('[data-age-preference]');
-  const dateInput = document.getElementById('chapterOneDateOfBirth');
-  const anchor = document.getElementById('agePreferenceAnchor');
-  const applicantAge = document.getElementById('applicantAge');
-  const youngerLabel = document.getElementById('youngerLabel');
-  const olderLabel = document.getElementById('olderLabel');
-  const youngerOutput = document.getElementById('youngerOffset');
-  const olderOutput = document.getElementById('olderOffset');
-  const minimumOutput = document.getElementById('ageRangeMinimum');
-  const maximumOutput = document.getElementById('ageRangeMaximum');
-  if (!root || !dateInput || !anchor || !applicantAge || !youngerLabel || !olderLabel || !youngerOutput || !olderOutput || !minimumOutput || !maximumOutput) return;
+function initAgePreference(screen = document, restoreStoredRange = false){
+  const root = screen.querySelector('[data-age-preference]');
+  const anchor = screen.querySelector('#agePreferenceAnchor');
+  const applicantAge = screen.querySelector('#applicantAge');
+  const youngerLabel = screen.querySelector('#youngerLabel');
+  const olderLabel = screen.querySelector('#olderLabel');
+  const youngerOutput = screen.querySelector('#youngerOffset');
+  const olderOutput = screen.querySelector('#olderOffset');
+  const minimumOutput = screen.querySelector('#ageRangeMinimum');
+  const maximumOutput = screen.querySelector('#ageRangeMaximum');
+  if (!root || !anchor || !applicantAge || !youngerLabel || !olderLabel || !youngerOutput || !olderOutput || !minimumOutput || !maximumOutput) return;
 
   const buttons = [...root.querySelectorAll('[data-age-step]')];
-  let younger = 3;
-  let older = 7;
-  let fallbackMinimum = Math.max(22,Math.min(55,journeyStore.getState().applicant.preferredAge.minimum));
-  let fallbackMaximum = Math.max(fallbackMinimum,Math.min(55,journeyStore.getState().applicant.preferredAge.maximum));
+  const stored = journeyStore.getState().applicant;
+  const age = calculateAgeFromDateOfBirth(dateValueFromParts(stored.dateOfBirth));
+  let younger = restoreStoredRange && age !== null ? Math.max(0,Math.min(20,age - stored.preferredAge.minimum)) : 3;
+  let older = restoreStoredRange && age !== null ? Math.max(0,Math.min(20,stored.preferredAge.maximum - age)) : 7;
+  let fallbackMinimum = Math.max(22,Math.min(54,stored.preferredAge.minimum));
+  let fallbackMaximum = Math.max(fallbackMinimum + 1,Math.min(55,stored.preferredAge.maximum));
 
   function setButton(button, label, disabled){
     button.setAttribute('aria-label', label);
@@ -116,7 +121,7 @@ function initAgePreference(){
   }
 
   function sync(){
-    const age = calculateAgeFromDateOfBirth(dateInput.value || dateValueFromParts(journeyStore.getState().applicant.dateOfBirth));
+    const age = calculateAgeFromDateOfBirth(dateValueFromParts(journeyStore.getState().applicant.dateOfBirth));
     const anchored = age !== null;
     anchor.hidden = !anchored;
     if (anchored) {
@@ -132,16 +137,14 @@ function initAgePreference(){
     let minimum;
     let maximum;
     if (anchored) {
-      const maximumYounger = Math.max(0,Math.min(20,age - 22));
-      younger = Math.min(younger,maximumYounger);
+      younger = Math.max(0,Math.min(20,younger));
       older = Math.max(0,Math.min(20,older));
-      minimum = Math.max(22,age - younger);
-      maximum = age + older;
+      ({ minimum, maximum } = calculateAnchoredAgeRange(age,younger,older));
       applicantAge.textContent = String(age);
       youngerOutput.value = String(younger);
       olderOutput.value = String(older);
       setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'decrement'),'Fewer years younger',younger === 0);
-      setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'increment'),'More years younger',younger === maximumYounger);
+      setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'increment'),'More years younger',younger === 20);
       setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'decrement'),'Fewer years older',older === 0);
       setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'increment'),'More years older',older === 20);
     } else {
@@ -150,8 +153,8 @@ function initAgePreference(){
       youngerOutput.value = String(minimum);
       olderOutput.value = String(maximum);
       setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'decrement'),'Lower minimum age',minimum === 22);
-      setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'increment'),'Raise minimum age',minimum === maximum);
-      setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'decrement'),'Lower maximum age',maximum === minimum);
+      setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'increment'),'Raise minimum age',minimum >= maximum - 1);
+      setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'decrement'),'Lower maximum age',maximum <= minimum + 1);
       setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'increment'),'Raise maximum age',maximum === 55);
     }
 
@@ -163,7 +166,7 @@ function initAgePreference(){
 
   buttons.forEach((button) => button.addEventListener('click', () => {
     const direction = button.dataset.direction === 'increment' ? 1 : -1;
-    const age = calculateAgeFromDateOfBirth(dateInput.value || dateValueFromParts(journeyStore.getState().applicant.dateOfBirth));
+    const age = calculateAgeFromDateOfBirth(dateValueFromParts(journeyStore.getState().applicant.dateOfBirth));
     if (age !== null) {
       if (button.dataset.ageStep === 'younger') younger += direction;
       else older += direction;
@@ -175,40 +178,83 @@ function initAgePreference(){
     sync();
   }));
 
-  dateInput.addEventListener('input', sync);
   sync();
 }
 
-initJourneyHeaders();
-initAgePreference();
+function createScreen(id){
+  const markup = screenMarkup.get(id);
+  if (!markup) throw new Error(`Unknown journey screen: ${id}`);
+  const template = document.createElement('template');
+  template.innerHTML = markup;
+  return template.content.firstElementChild;
+}
 
-function showScreen(id){
-  if (id === 'signup-choice') id = 'landing';
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const target = document.getElementById(id);
-  target.classList.add('active');
-  document.getElementById('journey-root').dispatchEvent(new CustomEvent('journey:navigate', {
+function restoreScreenControls(screen){
+  const state = journeyStore.getState().applicant;
+
+  if (screen.id === 'ch3-2') {
+    selectedLangs.splice(0,selectedLangs.length,...state.languages);
+    renderLangBubbles();
+    const unit = state.height.unit || 'ft';
+    screen.querySelectorAll('.unit-pill').forEach((pill) => {
+      const selected = pill.textContent.includes(unit === 'ft' ? 'Feet' : 'Centimeters');
+      pill.classList.toggle('selected',selected);
+      pill.setAttribute('aria-pressed',String(selected));
+    });
+    screen.querySelector('#heightFtRow').style.display = unit === 'ft' ? 'grid' : 'none';
+    screen.querySelector('#heightCmInput').style.display = unit === 'cm' ? 'block' : 'none';
+  }
+
+  if (screen.id === 'ch4-1') {
+    cityTagInput.hydrate(state.relocationCities);
+    screen.querySelector('#livingOtherInput').style.display = state.livingSituation === 'Other' ? 'block' : 'none';
+  }
+
+  if (screen.id === 'ch6') {
+    const storedLabels = new Set(state.nonNegotiables.split(',').map((item) => item.trim()).filter(Boolean));
+    selectedChips.clear();
+    screen.querySelectorAll('.chip').forEach((chip) => {
+      const label = chip.textContent.replace(/^\+\s*/, '').trim();
+      const selected = storedLabels.has(label);
+      if (selected) selectedChips.add(label);
+      chip.classList.toggle('selected',selected);
+      chip.setAttribute('aria-pressed',String(selected));
+    });
+  }
+}
+
+function mountScreen(id){
+  const restoring = visitedScreens.has(id);
+  const screen = createScreen(id);
+  screen.classList.add('active');
+  journeyRoot.replaceChildren(screen);
+  initJourneyHeaders(screen);
+  mountFieldBindings(screen);
+  initChapterOne(goTo,screen);
+  restoreScreenControls(screen);
+  if (screen.id === 'ch2') initAgePreference(screen,restoring);
+  if (screen.id === 'ch5-1') initFaithSlider(screen);
+  visitedScreens.add(id);
+  journeyRoot.dispatchEvent(new CustomEvent('journey:navigate', {
     bubbles: true,
     detail: { screenId: id },
   }));
   window.scrollTo(0,0);
-  return target;
+  return screen;
 }
 
 let chapterTransitionTimer = null;
 
 function goTo(id){
-  if (id === 'signup-choice') id = 'landing';
-  const current = document.querySelector('.screen.active');
-  const target = document.getElementById(id);
+  const current = journeyRoot.querySelector('.screen');
   const currentChapter = current ? chapterForScreen(current) : null;
-  const targetChapter = target ? chapterForScreen(target) : null;
+  const targetChapter = chapterForScreen(createScreen(id));
   const chapterChanged = currentChapter !== null && targetChapter !== null && currentChapter !== targetChapter;
 
   window.clearTimeout(chapterTransitionTimer);
 
   if (!chapterChanged) {
-    const shown = showScreen(id);
+    const shown = mountScreen(id);
     if (currentChapter === null && targetChapter !== null) {
       const incoming = shown.querySelector('.chapter-numeral');
       if (incoming) {
@@ -221,37 +267,12 @@ function goTo(id){
 
   current.querySelector('.chapter-numeral')?.classList.add('is-leaving');
   chapterTransitionTimer = window.setTimeout(() => {
-    const shown = showScreen(id);
+    const shown = mountScreen(id);
     const incoming = shown.querySelector('.chapter-numeral');
     if (!incoming) return;
     incoming.classList.add('is-entering');
     requestAnimationFrame(() => incoming.classList.remove('is-entering'));
   }, 180);
-}
-
-initChapterOne(goTo);
-
-function updateName(val){
-  firstName = val.trim().split(' ')[0];
-  const h = document.getElementById('ch1Headline');
-  if (h) h.textContent = firstName ? `Nice to meet you, ${firstName}` : "Who are we talking to?";
-  const ch1c = document.getElementById('ch1CompleteHeadline');
-  if (ch1c) ch1c.textContent = firstName ? `Nicely done, ${firstName}.` : "That section is done.";
-  const finalH = document.getElementById('finalHeadline');
-  if (finalH) finalH.textContent = firstName ? `That's everything, ${firstName}.` : "That's everything, for now.";
-}
-
-function selectChoice(el){
-  const parent = el.parentElement;
-  [...parent.children].forEach(c => {
-    c.classList.remove('selected');
-    c.setAttribute('aria-pressed', 'false');
-  });
-  el.classList.add('selected');
-  el.setAttribute('aria-pressed', 'true');
-  if (parent.closest('#signup-choice')) {
-    journeyStore.setField('route', [...parent.children].indexOf(el) === 1 ? 'referrer' : 'applicant');
-  }
 }
 
 function selectPill(el){
@@ -292,6 +313,7 @@ function makeTagInput({ boxId, inputId, dropdownId, list, statePath }){
   function render(){
     const box = document.getElementById(boxId);
     const input = document.getElementById(inputId);
+    if (!box || !input) return;
     box.querySelectorAll('.tag-bubble').forEach(b => b.remove());
     selected.forEach((item, i) => {
       const bubble = document.createElement('div');
@@ -332,7 +354,12 @@ function makeTagInput({ boxId, inputId, dropdownId, list, statePath }){
     renderOptions(matches.slice(0, 8));
   }
 
-  function close(){ document.getElementById(dropdownId).classList.remove('show'); }
+  function close(){ document.getElementById(dropdownId)?.classList.remove('show'); }
+
+  function hydrate(items){
+    selected.splice(0,selected.length,...items);
+    render();
+  }
 
   function keydown(evt){
     const dropdown = document.getElementById(dropdownId);
@@ -354,7 +381,7 @@ function makeTagInput({ boxId, inputId, dropdownId, list, statePath }){
     } else if (evt.key === 'Escape'){ close(); }
   }
 
-  return { filter, keydown, close };
+  return { filter, keydown, close, hydrate };
 }
 
 const CITIES = [
@@ -408,29 +435,38 @@ function setSlider(evt, track){
   journeyStore.setField('applicant.sharedBackgroundImportance', Math.round(pct));
 }
 
-(function initFaithSlider(){
-  const track = document.getElementById('faithSlider');
-  const handle = document.getElementById('faithHandle');
+function initFaithSlider(screen = document){
+  faithSliderAbort?.abort();
+  faithSliderAbort = new AbortController();
+  const { signal } = faithSliderAbort;
+  const track = screen.querySelector('#faithSlider');
+  const handle = screen.querySelector('#faithHandle');
+  const fill = screen.querySelector('#faithFill');
+  if (!track || !handle || !fill) return;
   let dragging = false;
+
+  const storedValue = Math.max(0,Math.min(100,journeyStore.getState().applicant.sharedBackgroundImportance));
+  fill.style.width = `${storedValue}%`;
+  handle.style.left = `${storedValue}%`;
 
   function update(clientX){
     const rect = track.getBoundingClientRect();
     let pct = ((clientX - rect.left) / rect.width) * 100;
     pct = Math.max(0, Math.min(100, pct));
-    document.getElementById('faithFill').style.width = pct + '%';
-    document.getElementById('faithHandle').style.left = pct + '%';
+    fill.style.width = pct + '%';
+    handle.style.left = pct + '%';
     journeyStore.setField('applicant.sharedBackgroundImportance', Math.round(pct));
   }
 
-  track.addEventListener('click', (e) => { if (!dragging) update(e.clientX); });
-  handle.addEventListener('mousedown', (e) => { dragging = true; e.preventDefault(); });
-  handle.addEventListener('touchstart', (e) => { dragging = true; }, {passive:true});
+  track.addEventListener('click', (e) => { if (!dragging) update(e.clientX); },{ signal });
+  handle.addEventListener('mousedown', (e) => { dragging = true; e.preventDefault(); },{ signal });
+  handle.addEventListener('touchstart', () => { dragging = true; }, {passive:true, signal});
 
-  document.addEventListener('mousemove', (e) => { if (dragging) update(e.clientX); });
-  document.addEventListener('touchmove', (e) => { if (dragging) update(e.touches[0].clientX); }, {passive:true});
-  document.addEventListener('mouseup', () => dragging = false);
-  document.addEventListener('touchend', () => dragging = false);
-})();
+  document.addEventListener('mousemove', (e) => { if (dragging) update(e.clientX); },{ signal });
+  document.addEventListener('touchmove', (e) => { if (dragging) update(e.touches[0].clientX); }, {passive:true, signal});
+  document.addEventListener('mouseup', () => dragging = false,{ signal });
+  document.addEventListener('touchend', () => dragging = false,{ signal });
+}
 
 // ---- Language tag input ----
 const LANGUAGES = [
@@ -445,6 +481,7 @@ let langHighlightIdx = -1;
 function renderLangBubbles(){
   const box = document.getElementById('langTagBox');
   const input = document.getElementById('langInput');
+  if (!box || !input) return;
   box.querySelectorAll('.tag-bubble').forEach(b => b.remove());
   selectedLangs.forEach((lang, i) => {
     const bubble = document.createElement('div');
@@ -494,7 +531,7 @@ function renderLangOptions(list){
 }
 
 function closeLangDropdown(){
-  document.getElementById('langDropdown').classList.remove('show');
+  document.getElementById('langDropdown')?.classList.remove('show');
 }
 
 function langKeydown(evt){
@@ -527,16 +564,21 @@ function langKeydown(evt){
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.tag-input-wrap')){
     closeLangDropdown();
-    document.getElementById('cityDropdown').classList.remove('show');
+    document.getElementById('cityDropdown')?.classList.remove('show');
   }
 });
+
+export function initializeJourney(options){
+  journeyRoot = options.root;
+  screenMarkup = options.screenMarkup;
+  mountFieldBindings = options.mountFieldBindings;
+  mountScreen(journeyStore.getState().currentScreen);
+}
 
 Object.assign(window, {
   initJourneyHeaders,
   initAgePreference,
   goTo,
-  updateName,
-  selectChoice,
   selectPill,
   toggleChip,
   clearLinkedInError,

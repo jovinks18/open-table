@@ -25,9 +25,11 @@ test('journey state is versioned, isolated per store, and serializable', () => {
 })
 
 test('every DOM binding has a unique stable state path', () => {
-  assert.ok(fieldBindings.length >= 35)
+  assert.equal(fieldBindings.length, 32)
   assert.equal(new Set(applicationFieldPaths).size, applicationFieldPaths.length)
-  assert.ok(applicationFieldPaths.every((path) => /^(applicant|referrer)\./.test(path)))
+  assert.ok(applicationFieldPaths.every((path) => /^applicant\./.test(path)))
+  assert.ok(!('referrer' in initialJourneyState))
+  assert.ok(!('friendPerspectiveChoice' in initialJourneyState.applicant))
 })
 
 test('the backend adapter is explicit and safely inactive', async () => {

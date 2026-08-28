@@ -1,50 +1,3 @@
-<section class="screen" id="landing">
-  <div class="land-hero">
-    <div class="land-nav"><span class="land-logo"><img src="/images/donna-logo-transparent.png" alt="donna"></span><span>Sign in</span></div>
-    <div class="land-center">
-      <div class="land-badge"><img src="/images/application/landing-badge.png"></div>
-      <div class="land-headline">Some introductions<br>are worth getting right.</div>
-      <div class="land-sub">A private, considered introduction service for people choosing a life together — not just another date.</div>
-      <div class="cta-row">
-        <div class="cta-primary" onclick="goTo('ch1-1')">Apply</div>
-        <div class="cta-secondary" onclick="goTo('friend-verification')"><span>✦</span>Introduce a Friend</div>
-      </div>
-      <div class="cta-caption">Looking for yourself? Apply. Know someone who deserves this? Introduce them.</div>
-    </div>
-    <div class="land-foot">Private by design · Attentive by nature</div>
-  </div>
-
-  <div class="land-section white">
-    <div class="land-eyebrow">How it works</div>
-    <div class="land-h2">A considered process, not a swipe.</div>
-    <div class="steps-row">
-      <div class="step-item"><div class="num">01</div><div class="t">Tell donna about you</div><div class="d">A guided conversation, not a form — your background, your life, and what you're really looking for.</div></div>
-      <div class="step-item"><div class="num">02</div><div class="t">She curates thoughtfully</div><div class="d">Every introduction is chosen by a person, weighed against your compatibility and your non-negotiables.</div></div>
-      <div class="step-item"><div class="num">03</div><div class="t">You meet, privately</div><div class="d">No browsing, no matching queue. Just one considered introduction at a time.</div></div>
-    </div>
-  </div>
-
-  <div class="land-section cream">
-    <div class="land-eyebrow">Why <span class="brand-name">donna</span></div>
-    <div class="land-h2">Built for people who take this seriously.</div>
-    <div class="feat-grid">
-      <div class="feat-card"><div class="t">Private by design</div><div class="d">Nothing about you is visible or searchable until you approve a specific introduction.</div></div>
-      <div class="feat-card"><div class="t">A real matchmaker</div><div class="d">Every profile is reviewed by donna and her team — not a recommendation algorithm.</div></div>
-      <div class="feat-card"><div class="t">Marriage-minded</div><div class="d">Built for people who are dating with real intention, not just to pass the time.</div></div>
-      <div class="feat-card"><div class="t">One at a time</div><div class="d">No endless queue of profiles. Just a single, thoughtful introduction when it's right.</div></div>
-    </div>
-  </div>
-
-  <div class="land-closing">
-    <img src="/images/application/landing-closing.png">
-    <div class="h2">Some introductions are worth the wait.</div>
-    <div class="cta-row">
-      <div class="cta-primary" onclick="goTo('ch1-1')">Apply</div>
-      <div class="cta-secondary" onclick="goTo('friend-verification')"><span>✦</span>Introduce a Friend</div>
-    </div>
-  </div>
-  <div class="land-footer-strip"><span class="land-logo"><img src="/images/donna-logo-transparent.png" alt="donna"></span><span>Private by design · Attentive by nature</span></div>
-</section>
 <section class="screen chapter-one-screen" id="ch1-1" data-chapter-one-screen>
   <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
   <div class="progress-wrap"></div>
@@ -58,27 +11,30 @@
     <div class="actions chapter-one-actions option-actions"><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-2" disabled>Continue</button></div>
   </div></main>
 </section>
-<section class="screen" id="friend-verification">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-
+<section class="screen chapter-one-screen" id="ch1-2" data-chapter-one-screen>
+  <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
+  <div class="progress-wrap"></div>
   <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-friendverify">Good — this will take you two minutes, I promise.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-friendverify">
-      <div class="row-2">
-        <div class="field"><label>YOUR NAME</label><input type="text" placeholder="e.g. Rahul Menon"></div>
-        <div class="field"><label>YOUR EMAIL</label><input type="email" placeholder="you@email.com"></div>
+    <div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-2">Who you are, and who you're after.</h1></div></div>
+    <div class="answer-zone" aria-labelledby="question-ch1-2">
+      <div class="chapter-one-pill-group">
+        <span class="chapter-one-label" id="gender-label">You are</span>
+        <div class="chapter-one-options option-surface" role="group" aria-labelledby="gender-label" data-single-field="applicant.gender">
+          <button class="chapter-one-option" type="button" data-value="woman" aria-pressed="false"><span>Woman</span></button>
+          <button class="chapter-one-option" type="button" data-value="man" aria-pressed="false"><span>Man</span></button>
+          <button class="chapter-one-option" type="button" data-value="non_binary" aria-pressed="false"><span>Non-binary</span></button>
+        </div>
       </div>
-      <div class="field"><label>LINKEDIN PROFILE</label><input type="text" placeholder="linkedin.com/in/yourname"></div>
-      <div class="actions"><button class="back show" onclick="goTo('signup-choice')">Back</button><button class="next-btn" onclick="goTo('write-note')">Continue</button></div>
+      <div class="chapter-one-pill-group">
+        <span class="chapter-one-label" id="seeking-label">Looking to meet</span>
+        <div class="chapter-one-options option-surface" role="group" aria-labelledby="seeking-label" data-single-field="applicant.seeking">
+          <button class="chapter-one-option" type="button" data-value="men" aria-pressed="false"><span>Men</span></button>
+          <button class="chapter-one-option" type="button" data-value="women" aria-pressed="false"><span>Women</span></button>
+          <button class="chapter-one-option" type="button" data-value="open_to_both" aria-pressed="false"><span>Open to both</span></button>
+        </div>
+      </div>
     </div>
+    <div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-1">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-3" disabled>Continue</button></div>
   </div></main>
 </section>
 <section class="screen active" id="welcome">
@@ -93,66 +49,66 @@
     </div>
   </main>
 </section>
-<section class="screen chapter-one-screen" id="ch1-2" data-chapter-one-screen>
+<section class="screen chapter-one-screen" id="ch1-3" data-chapter-one-screen>
   <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
   <div class="progress-wrap"></div>
   <main><div class="donna-stage">
-    <div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-2">If you met the right person, when would you want to be married?</h1></div></div>
-    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-2" data-single-field="applicant.chapterOne.marriageTimeline">
+    <div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-3">If you met the right person, when would you want to be married?</h1></div></div>
+    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-3" data-single-field="applicant.chapterOne.marriageTimeline">
       <button class="chapter-one-option" type="button" data-value="within_a_year" aria-pressed="false"><span>Within a year</span></button>
       <button class="chapter-one-option" type="button" data-value="one_to_two_years" aria-pressed="false"><span>One to two years</span></button>
       <button class="chapter-one-option" type="button" data-value="two_to_three_years" aria-pressed="false"><span>Two to three years</span></button>
       <button class="chapter-one-option" type="button" data-value="when_right" aria-pressed="false"><span>When it's right — I don't have a date in mind</span></button>
     </div></div>
-    <div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-1">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-3" disabled>Continue</button></div>
-  </div></main>
-</section>
-<section class="screen chapter-one-screen" id="ch1-3" data-chapter-one-screen>
-  <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
-  <div class="progress-wrap"></div>
-  <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-3">Is anyone else looking on your behalf?</h1></div></div>
-    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-3" data-single-field="applicant.chapterOne.familySearchInvolvement">
-      <button class="chapter-one-option" type="button" data-value="family_active" aria-pressed="false"><span>My family is actively looking too</span></button>
-      <button class="chapter-one-option" type="button" data-value="family_knows" aria-pressed="false"><span>They know I'm looking, they're not involved</span></button>
-      <button class="chapter-one-option" type="button" data-value="family_does_not_know" aria-pressed="false"><span>They don't know I'm doing this</span></button>
-    </div></div><div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-2">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-4" disabled>Continue</button></div>
+    <div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-2">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-4" disabled>Continue</button></div>
   </div></main>
 </section>
 <section class="screen chapter-one-screen" id="ch1-4" data-chapter-one-screen>
   <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
   <div class="progress-wrap"></div>
-  <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-4">And how much of a say do they have in who you marry?</h1></div></div>
-    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-4" data-single-field="applicant.chapterOne.familyDecisionInfluence">
-      <button class="chapter-one-option" type="button" data-value="final_say" aria-pressed="false"><span>The final say</span></button>
-      <button class="chapter-one-option" type="button" data-value="strong_opinion" aria-pressed="false"><span>A strong opinion I'd take seriously</span></button>
-      <button class="chapter-one-option" type="button" data-value="meet_only" aria-pressed="false"><span>They'd want to meet them, that's all</span></button>
-      <button class="chapter-one-option" type="button" data-value="none" aria-pressed="false"><span>None</span></button>
+  <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-4">Is anyone else looking on your behalf?</h1></div></div>
+    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-4" data-single-field="applicant.chapterOne.familySearchInvolvement">
+      <button class="chapter-one-option" type="button" data-value="family_active" aria-pressed="false"><span>My family is actively looking too</span></button>
+      <button class="chapter-one-option" type="button" data-value="family_knows" aria-pressed="false"><span>They know I'm looking, they're not involved</span></button>
+      <button class="chapter-one-option" type="button" data-value="family_does_not_know" aria-pressed="false"><span>They don't know I'm doing this</span></button>
     </div></div><div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-3">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-5" disabled>Continue</button></div>
   </div></main>
 </section>
 <section class="screen chapter-one-screen" id="ch1-5" data-chapter-one-screen>
   <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
   <div class="progress-wrap"></div>
-  <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-5">Could you realistically meet someone in the next four weeks?</h1></div></div>
-    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-5" data-single-field="applicant.chapterOne.meetingReadiness">
-      <button class="chapter-one-option" type="button" data-value="yes" aria-pressed="false"><span>Yes</span></button>
-      <button class="chapter-one-option" type="button" data-value="probably" aria-pressed="false"><span>Probably — I'd need to sort out when</span></button>
-      <button class="chapter-one-option" type="button" data-value="no" aria-pressed="false"><span>No</span></button>
-    </div></div>
-    <div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-4">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-6" disabled>Continue</button></div>
+  <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-5">And how much of a say do they have in who you marry?</h1></div></div>
+    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-5" data-single-field="applicant.chapterOne.familyDecisionInfluence">
+      <button class="chapter-one-option" type="button" data-value="final_say" aria-pressed="false"><span>The final say</span></button>
+      <button class="chapter-one-option" type="button" data-value="strong_opinion" aria-pressed="false"><span>A strong opinion I'd take seriously</span></button>
+      <button class="chapter-one-option" type="button" data-value="meet_only" aria-pressed="false"><span>They'd want to meet them, that's all</span></button>
+      <button class="chapter-one-option" type="button" data-value="none" aria-pressed="false"><span>None</span></button>
+    </div></div><div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-4">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-6" disabled>Continue</button></div>
   </div></main>
 </section>
 <section class="screen chapter-one-screen" id="ch1-6" data-chapter-one-screen>
   <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
   <div class="progress-wrap"></div>
-  <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-6">How can we reach you?</h1></div></div>
-    <div class="answer-zone"><div class="card answer-card" aria-labelledby="question-ch1-6">
+  <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-6">Could you realistically meet someone in the next four weeks?</h1></div></div>
+    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-6" data-single-field="applicant.chapterOne.meetingReadiness">
+      <button class="chapter-one-option" type="button" data-value="yes" aria-pressed="false"><span>Yes</span></button>
+      <button class="chapter-one-option" type="button" data-value="probably" aria-pressed="false"><span>Probably — I'd need to sort out when</span></button>
+      <button class="chapter-one-option" type="button" data-value="no" aria-pressed="false"><span>No</span></button>
+    </div></div>
+    <div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-5">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-7" disabled>Continue</button></div>
+  </div></main>
+</section>
+<section class="screen chapter-one-screen" id="ch1-7" data-chapter-one-screen>
+  <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
+  <div class="progress-wrap"></div>
+  <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-7">How can we reach you?</h1></div></div>
+    <div class="answer-zone"><div class="card answer-card" aria-labelledby="question-ch1-7">
       <div class="field"><label for="chapterOneName">Your name</label><input id="chapterOneName" type="text" required minlength="2" autocomplete="name" aria-describedby="chapterOneNameError"><p class="chapter-one-error" id="chapterOneNameError" hidden>Enter at least 2 characters.</p></div>
       <div class="field"><label for="chapterOneDateOfBirth">Date of birth</label><input id="chapterOneDateOfBirth" type="date" required autocomplete="bday" aria-describedby="chapterOneDateOfBirthError"><p class="chapter-one-error" id="chapterOneDateOfBirthError" hidden>Enter a valid date of birth.</p></div>
       <div class="field"><label for="chapterOnePhone">Phone number</label><input id="chapterOnePhone" type="tel" required inputmode="tel" autocomplete="tel" aria-describedby="chapterOnePhoneError"><p class="chapter-one-error" id="chapterOnePhoneError" hidden>Enter a valid Indian mobile number.</p></div>
       <div class="field"><label for="chapterOneEmail">Email</label><input id="chapterOneEmail" type="email" required autocomplete="email" aria-describedby="chapterOneEmailError"><p class="chapter-one-error" id="chapterOneEmailError" hidden>Enter a valid email address.</p></div>
     </div></div>
-    <div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-5">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch2">Continue</button></div>
+    <div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-6">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch2">Continue</button></div>
   </div></main>
 </section>
 <section class="screen chapter-one-exit" id="chapter-one-exit">
@@ -208,7 +164,7 @@
       </div>
 
         <div class="actions">
-          <button class="back show" onclick="goTo('ch1-6')">Back</button>
+          <button class="back show" onclick="goTo('ch1-7')">Back</button>
           <button class="next-btn" onclick="goTo('ch3-1')">Continue</button>
         </div>
       </div>
@@ -491,7 +447,7 @@
 
     <div class="card answer-card" aria-labelledby="d-ch7-1">
       <div class="field"><textarea aria-labelledby="d-ch7-1" placeholder="e.g. Someone who challenges me, someone steady..."></textarea></div>
-      <div class="actions"><button class="back show" onclick="goTo('ch6')">Back</button><button class="next-btn" onclick="goTo('ch7-friend-prompt')">Continue</button></div>
+      <div class="actions"><button class="back show" onclick="goTo('ch6')">Back</button><button class="next-btn" onclick="goTo('ch7-2')">Continue</button></div>
     </div>
   </div></main>
 </section>
@@ -591,348 +547,15 @@
 
     <div class="card answer-card" aria-labelledby="d-ch7-6">
       <div class="field"><textarea aria-labelledby="d-ch7-6" placeholder="Optional, but often the most telling answer."></textarea></div>
-      <div class="actions"><button class="back show" onclick="goTo('ch7-5')">Back</button><button class="next-btn" onclick="goTo('final')">Complete profile</button></div>
+      <div class="actions"><button class="back show" onclick="goTo('ch7-5')">Back</button><button class="next-btn" onclick="goTo('submitted')">Complete profile</button></div>
     </div>
   </div></main>
 </section>
-<section class="screen" id="ch7-friend-prompt">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch7fp">Here's a fun one — want to make it more honest?</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch7fp">
-      <div class="choice-cards" role="group" aria-labelledby="d-ch7fp" style="margin-bottom:8px;">
-        <div class="choice-card selected" onclick="selectChoice(this)">
-          <div class="icon">✎</div>
-          <h3>I'll answer it myself</h3>
-          <p>Take your best guess at what they'd say.</p>
-        </div>
-        <div class="choice-card" onclick="selectChoice(this)">
-          <div class="icon">✦</div>
-          <h3>Ask a friend instead</h3>
-          <p>Send a quiet invite — they answer whenever, no pressure.</p>
-        </div>
-      </div>
-      <div class="actions"><button class="back show" onclick="goTo('ch7-1')">Back</button><button class="next-btn" onclick="goTo('ch7-2')">Continue</button></div>
-    </div>
-  </div></main>
-</section>
-<section class="screen" id="final">
+<section class="screen" id="submitted">
   <main>
     <div class="center-card">
-      <div class="donna-icon large"></div>
-      <div class="eyebrow">A NOTE FROM YOUR MATCHMAKER</div>
-      <div class="headline" id="finalHeadline" style="font-size:42px;">That's everything, for now.</div>
-      <div class="sub">Thank you for being honest with me. I'll take it from here — you'll hear from me once I've found someone worth introducing you to.</div>
-      <div class="next-section" style="margin-bottom:16px;">Your profile is complete</div>
-      <button class="next-btn" onclick="goTo('donna-pivot')">Continue</button>
-    </div>
-  </main>
-</section>
-<section class="screen" id="donna-pivot">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-
-  <main>
-    <div class="center-card">
-      <div class="donna-icon large"></div>
-      <div class="eyebrow">A NOTE FROM YOUR MATCHMAKER</div>
-      <div class="headline" style="font-size:42px;">Now that I know you...</div>
-      <div class="sub">Is there someone in your life who deserves a great introduction too? You clearly have good judgment about people — I'd love to put it to use.</div>
-      <div class="cta-row">
-        <div class="next-btn" onclick="goTo('write-note')">Yes, I know someone</div>
-        <div class="ghost-btn" onclick="goTo('write-note')">Maybe later</div>
-      </div>
-    </div>
-  </main>
-</section>
-<section class="screen" id="write-note">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-writenote">Tell me about them — don't worry about getting it perfectly right, just be honest.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-writenote">
-      <div class="row-2">
-        <div class="field"><label>THEIR NAME</label><input type="text" placeholder="e.g. Ananya Rao"></div>
-        <div class="field"><label>WHO ARE YOU NOMINATING THEM FOR?</label><input type="text" placeholder="A specific friend, or a general referral"></div>
-      </div>
-      <div class="field"><label>WHAT'S THE ONE THING ABOUT THEM THAT MAKES YOU THINK OF THIS?</label>
-        <textarea placeholder="e.g. She's the most grounded person I know, and genuinely funny without trying..."></textarea>
-      </div>
-      <div class="field"><label>HOW DO YOU KNOW THEM?</label><input type="text" placeholder="e.g. College roommate, 8 years"></div>
-      <div class="actions"><button class="back show" onclick="goTo('donna-pivot')">Back</button><button class="next-btn" onclick="goTo('seal-send')">Continue</button></div>
-    </div>
-  </div></main>
-</section>
-<section class="screen" id="seal-send">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-
-  <main>
-    <div class="seal-stack">
-      <div class="envelope-panel">
-        <video autoplay muted playsinline>
-          <source src="/video/application/sealed-note.webm" type="video/webm">
-        </video>
-      </div>
-      <div>
-        <div class="eyebrow">Ready to send</div>
-        <div class="headline">Seal your note to donna?</div>
-        <div class="sub">Once sealed, this becomes part of how I consider Ananya for an introduction. She'll get a private invite before anything else happens.</div>
-        <div class="cta-row" style="justify-content:center;">
-          <div class="next-btn" onclick="goTo('nominee-consent')">Seal &amp; send</div>
-          <div class="ghost-btn" onclick="goTo('write-note')">Keep editing</div>
-        </div>
-      </div>
-    </div>
-  </main>
-</section>
-<section class="screen" id="nominee-consent">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-
-  <main>
-    <div class="center-card">
-      <div class="donna-icon large"></div>
-      <div class="eyebrow">A NOTE FROM YOUR MATCHMAKER</div>
-      <div class="headline" style="font-size:42px;">Someone believes in you.</div>
-      <div class="sub">A friend of yours thinks you deserve a considered introduction, and wrote me a note about you. I won't say who just yet — that's only revealed once you're in.</div>
-      <div class="cta-row">
-        <div class="next-btn" onclick="goTo('introduction')">I'm curious — let's go</div>
-        <div class="ghost-btn" onclick="goTo('landing')">Not right now</div>
-      </div>
-    </div>
-  </main>
-</section>
-<section class="screen" id="introduction">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><p id="d-intro">I've been thinking about this one for a while. Here he is.</p></div>
-    </div>
-
-    <div class="card">
-      <div class="eyebrow">YOUR INTRODUCTION</div>
-      <div class="vouch-tag">✦ Vouched by Rahul, a mutual friend</div>
-      <div style="display:flex; gap:20px; align-items:center; margin-bottom:22px;">
-        <div style="width:88px; height:88px; border-radius:16px; background:rgba(0,0,0,0.25); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(247,236,230,0.35); text-align:center;">[photo]</div>
-        <div>
-          <div style="font-family:var(--serif); font-size:28px;">Arjun, 31</div>
-          <div style="font-size:13.5px; color:rgba(247,236,230,0.55); margin-top:4px;">Product Designer · Bengaluru</div>
-        </div>
-      </div>
-      <div class="subline" style="margin-bottom:22px;">Thoughtful, a little dry-humored, and — according to Rahul — makes a genuinely excellent case for himself without trying to.</div>
-      <div class="actions"><div class="ghost-btn" onclick="goTo('landing')">Not this time</div><div class="next-btn" onclick="goTo('limited-chat')">I'm interested</div></div>
-    </div>
-  </div></main>
-</section>
-<section class="screen" id="limited-chat">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><p id="d-chat">You're both interested — say a quick hello before we schedule anything.</p></div>
-    </div>
-
-    <div class="card">
-      <div class="eyebrow">A FEW WORDS, THEN WE SCHEDULE</div>
-      <div class="headline" style="font-size:26px;">You &amp; Arjun</div>
-      <div class="chat-list">
-        <div class="chat-bubble them">Hi! Rahul's told me good things — excited donna put us together.</div>
-        <div class="chat-bubble me">Ha, same here. Curious what he actually said about me.</div>
-        <div class="chat-bubble them">Only good things, I promise. Coffee this week?</div>
-      </div>
-      <div class="field"><input type="text" placeholder="Type a message..."></div>
-      <div class="subline" style="margin-top:10px; margin-bottom:0;">Once you're both ready, donna will suggest a time and place.</div>
-      <div class="actions" style="justify-content:flex-end;"><div class="next-btn" onclick="goTo('scheduling')">Ready to schedule</div></div>
-    </div>
-  </div></main>
-</section>
-<section class="screen" id="scheduling">
-
-    <div class="topnav">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-      <div class="dash-navlinks"><span class="" onclick="goTo('welcome')">Profile</span><span class="" onclick="goTo('write-note')">Matchmaker</span><span class="" onclick="goTo('tree')">Tree</span><span class="active" onclick="goTo('scheduling')">Meetings</span></div>
-      <div class="avatar">A</div>
-    </div>
-
-  <main class="dash-main">
-    <div class="page-head">
-      <div>
-        <div class="eyebrow">You &amp; Arjun</div>
-        <div class="headline">donna has a suggestion</div>
-        <div class="subline">You've both confirmed you're interested — here's what she's thinking for a first meeting.</div>
-      </div>
-    </div>
-    <div style="display:grid; grid-template-columns:1.1fr 0.9fr; gap:28px;">
-      <div class="dash-card">
-        <div style="display:flex; gap:20px; align-items:flex-start;">
-          <div style="width:88px; height:88px; border-radius:14px; background:rgba(0,0,0,0.25); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(247,236,230,0.35); text-align:center;">[venue<br>photo]</div>
-          <div>
-            <div style="font-family:var(--serif); font-size:24px; margin-bottom:6px;">Toast &amp; Tonic</div>
-            <div style="font-size:13.5px; color:rgba(247,236,230,0.6); line-height:1.6;">Indiranagar, Bengaluru<br>Friday, 7:00 PM</div>
-          </div>
-        </div>
-        <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--line);">
-          <div style="font-family:var(--serif); font-style:italic; font-size:16px; color:var(--rose); margin-bottom:14px;">"Quiet enough to actually talk, good for a first coffee that could turn into dinner if it's going well."</div>
-          <div style="display:flex; gap:12px;">
-            <div class="next-btn" onclick="goTo('invitations')">Looks good</div>
-            <div class="ghost-btn">Suggest another time</div>
-          </div>
-        </div>
-      </div>
-      <div class="dash-card">
-        <div class="eyebrow" style="margin-bottom:14px;">Status</div>
-        <div style="display:flex; flex-direction:column; gap:16px;">
-          <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:14px;">You</span><span class="badge-pill" style="border-color:rgba(140,39,39,0.5); color:#fff; background:rgba(140,39,39,0.35);">Confirmed</span></div>
-          <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:14px;">Arjun</span><span class="badge-pill">Waiting to confirm</span></div>
-        </div>
-        <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--line); font-size:12.5px; color:rgba(247,236,230,0.45); line-height:1.6;">donna will gently nudge Arjun if this doesn't get confirmed by tomorrow.</div>
-      </div>
-    </div>
-  </main>
-</section>
-<section class="screen" id="invitations">
-
-    <div class="topnav">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-      <div class="dash-navlinks"><span class="" onclick="goTo('welcome')">Profile</span><span class="" onclick="goTo('write-note')">Matchmaker</span><span class="" onclick="goTo('tree')">Tree</span><span class="active" onclick="goTo('scheduling')">Meetings</span></div>
-      <div class="avatar">A</div>
-    </div>
-
-  <main class="dash-main">
-    <div class="page-head">
-      <div>
-        <div class="eyebrow">Invitations</div>
-        <div class="headline">What's waiting on you</div>
-        <div class="subline">Meeting invitations from donna, and your own invitations to bring someone into donna.</div>
-      </div>
-    </div>
-    <div class="toggle-group" style="width:fit-content; margin-bottom:28px;">
-      <div class="toggle-pill active">Meeting invitations</div>
-      <div class="toggle-pill">Invite a friend</div>
-    </div>
-    <div style="display:flex; flex-direction:column; gap:16px;">
-      <div class="dash-card" style="display:flex; justify-content:space-between; align-items:center; padding:24px 28px;">
-        <div style="display:flex; gap:16px; align-items:center;">
-          <div class="avatar" style="width:52px; height:52px; font-size:20px;">A</div>
-          <div><div style="font-size:15px; font-weight:500;">Arjun proposed Friday, 7:00 PM</div><div style="font-size:12.5px; color:rgba(247,236,230,0.5); margin-top:3px;">Toast &amp; Tonic, Indiranagar</div></div>
-        </div>
-        <div style="display:flex; gap:10px;">
-          <div class="next-btn" style="padding:10px 20px; font-size:12.5px;" onclick="goTo('tree')">Accept</div>
-          <div class="ghost-btn" style="padding:10px 20px; font-size:12.5px;">Propose different time</div>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top:44px;">
-      <div class="eyebrow">Bring someone into <span class="brand-name">donna</span></div>
-      <div class="dash-card" style="max-width:640px; padding:32px;">
-        <div style="font-family:var(--serif); font-size:22px; margin-bottom:10px;">Know someone donna should meet?</div>
-        <div style="font-size:13.5px; color:rgba(247,236,230,0.55); line-height:1.6; margin-bottom:20px;">Send a personal invite — not a generic link. They'll get a private note from you, and can choose to join whenever they're ready.</div>
-        <div style="display:flex; gap:10px;">
-          <input placeholder="Their email or phone number" style="flex:1;">
-          <div class="next-btn" onclick="goTo('write-note')">Send invite</div>
-        </div>
-      </div>
-    </div>
-  </main>
-</section>
-<section class="screen" id="tree">
-
-    <div class="topnav">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-      <div class="dash-navlinks"><span class="" onclick="goTo('welcome')">Profile</span><span class="" onclick="goTo('write-note')">Matchmaker</span><span class="active" onclick="goTo('tree')">Tree</span><span class="" onclick="goTo('scheduling')">Meetings</span></div>
-      <div class="avatar">A</div>
-    </div>
-
-  <main class="dash-main">
-    <div class="page-head">
-      <div>
-        <div class="eyebrow">Your Matchmaker Tree</div>
-        <div class="headline">The people you've brought together</div>
-        <div class="subline">Private by default — donna uses this quietly to spot mutual connections. Make it visible if you want to show it off.</div>
-      </div>
-      <div class="toggle-group"><div class="toggle-pill">Private</div><div class="toggle-pill active">Shareable</div></div>
-    </div>
-    <div class="dash-card">
-<svg width="100%" height="380" viewBox="0 0 1180 380" style="overflow:visible;">
-  <defs><linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#BF5349" stop-opacity="0.7"/><stop offset="100%" stop-color="#F29985" stop-opacity="0.35"/></linearGradient></defs>
-  <path d="M 590 40 C 590 100, 300 100, 300 160" stroke="url(#lineGrad)" stroke-width="2" fill="none"/>
-  <path d="M 590 40 C 590 100, 590 100, 590 160" stroke="url(#lineGrad)" stroke-width="2" fill="none"/>
-  <path d="M 590 40 C 590 100, 880 100, 880 160" stroke="url(#lineGrad)" stroke-width="2" fill="none"/>
-  <path d="M 300 220 C 300 270, 180 270, 180 310" stroke="url(#lineGrad)" stroke-width="2" fill="none"/>
-  <path d="M 300 220 C 300 270, 420 270, 420 310" stroke="url(#lineGrad)" stroke-width="2" fill="none"/>
-  <circle cx="590" cy="20" r="34" fill="#4A1022" stroke="#F29985" stroke-width="1.5"/>
-  <text x="590" y="26" text-anchor="middle" fill="#fff" font-family="Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif" font-size="17" font-style="italic">You</text>
-  <circle cx="300" cy="190" r="30" fill="#26080D" stroke="#8C2727" stroke-width="1.5"/>
-  <text x="300" y="196" text-anchor="middle" fill="#F7ECE6" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13">Priya</text>
-  <circle cx="590" cy="190" r="30" fill="#26080D" stroke="#8C2727" stroke-width="1.5"/>
-  <text x="590" y="196" text-anchor="middle" fill="#F7ECE6" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13">Meera</text>
-  <circle cx="880" cy="190" r="30" fill="#26080D" stroke="#8C2727" stroke-width="1.5"/>
-  <text x="880" y="196" text-anchor="middle" fill="#F7ECE6" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13">Arjun</text>
-  <circle cx="180" cy="340" r="26" fill="#8C2727" stroke="#F29985" stroke-width="1.5"/>
-  <text x="180" y="346" text-anchor="middle" fill="#fff" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5">Priya &amp;</text>
-  <circle cx="420" cy="340" r="26" fill="#8C2727" stroke="#F29985" stroke-width="1.5"/>
-  <text x="420" y="346" text-anchor="middle" fill="#fff" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.5">Rohan</text>
-  <text x="300" y="378" text-anchor="middle" fill="#F29985" font-family="Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif" font-style="italic" font-size="15">Engaged, March 2026</text>
-</svg>
-</div>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px;">
-      <div class="badge-pill">✦ Matchmaker Level: Silver Cupid</div>
-      <div class="next-btn" onclick="goTo('full-circle-reveal')">See the full story</div>
-    </div>
-  </main>
-</section>
-<section class="screen" id="full-circle-reveal">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-
-  <main>
-    <div class="center-card" style="max-width:640px;">
-      <div class="eyebrow">A NOTE FROM YOUR MATCHMAKER</div>
-      <div class="headline">This one's for Rahul.</div>
-      <div class="sub">Ananya and Arjun are engaged — and it started with a note Rahul wrote me eight months ago. This is exactly why I do this.</div>
-      <div class="cta-row" style="flex-wrap:wrap; justify-content:center;">
-        <div class="badge-pill">✦ Matchmaker Level: Gold Cupid</div>
-        <div class="badge-pill">1 successful introduction</div>
-      </div>
-      <button class="next-btn" onclick="goTo('landing')">Back to start</button>
+      <h1 class="headline">Received.</h1>
+      <p class="sub">This is a placeholder. Submission is not yet wired.</p>
     </div>
   </main>
 </section>

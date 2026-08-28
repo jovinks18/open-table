@@ -6,12 +6,12 @@ export const initialJourneyState = Object.freeze({
   version: JOURNEY_STATE_VERSION,
   mode: 'preview',
   currentScreen: 'welcome',
-  route: 'applicant',
   applicant: {
     fullName: '',
     introductionName: '',
     dateOfBirth: { day: '', month: '', year: '' },
     gender: '',
+    seeking: '',
     interestedIn: '',
     currentCity: '',
     email: '',
@@ -56,16 +56,6 @@ export const initialJourneyState = Object.freeze({
     ordinaryEvening: '',
     relationshipLearning: '',
     anythingElse: '',
-    friendPerspectiveChoice: 'self',
-  },
-  referrer: {
-    name: '',
-    email: '',
-    linkedinUrl: '',
-    nomineeName: '',
-    nominationFor: '',
-    reason: '',
-    relationship: '',
   },
 })
 

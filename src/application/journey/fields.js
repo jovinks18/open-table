@@ -1,7 +1,4 @@
 export const fieldBindings = Object.freeze([
-  { path: 'referrer.name', selector: '#friend-verification input[type="text"]:nth-of-type(1)' },
-  { path: 'referrer.email', selector: '#friend-verification input[type="email"]' },
-  { path: 'referrer.linkedinUrl', selector: '#friend-verification input[placeholder*="linkedin.com"]' },
   { path: 'applicant.intent', selector: '#ch2 .pill-group', index: 0, type: 'choice' },
   { path: 'applicant.marriageTimeline', selector: '#ch2 .pill-group', index: 1, type: 'choice' },
   { path: 'applicant.availableWithinFourWeeks', selector: '#ch2 .pill-group', index: 2, type: 'choice' },
@@ -34,11 +31,6 @@ export const fieldBindings = Object.freeze([
   { path: 'applicant.ordinaryEvening', selector: '#ch7-4 textarea' },
   { path: 'applicant.relationshipLearning', selector: '#ch7-5 textarea' },
   { path: 'applicant.anythingElse', selector: '#ch7-6 textarea' },
-  { path: 'applicant.friendPerspectiveChoice', selector: '#ch7-friend-prompt .choice-cards', type: 'choice-card' },
-  { path: 'referrer.nomineeName', selector: '#write-note input[placeholder="e.g. Ananya Rao"]' },
-  { path: 'referrer.nominationFor', selector: '#write-note input[placeholder="A specific friend, or a general referral"]' },
-  { path: 'referrer.reason', selector: '#write-note textarea' },
-  { path: 'referrer.relationship', selector: '#write-note input[placeholder="e.g. College roommate, 8 years"]' },
 ])
 
 export const applicationFieldPaths = Object.freeze(fieldBindings.map(({ path }) => path))

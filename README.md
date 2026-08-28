@@ -1,102 +1,118 @@
 # donna
 
-Web front end for donna, a human-operated introduction service for people
-looking to marry. Currently piloting in Bangalore.
+donna is a human-operated introduction service for people looking for a serious relationship or marriage. The product proposes one introduction at a time; it does not expose a browsable directory or use an applicant-facing matching algorithm. This repository contains the public marketing site and a browser-only application prototype.
 
-Applications are reviewed by a person. There is no matching algorithm, no
-browsable directory, and no search. One introduction is proposed at a time,
-and contact details are exchanged only after both people agree.
+## Technology
 
-## Contents
+- Static multi-page HTML
+- Vanilla JavaScript and CSS
+- Vite 8 for local development and production builds
+- Node's built-in test runner, with Playwright for the optional browser suites
 
-- Marketing pages: home, FAQ, safety
-- A 33-screen application and member-journey prototype (`src/application/journey/`)
-- Shared styles and site config
+There is no front-end framework and no backend in this repository.
 
-## Status
+## Routes
 
-The application form is **preview-only**. Answers and photographs are held in
-browser memory and are not submitted, stored, or transmitted. Persistence is
-not implemented.
+| Route | Source | Purpose |
+| --- | --- | --- |
+| `/` or `/index.html` | `index.html` | Homepage and session-aware opening transition |
+| `/our-story.html` | `our-story.html` | Company story |
+| `/faq.html` | `faq.html` | Product, process, safety, cost, and data questions |
+| `/safety.html` | `safety.html` | Safety guidance, reporting, and emergency contacts |
+| `/apply.html` | `apply.html` | Full-screen application prototype |
 
-The Privacy Notice and Pilot Terms referenced in the application do not yet
-exist. `privacyNoticeUrl` and `pilotTermsUrl` in `src/config/site.js` are
-empty, and the section-seven consent checkbox references documents that have
-not been written. These must exist before any real application data is
-collected.
+The marketing routes use the shared navigation, footer, scripts, and styles. `apply.html` is deliberately separate: it mounts a full-viewport journey and does not render the marketing navigation.
+
+## Repository structure
+
+```text
+.
+├── index.html, our-story.html, faq.html, safety.html
+├── apply.html                     Application route shell
+├── public/                        Images, video, and other static assets
+├── src/
+│   ├── application/
+│   │   ├── journey/               Active apply-route implementation
+│   │   ├── app.js                 Earlier application runtime; not imported by apply.html
+│   │   ├── schema.js              Earlier schema; not imported by apply.html
+│   │   └── validation.js          Earlier validation module
+│   ├── config/site.js             Checked-in runtime configuration
+│   ├── scripts/                   Shared marketing-page behaviour
+│   └── styles/                    Shared tokens, components, and page styles
+├── tests/                         Node regression tests and optional browser tests
+├── vite.config.js                 Five-page Vite build configuration
+└── package.json                   Scripts and development dependencies
+```
+
+### `src/application/journey/`
+
+This directory owns the application currently mounted by `apply.html`.
+
+| File | Responsibility |
+| --- | --- |
+| `template.html` | Markup for the entry screen, six displayed application chapters, the early exit, and the temporary submitted placeholder. |
+| `controller.js` | Screen navigation, the single Roman-numeral chapter header, chapter transitions, shared control behaviour, age preferences, language/city inputs, height units, LinkedIn gating, and other DOM interactions. |
+| `styles.css` | The full-screen journey's palette, typography, responsive layout, controls, mascot treatment, and reduced-motion rules. |
+| `main.js` | Bootstrap: inserts `template.html`, loads journey CSS, registers field bindings, exposes the read-only `window.donnaJourney` interface, and imports the controller. |
+| `chapter-one.js` | Validation and state handling specific to Chapter I, including intent gates and contact fields. |
+| `fields.js` | Maps rendered controls to stable state paths. |
+| `store.js` | Versioned, serializable state held in browser memory for the current page session. |
+| `api.js` | Reserved backend boundary. Every method currently returns a `preview-only` result and the file is not wired into the journey runtime. |
+
+The older modules directly under `src/application/` remain in the repository and have their own regression coverage, but `apply.html` imports `src/application/journey/main.js`, not the older `app.js` runtime.
 
 ## Run locally
 
+Node is not pinned in the repository. Use a Node release compatible with Vite 8.
+
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-Useful commands:
+Vite prints the local URL, normally `http://localhost:5173`.
+
+## Tests
 
 ```bash
-npm test          # Node tests, then production build
-npm run build     # Writes the static site to dist/
-npm run preview   # Serves the production build locally
+npm test
 ```
 
-## Pages
+`npm test` runs every `tests/*.test.js` file with Node's test runner and then runs a production build.
 
-| Route | Purpose |
-| --- | --- |
-| `/` or `/index.html` | Experience intro, homepage and how donna works |
-| `/safety.html` | Safety guidance and reporting contact |
-| `/faq.html` | Two-column FAQ with expandable answers |
-| `/apply.html` | Applicant, referral and member-journey preview |
+Optional browser suites:
 
-Every page uses the same warm-ivory background, shared navigation and footer. User-facing references to **donna** remain lowercase.
-
-## Project map
-
-```text
-index.html, safety.html, faq.html, apply.html
-public/images/intro/             Local city photographs
-src/config/site.js               Contact and launch configuration
-src/application/journey/         Active journey template, state, controller and API boundary
-src/application/*.js             Earlier schema, validation and UI modules retained for reference
-src/scripts/modules/             Intro, menu, links and homepage motion
-src/styles/tokens.css            Shared colours and font stacks
-src/styles/components/           Reusable component styles
-src/styles/pages/                Page-specific styles
-tests/                            Node regression tests
-vite.config.js                   Multi-page production build
+```bash
+npm run test:e2e
+npm run test:e2e:mascot
+npm run test:e2e:mascot-image
 ```
 
-`src/styles/main.css` is the single stylesheet entry point. Keep shared values in `tokens.css`; avoid inline styles and page-specific font imports.
+The browser suites require Playwright's browser binaries. Install them separately if they are not already present.
 
-## Homepage intro
+## Production build and deployment
 
-- Runs once per browser session using `donnaExperienceSeen` in `sessionStorage`.
-- Add `?intro=1` to replay it during review.
-- Images appear and scatter before the message fades into the clear centre.
-- Skip restores the homepage and moves focus to `#hero-title`.
-- Reduced-motion users bypass the sequence.
-- Desktop loads eight photographs; screens up to 640px load four.
+```bash
+npm run build
+npm run preview
+```
 
-The photographs in `public/images/intro/` are local copies selected from Unsplash and Pexels city collections for Bengaluru, Mumbai, Delhi and Hyderabad. Replace or confirm production usage before launch.
+The build writes five HTML entry points and their assets to `dist/`. There is no provider-specific deployment configuration or CI deployment workflow in the repository. Deploy the contents of `dist/` to a static host at the site root; the application uses root-relative asset and route URLs.
 
-## Application architecture
+## Persistence and backend state
 
-The active journey is a **client-side preview**. It keeps answers in memory but does not submit, upload, persist or transmit applicant data. Refreshing the page clears the journey.
+The active journey is a preview, not a data-collection system.
 
-- `apply.html` is the route shell only.
-- `src/application/journey/template.html` owns the supplied 33-screen markup.
-- `styles.css` and `controller.js` own presentation and existing interactions.
-- `fields.js` maps controls to stable applicant and referrer field paths.
-- `store.js` owns versioned, serializable in-memory state.
-- `api.js` is the single future backend boundary and is intentionally inactive.
-- Large journey media lives in `public/images/application/` and `public/video/application/`.
+- `store.js` keeps answers in JavaScript memory only.
+- Refreshing or closing the page loses the state.
+- No journey code writes to local storage, cookies, IndexedDB, or a remote service.
+- `api.js` performs no network, storage, submission, or upload work and is not imported by `main.js` or `controller.js`.
 
-Keep network calls, persistence and uploads out of UI/controller modules. When a backend is introduced, implement the methods in `api.js` and keep the state field paths stable so backend payloads do not depend on visible copy or DOM order.
+Do not treat `window.donnaJourney.serialize()` as persistence; it only returns the current in-memory state as JSON.
 
-## Configuration
+## Configuration and environment variables
 
-Edit `src/config/site.js`:
+The repository does not read environment variables and contains no `.env` contract. Checked-in site configuration lives in `src/config/site.js`:
 
 ```js
 export const siteConfig = Object.freeze({
@@ -108,24 +124,19 @@ export const siteConfig = Object.freeze({
 })
 ```
 
-Current launch gaps:
+`privacyNoticeUrl`, `pilotTermsUrl`, and `pilotCity` are currently empty. The legal-document references live in the older application schema; the active journey does not currently render a legal consent step.
 
-- No application submission endpoint or secure file storage.
-- No configured Privacy Notice or pilot terms URLs.
-- `pilotCity` is not configured.
-- Safety reports currently open the configured contact email.
+## Known incomplete areas
 
-Do not switch `applicationMode` from `preview` until secure submission, storage, consent records and required policies exist.
+- No backend, authentication, draft saving, submission, photograph upload, reviewer interface, or durable storage.
+- No implemented data-retention, deletion, or consent-record workflow.
+- Privacy Notice and Pilot Terms URLs are not configured.
+- The active journey has uneven validation: Chapter I enforces its gates and contact fields, while many later screens demonstrate controls without equivalent required-field validation.
+- The submitted state is a temporary placeholder; submission is not wired.
+- The active journey still contains employer and institution questions, has no income question, and contains verification and encouragement copy. These conflict with settled product rules recorded in `COMPANY_BRAIN.md`.
+- The Chapter I and Chapter II screens repeat some intent, timeline, and readiness questions.
+- No deployment provider or Node version is pinned.
 
-## Verification
+## Future work (not current behaviour)
 
-Run `npm test` before each checkpoint. The suite covers:
-
-- Application navigation and validation
-- Preview-only data handling
-- Intro accessibility and session behavior
-- Safety page structure and claims
-- Lowercase donna brand usage
-- Production build integrity
-
-The static output in `dist/` can be deployed to any host that serves HTML files and assets from the site root.
+Before the site collects real applications, the inactive API boundary must be implemented alongside secure storage, authentication and reviewer access, legal documents, consent records, retention/deletion rules, and operational handling for the promises made on the FAQ and safety pages.

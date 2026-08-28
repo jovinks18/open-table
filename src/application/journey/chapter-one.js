@@ -1,11 +1,15 @@
 import { journeyStore } from './store.js'
 
+export const APPLICANT_MINIMUM_AGE = 21
+export const APPLICANT_MAXIMUM_AGE = 70
+
 const REQUIRED_SINGLE_FIELDS = Object.freeze({
-  'ch1-1': 'applicant.chapterOne.intent',
-  'ch1-2': 'applicant.chapterOne.marriageTimeline',
-  'ch1-3': 'applicant.chapterOne.familySearchInvolvement',
-  'ch1-4': 'applicant.chapterOne.familyDecisionInfluence',
-  'ch1-5': 'applicant.chapterOne.meetingReadiness',
+  'ch1-1': ['applicant.chapterOne.intent'],
+  'ch1-2': ['applicant.gender', 'applicant.seeking'],
+  'ch1-3': ['applicant.chapterOne.marriageTimeline'],
+  'ch1-4': ['applicant.chapterOne.familySearchInvolvement'],
+  'ch1-5': ['applicant.chapterOne.familyDecisionInfluence'],
+  'ch1-6': ['applicant.chapterOne.meetingReadiness'],
 })
 
 function valueAtPath(target, path) {
@@ -50,6 +54,34 @@ export function calculateAgeFromDateOfBirth(value, today = new Date()) {
   return age
 }
 
+function calendarDateYearsAgo(today, years) {
+  const year = today.getFullYear() - years
+  const month = today.getMonth()
+  const day = Math.min(today.getDate(), new Date(year, month + 1, 0).getDate())
+  return new Date(year, month, day)
+}
+
+function dateInputValue(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+export function dateOfBirthBounds(today = new Date()) {
+  const earliestDateOfBirth = calendarDateYearsAgo(today, APPLICANT_MAXIMUM_AGE + 1)
+  earliestDateOfBirth.setDate(earliestDateOfBirth.getDate() + 1)
+  return {
+    min: dateInputValue(earliestDateOfBirth),
+    max: dateInputValue(calendarDateYearsAgo(today, APPLICANT_MINIMUM_AGE)),
+  }
+}
+
+export function validateApplicantDateOfBirth(value, today = new Date()) {
+  const age = calculateAgeFromDateOfBirth(value, today)
+  if (age === null) return { valid: false, message: 'Enter a valid date of birth.' }
+  if (age < APPLICANT_MINIMUM_AGE) return { valid: false, message: 'You need to be 21 or older to apply.' }
+  if (age > APPLICANT_MAXIMUM_AGE) return { valid: false, message: 'This pilot is for applicants up to 70.' }
+  return { valid: true, message: '' }
+}
+
 function setPressed(button, pressed) {
   button.setAttribute('aria-pressed', String(pressed))
   button.classList.toggle('selected', pressed)
@@ -57,11 +89,11 @@ function setPressed(button, pressed) {
 
 function syncContinue(screen) {
   const continueButton = screen.querySelector('[data-chapter-one-continue]')
-  if (!continueButton || screen.id === 'ch1-6') return
+  if (!continueButton || screen.id === 'ch1-7') return
 
   const state = journeyStore.getState()
-  const requiredPath = REQUIRED_SINGLE_FIELDS[screen.id]
-  let complete = requiredPath ? Boolean(valueAtPath(state, requiredPath)) : false
+  const requiredPaths = REQUIRED_SINGLE_FIELDS[screen.id] || []
+  const complete = requiredPaths.length > 0 && requiredPaths.every((path) => Boolean(valueAtPath(state, path)))
 
   continueButton.disabled = !complete
 }
@@ -73,9 +105,12 @@ function validateContact(screen) {
   const emailInput = screen.querySelector('#chapterOneEmail')
   const normalizedPhone = normalizeIndianMobile(phoneInput.value)
   const dateOfBirth = datePartsFromValue(dateOfBirthInput.value)
+  const dateOfBirthValidation = validateApplicantDateOfBirth(dateOfBirthInput.value)
+  const dateOfBirthError = screen.querySelector('#chapterOneDateOfBirthError')
+  dateOfBirthError.textContent = dateOfBirthValidation.message
   const checks = [
     [nameInput, nameInput.value.trim().length >= 2],
-    [dateOfBirthInput, Boolean(dateOfBirth)],
+    [dateOfBirthInput, dateOfBirthValidation.valid],
     [phoneInput, Boolean(normalizedPhone)],
     [emailInput, isValidEmail(emailInput.value)],
   ]
@@ -83,7 +118,7 @@ function validateContact(screen) {
   checks.forEach(([input, valid]) => {
     input.classList.toggle('error', !valid)
     input.setAttribute('aria-invalid', String(!valid))
-    const error = document.getElementById(input.getAttribute('aria-describedby'))
+    const error = screen.querySelector(`#${input.getAttribute('aria-describedby')}`)
     error.hidden = valid
   })
 
@@ -102,18 +137,20 @@ function validateContact(screen) {
 
 function canAdvance(screen) {
   const state = journeyStore.getState()
-  const requiredPath = REQUIRED_SINGLE_FIELDS[screen.id]
-  if (requiredPath) {
-    const answer = valueAtPath(state, requiredPath)
-    return Boolean(answer) && answer !== 'not_sure'
+  const requiredPaths = REQUIRED_SINGLE_FIELDS[screen.id] || []
+  if (requiredPaths.length > 0) {
+    return requiredPaths.every((path) => {
+      const answer = valueAtPath(state, path)
+      return Boolean(answer) && answer !== 'not_sure'
+    })
   }
-  if (screen.id === 'ch1-6') return validateContact(screen)
+  if (screen.id === 'ch1-7') return validateContact(screen)
   return false
 }
 
-function restoreControls() {
+function restoreControls(screen) {
   const state = journeyStore.getState()
-  document.querySelectorAll('[data-single-field], [data-multi-field]').forEach((group) => {
+  screen.querySelectorAll('[data-single-field], [data-multi-field]').forEach((group) => {
     const path = group.dataset.singleField || group.dataset.multiField
     const value = valueAtPath(state, path)
     group.querySelectorAll('.chapter-one-option').forEach((button) => {
@@ -122,15 +159,28 @@ function restoreControls() {
     })
   })
 
-  document.getElementById('chapterOneName').value = state.applicant.fullName
-  document.getElementById('chapterOneDateOfBirth').value = dateValueFromParts(state.applicant.dateOfBirth)
-  document.getElementById('chapterOnePhone').value = state.applicant.phone
-  document.getElementById('chapterOneEmail').value = state.applicant.email
-  document.querySelectorAll('[data-chapter-one-screen]').forEach(syncContinue)
+  const contactValues = [
+    ['chapterOneName', state.applicant.fullName],
+    ['chapterOneDateOfBirth', dateValueFromParts(state.applicant.dateOfBirth)],
+    ['chapterOnePhone', state.applicant.phone],
+    ['chapterOneEmail', state.applicant.email],
+  ]
+  contactValues.forEach(([id, value]) => {
+    const input = screen.querySelector(`#${id}`)
+    if (input) input.value = value
+  })
+  syncContinue(screen)
 }
 
-export function initChapterOne(goTo) {
-  document.querySelectorAll('[data-single-field]').forEach((group) => {
+export function initChapterOne(goTo, screen = document) {
+  const dateOfBirthInput = screen.querySelector('#chapterOneDateOfBirth')
+  if (dateOfBirthInput) {
+    const bounds = dateOfBirthBounds()
+    dateOfBirthInput.min = bounds.min
+    dateOfBirthInput.max = bounds.max
+  }
+
+  screen.querySelectorAll('[data-single-field]').forEach((group) => {
     group.addEventListener('click', (event) => {
       const button = event.target.closest('.chapter-one-option')
       if (!button) return
@@ -143,7 +193,7 @@ export function initChapterOne(goTo) {
     })
   })
 
-  document.querySelectorAll('[data-multi-field]').forEach((group) => {
+  screen.querySelectorAll('[data-multi-field]').forEach((group) => {
     group.addEventListener('click', (event) => {
       const button = event.target.closest('.chapter-one-option')
       if (!button) return
@@ -163,7 +213,8 @@ export function initChapterOne(goTo) {
     ['chapterOneEmail', 'applicant.email'],
   ]
   contactFields.forEach(([id, path, transform]) => {
-    const input = document.getElementById(id)
+    const input = screen.querySelector(`#${id}`)
+    if (!input) return
     input.addEventListener('input', () => {
       const value = transform
         ? transform(input.value) || { day: '', month: '', year: '' }
@@ -171,19 +222,20 @@ export function initChapterOne(goTo) {
       journeyStore.setField(path, value)
       input.classList.remove('error')
       input.setAttribute('aria-invalid', 'false')
-      document.getElementById(input.getAttribute('aria-describedby')).hidden = true
+      const error = screen.querySelector(`#${input.getAttribute('aria-describedby')}`)
+      if (error) error.hidden = true
     })
   })
 
-  document.querySelectorAll('[data-back]').forEach((button) => {
+  screen.querySelectorAll('[data-back]').forEach((button) => {
     button.addEventListener('click', () => goTo(button.dataset.back))
   })
-  document.querySelectorAll('[data-chapter-one-continue]').forEach((button) => {
+  screen.querySelectorAll('[data-chapter-one-continue]').forEach((button) => {
     button.addEventListener('click', () => {
       const screen = button.closest('.screen')
       if (canAdvance(screen)) goTo(button.dataset.next)
     })
   })
 
-  restoreControls()
+  restoreControls(screen)
 }

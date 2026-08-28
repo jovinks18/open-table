@@ -14,15 +14,14 @@ const chapterOneController = readFileSync(new URL('../src/application/journey/ch
 const sourceWithoutEmbeddedAssets = [applyHtml, journeyTemplate, journeyStyles, journeyController].join('\n')
 
 const expectedScreens = [
-  'landing',
   'ch1-1',
-  'friend-verification',
-  'welcome',
   'ch1-2',
+  'welcome',
   'ch1-3',
   'ch1-4',
   'ch1-5',
   'ch1-6',
+  'ch1-7',
   'chapter-one-exit',
   'ch2',
   'ch3-1',
@@ -38,27 +37,36 @@ const expectedScreens = [
   'ch7-4',
   'ch7-5',
   'ch7-6',
-  'ch7-friend-prompt',
-  'final',
-  'donna-pivot',
-  'write-note',
-  'seal-send',
-  'nominee-consent',
-  'introduction',
-  'limited-chat',
-  'scheduling',
-  'invitations',
-  'tree',
-  'full-circle-reveal',
+  'submitted',
 ]
 
-test('apply route contains the rebuilt Chapter I and the remaining journey', () => {
+test('the detached screen registry contains the rebuilt Chapter I and remaining journey', () => {
   const screenMatches = [...sourceWithoutEmbeddedAssets.matchAll(
     /<section class="[^"]*\bscreen\b[^"]*" id="([^"]+)"/g,
   )]
   assert.deepEqual(screenMatches.map(([, id]) => id), expectedScreens)
   assert.match(sourceWithoutEmbeddedAssets, /<section class="screen active" id="welcome"/)
   assert.match(sourceWithoutEmbeddedAssets, /<section class="screen chapter-one-screen" id="ch1-1"/)
+  assert.match(journeyMain, /const screenMarkup = new Map/)
+  assert.match(journeyMain, /source\.innerHTML = ''/)
+  assert.doesNotMatch(journeyMain, /root\.innerHTML = journeyMarkup/)
+})
+
+test('navigation mounts one screen and hydrates every control family from store state', () => {
+  assert.match(journeyController, /journeyRoot\.replaceChildren\(screen\)/)
+  assert.match(journeyController, /const restoring = visitedScreens\.has\(id\)/)
+  assert.match(journeyController, /mountFieldBindings\(screen\)/)
+  assert.match(journeyController, /initChapterOne\(goTo,screen\)/)
+  assert.match(journeyController, /restoreScreenControls\(screen\)/)
+  assert.match(journeyController, /initAgePreference\(screen,restoring\)/)
+  assert.match(journeyController, /initFaithSlider\(screen\)/)
+  assert.match(journeyMain, /valueAtPath\(journeyStore\.getState\(\), path\)/)
+  assert.match(journeyMain, /element\.querySelectorAll\('\.pill'\)/)
+  assert.match(journeyController, /cityTagInput\.hydrate\(state\.relocationCities\)/)
+  assert.match(journeyController, /selectedLangs\.splice\(0,selectedLangs\.length,\.\.\.state\.languages\)/)
+  assert.match(journeyController, /fill\.style\.width = `\$\{storedValue\}%`/)
+  assert.match(chapterOneController, /restoreControls\(screen\)/)
+  assert.doesNotMatch(journeyController, /querySelectorAll\('\.screen'\)/)
 })
 
 test('entry screen uses the verbatim six-chapter brief and one Start action', () => {
@@ -96,11 +104,6 @@ test('the replacement uses the homepage type families and extracted media assets
   assert.doesNotMatch(sourceWithoutEmbeddedAssets, /data:(?:image|video)\/[^;]+;base64,/)
   for (const asset of [
     '../public/images/application/donna-mascot.png',
-    '../public/images/application/cupid.png',
-    '../public/images/application/landing-background.png',
-    '../public/images/application/landing-badge.png',
-    '../public/images/application/landing-closing.png',
-    '../public/video/application/sealed-note.webm',
   ]) assert.equal(existsSync(new URL(asset, import.meta.url)), true, `${asset} is missing`)
 })
 
@@ -112,6 +115,7 @@ test('chapter progress renders only the current Roman numeral and age preference
   assert.doesNotMatch(sourceWithoutEmbeddedAssets, /chapter-sequence|is-complete|is-upcoming|CHAPTERS\.forEach/)
   assert.match(sourceWithoutEmbeddedAssets, /transition:opacity 180ms ease-out/)
   assert.match(sourceWithoutEmbeddedAssets, /currentChapter !== targetChapter/)
+  assert.match(journeyController, /const incoming = shown\.querySelector\('\.chapter-numeral'\)/)
   assert.match(sourceWithoutEmbeddedAssets, /\.topbar\{ display:flex; justify-content:center;/)
   assert.doesNotMatch(journeyTemplate, /chapter-label|chapter-count|substep-dots/)
   assert.match(sourceWithoutEmbeddedAssets, /id="agePreferenceAnchor" hidden>You’re <span id="applicantAge">31<\/span>\. How far either side\?/)
@@ -119,9 +123,9 @@ test('chapter progress renders only the current Roman numeral and age preference
     assert.match(sourceWithoutEmbeddedAssets, new RegExp(`aria-label="${label}"`))
   }
   assert.match(sourceWithoutEmbeddedAssets, /id="ageRangeOutput" aria-live="polite"/)
-  assert.match(sourceWithoutEmbeddedAssets, /let younger = 3;/)
-  assert.match(sourceWithoutEmbeddedAssets, /let older = 7;/)
-  assert.match(sourceWithoutEmbeddedAssets, /Math\.max\(22,age - younger\)/)
+  assert.match(sourceWithoutEmbeddedAssets, /: 3;/)
+  assert.match(sourceWithoutEmbeddedAssets, /: 7;/)
+  assert.match(journeyController, /calculateAnchoredAgeRange\(age,younger,older\)/)
   assert.match(sourceWithoutEmbeddedAssets, /journeyStore\.setField\('applicant\.preferredAge\.minimum',minimum\)/)
   assert.match(sourceWithoutEmbeddedAssets, /journeyStore\.setField\('applicant\.preferredAge\.maximum',maximum\)/)
   assert.match(sourceWithoutEmbeddedAssets, /'Minimum age' : 'Maximum age'|anchored \? 'Younger by' : 'Minimum age'/)
@@ -173,11 +177,20 @@ test('backend readiness uses versioned state, stable field paths, and an inactiv
   assert.doesNotMatch(journeyApi, /fetch|XMLHttpRequest|localStorage|sessionStorage/)
 })
 
-test('the supplied dashboard screens include narrow-screen layout protection', () => {
-  assert.match(sourceWithoutEmbeddedAssets, /@media \(max-width:760px\)/)
-  assert.match(sourceWithoutEmbeddedAssets, /#scheduling \.dash-main > div\[style\*="grid-template-columns"\]/)
-  assert.match(sourceWithoutEmbeddedAssets, /#invitations \.dash-card\[style\*="justify-content:space-between"\]/)
-  assert.match(sourceWithoutEmbeddedAssets, /#tree \.dash-main > div\[style\*="justify-content:space-between"\]/)
+test('the removed referral and post-application prototype flow is absent', () => {
+  for (const removed of [
+    'final', 'donna-pivot', 'write-note', 'seal-send', 'nominee-consent',
+    'introduction', 'limited-chat', 'scheduling', 'invitations', 'tree',
+    'full-circle-reveal', 'landing', 'friend-verification', 'ch7-friend-prompt',
+  ]) assert.doesNotMatch(sourceWithoutEmbeddedAssets, new RegExp(`id="${removed}"`))
+
+  assert.doesNotMatch([journeyTemplate, journeyController, journeyMain, journeyStore, journeyFields].join('\n'), /referrer\.|friendPerspectiveChoice|choice-card/)
+  assert.match(journeyTemplate, /id="ch7-6"[\s\S]*?goTo\('submitted'\)/)
+  const chapterSevenOne = journeyTemplate.slice(journeyTemplate.indexOf('id="ch7-1"'), journeyTemplate.indexOf('</section>', journeyTemplate.indexOf('id="ch7-1"')))
+  assert.equal((chapterSevenOne.match(/class="actions"/g) || []).length, 1)
+  assert.match(journeyTemplate, /<section class="screen" id="submitted">[\s\S]*?<h1 class="headline">Received\.<\/h1>[\s\S]*?This is a placeholder\. Submission is not yet wired\.[\s\S]*?<\/section>/)
+  const submitted = journeyTemplate.slice(journeyTemplate.indexOf('id="submitted"'))
+  assert.doesNotMatch(submitted, /<button|class="actions"/)
 })
 
 test('every marketing-page application CTA still enters apply.html', () => {
