@@ -1,561 +1,183 @@
-<section class="screen chapter-one-screen" id="ch1-1" data-chapter-one-screen>
-  <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
-  <div class="progress-wrap"></div>
-  <main><div class="donna-stage">
-    <div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-1">What are you looking for?</h1></div></div>
-    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-1" data-single-field="applicant.chapterOne.intent">
-      <button class="chapter-one-option" type="button" data-value="marriage" aria-pressed="false"><span>Marriage</span></button>
-      <button class="chapter-one-option" type="button" data-value="serious_relationship" aria-pressed="false"><span>A serious relationship that could become marriage</span></button>
-      <button class="chapter-one-option" type="button" data-value="not_sure" aria-pressed="false"><span>I'm not sure yet</span></button>
-    </div></div>
-    <div class="actions chapter-one-actions option-actions"><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-2" disabled>Continue</button></div>
-  </div></main>
+<section class="screen entry-screen" id="welcome">
+  <div class="center-card">
+    <h1>Before you start.</h1>
+    <p>Six chapters. About twelve minutes.</p>
+    <p>Some of the questions are blunt. That’s on purpose—it’s how we avoid wasting your evening on someone who was never going to work.</p>
+    <p>You’ll get one introduction at a time. Some weeks, I may not have anyone for you. I’ll tell you that rather than send someone merely to keep you occupied.</p>
+    <p>Not everyone who applies gets an introduction.</p>
+    <button class="next-btn" type="button" data-next="ch1-intent">Start</button>
+  </div>
 </section>
-<section class="screen chapter-one-screen" id="ch1-2" data-chapter-one-screen>
-  <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
-  <div class="progress-wrap"></div>
-  <main><div class="donna-stage">
-    <div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-2">Who you are, and who you're after.</h1></div></div>
-    <div class="answer-zone" aria-labelledby="question-ch1-2">
-      <div class="chapter-one-pill-group">
-        <span class="chapter-one-label" id="gender-label">You are</span>
-        <div class="chapter-one-options option-surface" role="group" aria-labelledby="gender-label" data-single-field="applicant.gender">
-          <button class="chapter-one-option" type="button" data-value="woman" aria-pressed="false"><span>Woman</span></button>
-          <button class="chapter-one-option" type="button" data-value="man" aria-pressed="false"><span>Man</span></button>
-          <button class="chapter-one-option" type="button" data-value="non_binary" aria-pressed="false"><span>Non-binary</span></button>
-        </div>
-      </div>
-      <div class="chapter-one-pill-group">
-        <span class="chapter-one-label" id="seeking-label">Looking to meet</span>
-        <div class="chapter-one-options option-surface" role="group" aria-labelledby="seeking-label" data-single-field="applicant.seeking">
-          <button class="chapter-one-option" type="button" data-value="men" aria-pressed="false"><span>Men</span></button>
-          <button class="chapter-one-option" type="button" data-value="women" aria-pressed="false"><span>Women</span></button>
-          <button class="chapter-one-option" type="button" data-value="open_to_both" aria-pressed="false"><span>Open to both</span></button>
-        </div>
-      </div>
-    </div>
-    <div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-1">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-3" disabled>Continue</button></div>
-  </div></main>
+
+<section class="screen grouped-screen" id="ch1-intent" data-chapter="1" data-step="1" data-steps="3">
+  <div class="bubble"><span class="tag">donna</span><h1>What brings you here?</h1></div>
+  <form class="answer-card" novalidate>
+    <fieldset class="field" data-required-field="applicant.intent"><legend>What are you looking for?</legend><div class="pill-group">
+      <button class="pill" type="button" data-field="applicant.intent" data-value="marriage" aria-pressed="false">Marriage</button>
+      <button class="pill" type="button" data-field="applicant.intent" data-value="serious_relationship" aria-pressed="false">A serious relationship that could become marriage</button>
+      <button class="pill" type="button" data-field="applicant.intent" data-value="not_sure" aria-pressed="false">I’m not sure yet</button>
+    </div><p class="field-error" hidden></p></fieldset>
+    <fieldset class="field" data-required-field="applicant.marriageTimeline"><legend>If you met the right person, when would you want to be married?</legend><div class="pill-group">
+      <button class="pill" type="button" data-field="applicant.marriageTimeline" data-value="within_a_year" aria-pressed="false">Within a year</button>
+      <button class="pill" type="button" data-field="applicant.marriageTimeline" data-value="one_to_two_years" aria-pressed="false">One to two years</button>
+      <button class="pill" type="button" data-field="applicant.marriageTimeline" data-value="two_to_three_years" aria-pressed="false">Two to three years</button>
+      <button class="pill" type="button" data-field="applicant.marriageTimeline" data-value="when_right" aria-pressed="false">When it’s right—I don’t have a date in mind</button>
+    </div><p class="field-error" hidden></p></fieldset>
+    <fieldset class="field" data-required-field="applicant.meetingReadiness"><legend>Could you realistically meet someone in the next four weeks?</legend><div class="pill-group">
+      <button class="pill" type="button" data-field="applicant.meetingReadiness" data-value="yes" aria-pressed="false">Yes</button>
+      <button class="pill" type="button" data-field="applicant.meetingReadiness" data-value="probably" aria-pressed="false">Probably—I’d need to arrange it</button>
+      <button class="pill" type="button" data-field="applicant.meetingReadiness" data-value="not_yet" aria-pressed="false">Not yet</button>
+    </div><p class="field-error" hidden></p></fieldset>
+    <fieldset class="field age-field" data-age-range data-required-field="applicant.preferredAge"><legend>What age range would you genuinely consider?</legend>
+      <div class="age-preference__steppers">
+        <div class="age-stepper-group"><span>Minimum age</span><div class="age-stepper"><button type="button" data-stepper="applicant.preferredAge.minimum" data-direction="-1" aria-label="Lower minimum age">−</button><output data-output="applicant.preferredAge.minimum">25</output><button type="button" data-stepper="applicant.preferredAge.minimum" data-direction="1" aria-label="Raise minimum age">+</button></div></div>
+        <div class="age-stepper-group"><span>Maximum age</span><div class="age-stepper"><button type="button" data-stepper="applicant.preferredAge.maximum" data-direction="-1" aria-label="Lower maximum age">−</button><output data-output="applicant.preferredAge.maximum">40</output><button type="button" data-stepper="applicant.preferredAge.maximum" data-direction="1" aria-label="Raise maximum age">+</button></div></div>
+      </div><p class="field-error" hidden></p>
+    </fieldset>
+    <div class="actions"><span></span><button class="next-btn" type="submit">Continue</button></div>
+  </form>
 </section>
-<section class="screen active" id="welcome">
-  <main>
-    <div class="center-card">
-      <h1 class="headline">Before you start.</h1>
-      <p class="sub">Six chapters. About fifteen minutes.</p>
-      <p class="sub">Some of the questions are blunt. That's on purpose — it's how we avoid wasting your evening on someone who was never going to work.</p>
-      <p class="sub">You'll get one introduction at a time. You'll meet in a public place before anyone has a phone number. Afterwards you both write down how it went.</p>
-      <p class="sub">Not everyone who applies gets an introduction.</p>
-      <button class="next-btn" onclick="goTo('ch1-1')">Start</button>
-    </div>
-  </main>
+
+<section class="screen grouped-screen" id="ch1-decision" data-chapter="1" data-step="2" data-steps="3">
+  <div class="bubble"><span class="tag">donna</span><h1>You and the decision.</h1></div>
+  <form class="answer-card" novalidate>
+    <fieldset class="field" data-required-field="applicant.gender"><legend>You are</legend><div class="pill-group">
+      <button class="pill" type="button" data-field="applicant.gender" data-value="woman" aria-pressed="false">Woman</button><button class="pill" type="button" data-field="applicant.gender" data-value="man" aria-pressed="false">Man</button><button class="pill" type="button" data-field="applicant.gender" data-value="non_binary" aria-pressed="false">Non-binary</button><button class="pill" type="button" data-field="applicant.gender" data-value="self_describe" aria-pressed="false">Prefer to describe myself</button>
+    </div><p class="field-error" hidden></p></fieldset>
+    <div class="field conditional" data-condition-field="applicant.gender" data-condition-values="self_describe" data-required-field="applicant.genderDescription"><label for="genderDescription">How would you describe yourself?</label><input id="genderDescription" data-field="applicant.genderDescription" type="text"><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.seeking"><legend>Looking to meet</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.seeking" data-value="men" aria-pressed="false">Men</button><button class="pill" type="button" data-field="applicant.seeking" data-value="women" aria-pressed="false">Women</button><button class="pill" type="button" data-field="applicant.seeking" data-value="open" aria-pressed="false">Open to either</button></div><p class="field-error" hidden></p></fieldset>
+    <fieldset class="field" data-required-field="applicant.familySearchInvolvement"><legend>Who else is involved in your search?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.familySearchInvolvement" data-value="only_me" aria-pressed="false">Only me</button><button class="pill" type="button" data-field="applicant.familySearchInvolvement" data-value="family_knows" aria-pressed="false">My family knows, but I’m leading it</button><button class="pill" type="button" data-field="applicant.familySearchInvolvement" data-value="both_looking" aria-pressed="false">My family and I are both looking</button><button class="pill" type="button" data-field="applicant.familySearchInvolvement" data-value="family_leading" aria-pressed="false">My family is leading it</button><button class="pill" type="button" data-field="applicant.familySearchInvolvement" data-value="family_unaware" aria-pressed="false">They don’t know I’m doing this</button></div><p class="field-error" hidden></p></fieldset>
+    <fieldset class="field" data-required-field="applicant.familyDecisionInfluence"><legend>When it comes to the final decision, how much say will your family have?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.familyDecisionInfluence" data-value="i_decide" aria-pressed="false">I decide</button><button class="pill" type="button" data-field="applicant.familyDecisionInfluence" data-value="advice" aria-pressed="false">I decide, with their advice</button><button class="pill" type="button" data-field="applicant.familyDecisionInfluence" data-value="agree" aria-pressed="false">We would need to agree</button><button class="pill" type="button" data-field="applicant.familyDecisionInfluence" data-value="final_say" aria-pressed="false">They have the final say</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="actions"><button class="back" type="button" data-back="ch1-intent">Back</button><button class="next-btn" type="submit">Continue</button></div>
+  </form>
 </section>
-<section class="screen chapter-one-screen" id="ch1-3" data-chapter-one-screen>
-  <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
-  <div class="progress-wrap"></div>
-  <main><div class="donna-stage">
-    <div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-3">If you met the right person, when would you want to be married?</h1></div></div>
-    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-3" data-single-field="applicant.chapterOne.marriageTimeline">
-      <button class="chapter-one-option" type="button" data-value="within_a_year" aria-pressed="false"><span>Within a year</span></button>
-      <button class="chapter-one-option" type="button" data-value="one_to_two_years" aria-pressed="false"><span>One to two years</span></button>
-      <button class="chapter-one-option" type="button" data-value="two_to_three_years" aria-pressed="false"><span>Two to three years</span></button>
-      <button class="chapter-one-option" type="button" data-value="when_right" aria-pressed="false"><span>When it's right — I don't have a date in mind</span></button>
-    </div></div>
-    <div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-2">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-4" disabled>Continue</button></div>
-  </div></main>
+
+<section class="screen grouped-screen" id="ch1-contact" data-chapter="1" data-step="3" data-steps="3">
+  <div class="bubble"><span class="tag">donna</span><h1>How can I reach you?</h1></div>
+  <form class="answer-card" novalidate>
+    <div class="field" data-required-field="applicant.fullName"><label for="fullName">Full name</label><input id="fullName" data-field="applicant.fullName" type="text" minlength="2" autocomplete="name"><p class="field-error" hidden></p></div>
+    <div class="field" data-required-field="applicant.dateOfBirth"><label for="dateOfBirth">Date of birth</label><input id="dateOfBirth" data-field="applicant.dateOfBirth" type="date" autocomplete="bday"><p class="field-error" hidden></p></div>
+    <div class="field" data-required-field="applicant.phone"><label for="phone">Phone number</label><input id="phone" data-field="applicant.phone" type="tel" inputmode="tel" autocomplete="tel"><p class="field-error" hidden></p></div>
+    <div class="field" data-required-field="applicant.email"><label for="email">Email address</label><input id="email" data-field="applicant.email" type="email" autocomplete="email"><p class="field-error" hidden></p></div>
+    <div class="actions"><button class="back" type="button" data-back="ch1-decision">Back</button><button class="next-btn" type="submit">Continue</button></div>
+  </form>
 </section>
-<section class="screen chapter-one-screen" id="ch1-4" data-chapter-one-screen>
-  <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
-  <div class="progress-wrap"></div>
-  <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-4">Is anyone else looking on your behalf?</h1></div></div>
-    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-4" data-single-field="applicant.chapterOne.familySearchInvolvement">
-      <button class="chapter-one-option" type="button" data-value="family_active" aria-pressed="false"><span>My family is actively looking too</span></button>
-      <button class="chapter-one-option" type="button" data-value="family_knows" aria-pressed="false"><span>They know I'm looking, they're not involved</span></button>
-      <button class="chapter-one-option" type="button" data-value="family_does_not_know" aria-pressed="false"><span>They don't know I'm doing this</span></button>
-    </div></div><div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-3">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-5" disabled>Continue</button></div>
-  </div></main>
+
+<section class="screen exit-screen" id="chapter-one-exit"><div class="center-card"><h1>Then this isn’t the right time.</h1><p>donna only works when both people are sure they want the same thing. If that changes, come back—nothing here expires.</p><a class="next-btn" href="/">Back to donna.com</a></div></section>
+
+<section class="screen grouped-screen" id="ch2-place" data-chapter="2" data-step="1" data-steps="2">
+  <div class="bubble"><span class="tag">donna</span><h1>The life you’re building.</h1></div>
+  <form class="answer-card" novalidate>
+    <div class="field" data-required-field="applicant.currentCity"><label for="currentCity">Where do you currently live?</label><input id="currentCity" data-field="applicant.currentCity" type="text" list="cityOptions" autocomplete="address-level2"><datalist id="cityOptions"><option>Bengaluru</option><option>Mumbai</option><option>Delhi</option><option>Chennai</option><option>Hyderabad</option><option>Pune</option><option>Kolkata</option><option>Ahmedabad</option><option>Kochi</option><option>Gurugram</option></datalist><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.livingSituation"><legend>Who do you live with now?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.livingSituation" data-value="alone" aria-pressed="false">Alone</button><button class="pill" type="button" data-field="applicant.livingSituation" data-value="family" aria-pressed="false">With parents or family</button><button class="pill" type="button" data-field="applicant.livingSituation" data-value="flatmates" aria-pressed="false">With flatmates</button><button class="pill" type="button" data-field="applicant.livingSituation" data-value="other" aria-pressed="false">Other</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="field conditional" data-condition-field="applicant.livingSituation" data-condition-values="other" data-required-field="applicant.livingSituationOther"><label for="livingSituationOther">What does your living situation look like?</label><input id="livingSituationOther" data-field="applicant.livingSituationOther" type="text"><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.willingToRelocate"><legend>If the person was right, could you relocate?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.willingToRelocate" data-value="yes" aria-pressed="false">Yes</button><button class="pill" type="button" data-field="applicant.willingToRelocate" data-value="certain_places" aria-pressed="false">Only to certain places</button><button class="pill" type="button" data-field="applicant.willingToRelocate" data-value="no" aria-pressed="false">No</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="field conditional" data-condition-field="applicant.willingToRelocate" data-condition-values="yes,certain_places" data-required-field="applicant.relocationCities"><label for="relocationCityInput">Where could you realistically build a life?</label><div class="tag-control" data-tags-field="applicant.relocationCities"><div class="tag-box" data-tag-list></div><input id="relocationCityInput" data-tag-input type="text" autocomplete="off"><div class="tag-dropdown" data-tag-dropdown></div></div><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.postMarriageLiving"><legend>After marriage, what living arrangement would you expect?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.postMarriageLiving" data-value="separate" aria-pressed="false">A separate home</button><button class="pill" type="button" data-field="applicant.postMarriageLiving" data-value="with_family" aria-pressed="false">With my parents or family</button><button class="pill" type="button" data-field="applicant.postMarriageLiving" data-value="either" aria-pressed="false">Either could work</button><button class="pill" type="button" data-field="applicant.postMarriageLiving" data-value="undecided" aria-pressed="false">I haven’t decided</button><button class="pill" type="button" data-field="applicant.postMarriageLiving" data-value="other" aria-pressed="false">Other</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="field conditional" data-condition-field="applicant.postMarriageLiving" data-condition-values="other" data-required-field="applicant.postMarriageLivingOther"><label for="postMarriageLivingOther">What would you expect?</label><input id="postMarriageLivingOther" data-field="applicant.postMarriageLivingOther" type="text"><p class="field-error" hidden></p></div>
+    <div class="actions"><button class="back" type="button" data-back="ch1-contact">Back</button><button class="next-btn" type="submit">Continue</button></div>
+  </form>
 </section>
-<section class="screen chapter-one-screen" id="ch1-5" data-chapter-one-screen>
-  <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
-  <div class="progress-wrap"></div>
-  <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-5">And how much of a say do they have in who you marry?</h1></div></div>
-    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-5" data-single-field="applicant.chapterOne.familyDecisionInfluence">
-      <button class="chapter-one-option" type="button" data-value="final_say" aria-pressed="false"><span>The final say</span></button>
-      <button class="chapter-one-option" type="button" data-value="strong_opinion" aria-pressed="false"><span>A strong opinion I'd take seriously</span></button>
-      <button class="chapter-one-option" type="button" data-value="meet_only" aria-pressed="false"><span>They'd want to meet them, that's all</span></button>
-      <button class="chapter-one-option" type="button" data-value="none" aria-pressed="false"><span>None</span></button>
-    </div></div><div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-4">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-6" disabled>Continue</button></div>
-  </div></main>
+
+<section class="screen grouped-screen" id="ch2-marriage" data-chapter="2" data-step="2" data-steps="2">
+  <div class="bubble"><span class="tag">donna</span><h1>Marriage and children.</h1></div>
+  <form class="answer-card" novalidate>
+    <fieldset class="field" data-required-field="applicant.maritalStatus"><legend>Have you been married or engaged before?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.maritalStatus" data-value="no" aria-pressed="false">No</button><button class="pill" type="button" data-field="applicant.maritalStatus" data-value="engaged" aria-pressed="false">Engaged, but not married</button><button class="pill" type="button" data-field="applicant.maritalStatus" data-value="separated" aria-pressed="false">Separated</button><button class="pill" type="button" data-field="applicant.maritalStatus" data-value="divorced" aria-pressed="false">Divorced</button><button class="pill" type="button" data-field="applicant.maritalStatus" data-value="widowed" aria-pressed="false">Widowed</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="field conditional" data-condition-field="applicant.maritalStatus" data-condition-values="engaged,separated,divorced,widowed" data-required-field="applicant.priorRelationshipEnd"><label>When did that relationship end?</label><div class="row-2"><select data-field="applicant.priorRelationshipEnd.month" aria-label="Month relationship ended"><option value="">Month</option><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select><input data-field="applicant.priorRelationshipEnd.year" type="number" min="1950" max="2026" placeholder="Year" aria-label="Year relationship ended"></div><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.hasChildren"><legend>Do you have children?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.hasChildren" data-value="no" aria-pressed="false">No</button><button class="pill" type="button" data-field="applicant.hasChildren" data-value="yes" aria-pressed="false">Yes</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="field conditional" data-condition-field="applicant.hasChildren" data-condition-values="yes" data-required-field="applicant.childrenCount"><label for="childrenCount">How many?</label><input id="childrenCount" data-field="applicant.childrenCount" type="number" min="1" max="10"><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.wantsChildren"><legend>Do you want children?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.wantsChildren" data-value="yes" aria-pressed="false">Yes</button><button class="pill" type="button" data-field="applicant.wantsChildren" data-value="no" aria-pressed="false">No</button><button class="pill" type="button" data-field="applicant.wantsChildren" data-value="unsure" aria-pressed="false">Unsure</button><button class="pill" type="button" data-field="applicant.wantsChildren" data-value="no_more" aria-pressed="false">I already have children and don’t want more</button></div><p class="field-error" hidden></p></fieldset>
+    <fieldset class="field" data-required-field="applicant.openToPartnerWithChildren"><legend>Would you consider someone who already has children?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.openToPartnerWithChildren" data-value="yes" aria-pressed="false">Yes</button><button class="pill" type="button" data-field="applicant.openToPartnerWithChildren" data-value="depends" aria-pressed="false">It depends</button><button class="pill" type="button" data-field="applicant.openToPartnerWithChildren" data-value="no" aria-pressed="false">No</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="actions"><button class="back" type="button" data-back="ch2-place">Back</button><button class="next-btn" type="submit">Continue</button></div>
+  </form>
 </section>
-<section class="screen chapter-one-screen" id="ch1-6" data-chapter-one-screen>
-  <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
-  <div class="progress-wrap"></div>
-  <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-6">Could you realistically meet someone in the next four weeks?</h1></div></div>
-    <div class="answer-zone"><div class="chapter-one-options option-surface" role="group" aria-labelledby="question-ch1-6" data-single-field="applicant.chapterOne.meetingReadiness">
-      <button class="chapter-one-option" type="button" data-value="yes" aria-pressed="false"><span>Yes</span></button>
-      <button class="chapter-one-option" type="button" data-value="probably" aria-pressed="false"><span>Probably — I'd need to sort out when</span></button>
-      <button class="chapter-one-option" type="button" data-value="no" aria-pressed="false"><span>No</span></button>
-    </div></div>
-    <div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-5">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch1-7" disabled>Continue</button></div>
-  </div></main>
+
+<section class="screen grouped-screen" id="ch3-facts-1" data-chapter="3" data-step="1" data-steps="2">
+  <div class="bubble"><span class="tag">donna</span><h1>The facts.</h1></div>
+  <form class="answer-card" novalidate>
+    <div class="field" data-required-field="applicant.occupation"><label for="occupation">What do you do for work?</label><input id="occupation" data-field="applicant.occupation" type="text"><p class="field-error" hidden></p></div>
+    <div class="field" data-required-field="applicant.industry"><label for="industry">What field do you work in?</label><input id="industry" data-field="applicant.industry" type="text"><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.highestDegree"><legend>What is the highest level of education you have completed?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.highestDegree" data-value="school" aria-pressed="false">School</button><button class="pill" type="button" data-field="applicant.highestDegree" data-value="diploma" aria-pressed="false">Diploma</button><button class="pill" type="button" data-field="applicant.highestDegree" data-value="undergraduate" aria-pressed="false">Undergraduate degree</button><button class="pill" type="button" data-field="applicant.highestDegree" data-value="postgraduate" aria-pressed="false">Postgraduate degree</button><button class="pill" type="button" data-field="applicant.highestDegree" data-value="doctorate" aria-pressed="false">Doctorate</button><button class="pill" type="button" data-field="applicant.highestDegree" data-value="other" aria-pressed="false">Other</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="field" data-required-field="applicant.annualIncome"><label for="annualIncome">Annual income</label><select id="annualIncome" data-field="applicant.annualIncome"><option value="">Select a range</option><option value="under_10">Under ₹10 lakh</option><option value="10_20">₹10–20 lakh</option><option value="20_35">₹20–35 lakh</option><option value="35_50">₹35–50 lakh</option><option value="50_75">₹50–75 lakh</option><option value="75_100">₹75 lakh–₹1 crore</option><option value="over_100">Over ₹1 crore</option></select><p class="reason">Only I see this.</p><p class="field-error" hidden></p></div>
+    <div class="actions"><button class="back" type="button" data-back="ch2-marriage">Back</button><button class="next-btn" type="submit">Continue</button></div>
+  </form>
 </section>
-<section class="screen chapter-one-screen" id="ch1-7" data-chapter-one-screen>
-  <div class="topbar"><div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div></div>
-  <div class="progress-wrap"></div>
-  <main><div class="donna-stage"><div class="donna-row"><div class="donna-icon"></div><div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="question-ch1-7">How can we reach you?</h1></div></div>
-    <div class="answer-zone"><div class="card answer-card" aria-labelledby="question-ch1-7">
-      <div class="field"><label for="chapterOneName">Your name</label><input id="chapterOneName" type="text" required minlength="2" autocomplete="name" aria-describedby="chapterOneNameError"><p class="chapter-one-error" id="chapterOneNameError" hidden>Enter at least 2 characters.</p></div>
-      <div class="field"><label for="chapterOneDateOfBirth">Date of birth</label><input id="chapterOneDateOfBirth" type="date" required autocomplete="bday" aria-describedby="chapterOneDateOfBirthError"><p class="chapter-one-error" id="chapterOneDateOfBirthError" hidden>Enter a valid date of birth.</p></div>
-      <div class="field"><label for="chapterOnePhone">Phone number</label><input id="chapterOnePhone" type="tel" required inputmode="tel" autocomplete="tel" aria-describedby="chapterOnePhoneError"><p class="chapter-one-error" id="chapterOnePhoneError" hidden>Enter a valid Indian mobile number.</p></div>
-      <div class="field"><label for="chapterOneEmail">Email</label><input id="chapterOneEmail" type="email" required autocomplete="email" aria-describedby="chapterOneEmailError"><p class="chapter-one-error" id="chapterOneEmailError" hidden>Enter a valid email address.</p></div>
-    </div></div>
-    <div class="actions chapter-one-actions option-actions"><button class="back show" type="button" data-back="ch1-6">Back</button><button class="next-btn" type="button" data-chapter-one-continue data-next="ch2">Continue</button></div>
-  </div></main>
+
+<section class="screen grouped-screen" id="ch3-facts-2" data-chapter="3" data-step="2" data-steps="2">
+  <div class="bubble"><span class="tag">donna</span><h1>A few more facts.</h1></div>
+  <form class="answer-card" novalidate>
+    <div class="field" data-required-field="applicant.languages"><label for="languageInput">Which languages are you comfortable speaking?</label><div class="tag-control" data-tags-field="applicant.languages"><div class="tag-box" data-tag-list></div><input id="languageInput" data-tag-input type="text" autocomplete="off"><div class="tag-dropdown" data-tag-dropdown></div></div><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.height"><legend>What’s your height?</legend><div class="unit-toggle"><button class="unit-pill" type="button" data-height-unit="ft" aria-pressed="false">Feet &amp; inches</button><button class="unit-pill" type="button" data-height-unit="cm" aria-pressed="false">Centimetres</button></div><div class="row-2" data-height-fields="ft"><input data-field="applicant.height.feet" type="number" min="3" max="8" placeholder="Feet" aria-label="Height in feet"><input data-field="applicant.height.inches" type="number" min="0" max="11" placeholder="Inches" aria-label="Additional inches"></div><div data-height-fields="cm"><input data-field="applicant.height.centimeters" type="number" min="100" max="250" placeholder="Centimetres" aria-label="Height in centimetres"></div><p class="field-error" hidden></p></fieldset>
+    <div class="field" data-required-field="applicant.linkedinUrl"><label for="linkedinUrl">LinkedIn profile</label><input id="linkedinUrl" data-field="applicant.linkedinUrl" type="url" placeholder="https://linkedin.com/in/yourname"><p class="reason">It’s how I know you’re a real person, nothing more.</p><p class="field-error" hidden></p></div>
+    <div class="actions"><button class="back" type="button" data-back="ch3-facts-1">Back</button><button class="next-btn" type="submit">Continue</button></div>
+  </form>
 </section>
-<section class="screen chapter-one-exit" id="chapter-one-exit">
-  <main><div class="center-card"><h1 class="headline">Then this isn't the right time.</h1><p class="sub">donna only works when both people are sure they want the same thing. If that changes, come back — nothing here expires.</p><a class="next-btn" href="/">Back to donna.com</a></div></main>
+
+<section class="screen grouped-screen" id="ch4-background" data-chapter="4" data-step="1" data-steps="2">
+  <div class="bubble"><span class="tag">donna</span><h1>Background.</h1></div>
+  <form class="answer-card" novalidate>
+    <div class="field" data-required-field="applicant.faithBackground"><label for="faithBackground">Is there a faith, community or cultural background that matters to how you live?</label><select id="faithBackground" data-field="applicant.faithBackground"><option value="">Select one</option><option value="hindu">Hindu</option><option value="muslim">Muslim</option><option value="christian">Christian</option><option value="sikh">Sikh</option><option value="jain">Jain</option><option value="buddhist">Buddhist</option><option value="parsi">Parsi</option><option value="jewish">Jewish</option><option value="spiritual">Spiritual, not religious</option><option value="none">None</option><option value="prefer_not">Prefer not to say</option><option value="other">Other</option></select><p class="field-error" hidden></p></div>
+    <div class="field conditional" data-condition-field="applicant.faithBackground" data-condition-values="other" data-required-field="applicant.faithBackgroundOther"><label for="faithBackgroundOther">How would you describe it?</label><input id="faithBackgroundOther" data-field="applicant.faithBackgroundOther" type="text"><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.faithPresence"><legend>How present is it in your everyday life?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.faithPresence" data-value="central" aria-pressed="false">Central to how I live</button><button class="pill" type="button" data-field="applicant.faithPresence" data-value="important" aria-pressed="false">Important, but not central</button><button class="pill" type="button" data-field="applicant.faithPresence" data-value="cultural" aria-pressed="false">Mostly cultural or familial</button><button class="pill" type="button" data-field="applicant.faithPresence" data-value="occasions" aria-pressed="false">Part of special occasions</button><button class="pill" type="button" data-field="applicant.faithPresence" data-value="not_present" aria-pressed="false">Not particularly present</button></div><p class="field-error" hidden></p></fieldset>
+    <fieldset class="field" data-required-field="applicant.interfaithOpenness"><legend>Could you build a life with someone from a different faith or community?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.interfaithOpenness" data-value="yes" aria-pressed="false">Yes</button><button class="pill" type="button" data-field="applicant.interfaithOpenness" data-value="depends" aria-pressed="false">Yes, depending on how they live</button><button class="pill" type="button" data-field="applicant.interfaithOpenness" data-value="no" aria-pressed="false">No</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="field conditional" data-condition-field="applicant.interfaithOpenness" data-condition-values="depends" data-required-field="applicant.interfaithConditions"><label for="interfaithConditions">What would need to be true for it to work?</label><input id="interfaithConditions" data-field="applicant.interfaithConditions" type="text"><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.familyInterfaithView"><legend>Would your family give the same answer?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.familyInterfaithView" data-value="yes" aria-pressed="false">Yes</button><button class="pill" type="button" data-field="applicant.familyInterfaithView" data-value="probably" aria-pressed="false">Probably</button><button class="pill" type="button" data-field="applicant.familyInterfaithView" data-value="depends" aria-pressed="false">It would depend</button><button class="pill" type="button" data-field="applicant.familyInterfaithView" data-value="no" aria-pressed="false">No</button><button class="pill" type="button" data-field="applicant.familyInterfaithView" data-value="unsure" aria-pressed="false">I’m not sure</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="field" data-required-field="applicant.castePreference"><label for="castePreference">Is there a caste preference or requirement for you or your family?</label><input id="castePreference" data-field="applicant.castePreference" type="text"><p class="hint">If caste does not matter, write ‘None.’</p><p class="field-error" hidden></p></div>
+    <div class="actions"><button class="back" type="button" data-back="ch3-facts-2">Back</button><button class="next-btn" type="submit">Continue</button></div>
+  </form>
 </section>
-<section class="screen" id="ch2">
 
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch2">Let's talk about why you're actually here — no need to overthink this one.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch2">
-      <div class="field"><label>WHAT ARE YOU LOOKING FOR RIGHT NOW?</label>
-        <div class="pill-group" role="group" aria-labelledby="d-ch2"><div class="pill" onclick="selectPill(this)">Marriage</div><div class="pill" onclick="selectPill(this)">A long-term relationship, with marriage as a possibility</div></div>
-      </div>
-      <div class="field"><label>IF YOU MET THE RIGHT PERSON, HOW SOON WOULD YOU WANT TO MARRY?</label>
-        <div class="pill-group"><div class="pill" onclick="selectPill(this)">Within a year</div><div class="pill" onclick="selectPill(this)">1–2 years</div><div class="pill" onclick="selectPill(this)">No fixed timeline</div></div>
-      </div>
-      <div class="field"><label>ARE YOU AVAILABLE TO MEET SOMEONE NEW IN THE NEXT FOUR WEEKS?</label>
-        <div class="pill-group"><div class="pill" onclick="selectPill(this)">Yes</div><div class="pill" onclick="selectPill(this)">Not just yet</div></div>
-      </div>
-      <div class="field"><label>WHAT AGE RANGE ARE YOU COMFORTABLE MEETING?</label>
-        <div class="age-preference" data-age-preference role="group" aria-label="Age range">
-          <p class="age-preference__anchor" id="agePreferenceAnchor" hidden>You’re <span id="applicantAge">31</span>. How far either side?</p>
-          <div class="age-preference__steppers">
-            <div class="age-stepper-group">
-              <span class="age-stepper-group__label" id="youngerLabel">Younger by</span>
-              <div class="age-stepper" aria-labelledby="youngerLabel">
-                <button type="button" data-age-step="younger" data-direction="decrement" aria-label="Fewer years younger">−</button>
-                <output id="youngerOffset">3</output>
-                <button type="button" data-age-step="younger" data-direction="increment" aria-label="More years younger">+</button>
-              </div>
-            </div>
-            <div class="age-stepper-group">
-              <span class="age-stepper-group__label" id="olderLabel">Older by</span>
-              <div class="age-stepper" aria-labelledby="olderLabel">
-                <button type="button" data-age-step="older" data-direction="decrement" aria-label="Fewer years older">−</button>
-                <output id="olderOffset">7</output>
-                <button type="button" data-age-step="older" data-direction="increment" aria-label="More years older">+</button>
-              </div>
-            </div>
-          </div>
-          <p class="age-preference__result" id="ageRangeOutput" aria-live="polite"><output id="ageRangeMinimum">28</output> to <output id="ageRangeMaximum">38</output></p>
-        </div>
-      </div>
-
-        <div class="actions">
-          <button class="back show" onclick="goTo('ch1-7')">Back</button>
-          <button class="next-btn" onclick="goTo('ch3-1')">Continue</button>
-        </div>
-      </div>
-
-  </div></main>
+<section class="screen grouped-screen" id="ch4-habits" data-chapter="4" data-step="2" data-steps="2">
+  <div class="bubble"><span class="tag">donna</span><h1>Everyday life.</h1></div>
+  <form class="answer-card" novalidate><p class="card-intro">These are ordinary-life answers, not special occasions.</p>
+    <fieldset class="field" data-required-field="applicant.diet"><legend>How do you usually eat?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.diet" data-value="vegetarian" aria-pressed="false">Vegetarian</button><button class="pill" type="button" data-field="applicant.diet" data-value="eggetarian" aria-pressed="false">Eggetarian</button><button class="pill" type="button" data-field="applicant.diet" data-value="non_vegetarian" aria-pressed="false">Non-vegetarian</button><button class="pill" type="button" data-field="applicant.diet" data-value="vegan" aria-pressed="false">Vegan</button><button class="pill" type="button" data-field="applicant.diet" data-value="other" aria-pressed="false">Other</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="field conditional" data-condition-field="applicant.diet" data-condition-values="other" data-required-field="applicant.dietOther"><label for="dietOther">How would you describe it?</label><input id="dietOther" data-field="applicant.dietOther" type="text"><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.drinking"><legend>How often do you drink alcohol?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.drinking" data-value="never" aria-pressed="false">Never</button><button class="pill" type="button" data-field="applicant.drinking" data-value="occasionally" aria-pressed="false">Occasionally</button><button class="pill" type="button" data-field="applicant.drinking" data-value="most_weeks" aria-pressed="false">Most weeks</button><button class="pill" type="button" data-field="applicant.drinking" data-value="several_weekly" aria-pressed="false">Several times a week</button></div><p class="field-error" hidden></p></fieldset>
+    <fieldset class="field" data-required-field="applicant.smoking"><legend>Do you smoke or use nicotine?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.smoking" data-value="never" aria-pressed="false">Never</button><button class="pill" type="button" data-field="applicant.smoking" data-value="occasionally" aria-pressed="false">Occasionally</button><button class="pill" type="button" data-field="applicant.smoking" data-value="regularly" aria-pressed="false">Regularly</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="actions"><button class="back" type="button" data-back="ch4-background">Back</button><button class="next-btn" type="submit">Continue</button></div>
+  </form>
 </section>
-<section class="screen" id="ch3-1">
 
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch3-1">Now tell me a little about what fills your days.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch3-1">
-      <div class="row-2">
-        <div class="field"><label>WHAT DO YOU DO FOR WORK?</label><input type="text" placeholder="e.g. Product Manager"></div>
-        <div class="field"><label>WHO DO YOU WORK FOR?</label><input type="text" placeholder="e.g. Visteon"></div>
-      </div>
-      <div class="field"><label>WHAT INDUSTRY ARE YOU IN?</label><input type="text" placeholder="e.g. Automotive tech"></div>
-      <div class="row-2">
-        <div class="field"><label>HIGHEST DEGREE COMPLETED</label><input type="text" placeholder="e.g. Bachelor's"></div>
-        <div class="field"><label>WHERE DID YOU STUDY?</label><input type="text" placeholder="e.g. VIT Chennai"></div>
-      </div>
-      <div class="actions"><button class="back show" onclick="goTo('ch2')">Back</button><button class="next-btn" onclick="goTo('ch3-2')">Continue</button></div>
-    </div>
-  </div></main>
+<section class="screen reflective-screen" id="ch5-ease" data-chapter="5" data-step="1" data-steps="3">
+  <div class="bubble"><span class="tag">donna</span><h1 id="q-ease">If I asked the person who knows you best, what would they say is easy about being close to you—and what takes some getting used to?</h1></div>
+  <form class="answer-card" novalidate><div class="field" data-required-field="applicant.reflectiveEase"><label class="sr-only" for="reflectiveEase">Your answer</label><textarea id="reflectiveEase" data-field="applicant.reflectiveEase" maxlength="400" aria-labelledby="q-ease"></textarea><p class="hint">Give me the honest version, not the formal one.</p><p class="counter" data-counter-for="reflectiveEase">0 / 400</p><p class="field-error" hidden></p></div><div class="actions"><button class="back" type="button" data-back="ch4-habits">Back</button><button class="next-btn" type="submit">Continue</button></div></form>
 </section>
-<section class="screen" id="ch3-2">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch3-2">Almost through this chapter — a couple more practical things.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch3-2">
-      <div class="field">
-        <label>WHICH LANGUAGES ARE YOU COMFORTABLE SPEAKING?</label>
-        <div class="tag-input-wrap">
-          <div class="tag-box" id="langTagBox" onclick="document.getElementById('langInput').focus()">
-            <input type="text" class="tag-input" id="langInput" placeholder="Start typing a language..."
-              oninput="filterLangs(this.value)" onkeydown="langKeydown(event)" onfocus="filterLangs(this.value)">
-          </div>
-          <div class="tag-dropdown" id="langDropdown"></div>
-        </div>
-      </div>
-      <div class="field">
-        <label>WHAT'S YOUR HEIGHT?</label>
-        <div class="unit-toggle">
-          <div class="unit-pill selected" onclick="setHeightUnit('ft', this)">Feet &amp; in</div>
-          <div class="unit-pill" onclick="setHeightUnit('cm', this)">Centimeters</div>
-        </div>
-        <div class="row-2" id="heightFtRow">
-          <input type="number" placeholder="Feet (e.g. 5)">
-          <input type="number" placeholder="Inches (e.g. 7)">
-        </div>
-        <input type="number" id="heightCmInput" placeholder="e.g. 170" style="display:none;">
-      </div>
-      <div class="field"><label>LINKEDIN PROFILE</label><input type="text" id="linkedinInput" placeholder="linkedin.com/in/yourname" oninput="clearLinkedInError()">
-        <div class="hint" id="linkedinError" style="display:none;color:#e08a8a;">We ask everyone for this — it's part of how we verify who you are.</div>
-      </div>
-
-        <div class="actions">
-          <button class="back show" onclick="goTo('ch3-1')">Back</button>
-          <button class="next-btn" onclick="validateLinkedIn()">Continue</button>
-        </div>
-      </div>
-
-  </div></main>
+<section class="screen reflective-screen" id="ch5-week" data-chapter="5" data-step="2" data-steps="3">
+  <div class="bubble"><span class="tag">donna</span><h1 id="q-week">Imagine an ordinary week with a partner. What would you want to do together, and what would you still want to do separately?</h1></div>
+  <form class="answer-card" novalidate><div class="field" data-required-field="applicant.reflectiveOrdinaryWeek"><label class="sr-only" for="reflectiveOrdinaryWeek">Your answer</label><textarea id="reflectiveOrdinaryWeek" data-field="applicant.reflectiveOrdinaryWeek" maxlength="400" aria-labelledby="q-week"></textarea><p class="hint">Think about evenings, weekends, friends, family and time alone.</p><p class="counter" data-counter-for="reflectiveOrdinaryWeek">0 / 400</p><p class="field-error" hidden></p></div><div class="actions"><button class="back" type="button" data-back="ch5-ease">Back</button><button class="next-btn" type="submit">Continue</button></div></form>
 </section>
-<section class="screen" id="ch4-1">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch4-1">Let's talk about where life is taking you.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch4-1">
-      <div class="field"><label>WHAT DOES YOUR CURRENT LIVING SITUATION LOOK LIKE?</label>
-        <div class="pill-group">
-          <div class="pill" onclick="selectLivingSituation(this)">Alone</div>
-          <div class="pill" onclick="selectLivingSituation(this)">With family</div>
-          <div class="pill" onclick="selectLivingSituation(this)">With roommates</div>
-          <div class="pill" onclick="selectLivingSituation(this)">Other</div>
-        </div>
-        <input type="text" id="livingOtherInput" placeholder="Tell me a bit more" style="display:none; margin-top:10px;">
-      </div>
-      <div class="field">
-        <label>WHICH CITIES WOULD YOU CONSIDER MOVING TO?</label>
-        <div class="tag-input-wrap">
-          <div class="tag-box" id="cityTagBox" onclick="document.getElementById('cityInput').focus()">
-            <input type="text" class="tag-input" id="cityInput" placeholder="Start typing a city..."
-              oninput="filterCities(this.value)" onkeydown="cityKeydown(event)" onfocus="filterCities(this.value)">
-          </div>
-          <div class="tag-dropdown" id="cityDropdown"></div>
-        </div>
-      </div>
-      <div class="field"><label>WOULD YOU RELOCATE FOR THE RIGHT PERSON?</label>
-        <div class="pill-group"><div class="pill" onclick="selectPill(this)">Yes</div><div class="pill" onclick="selectPill(this)">Depends</div><div class="pill" onclick="selectPill(this)">No</div></div>
-      </div>
-      <div class="actions"><button class="back show" onclick="goTo('ch3-2')">Back</button><button class="next-btn" onclick="goTo('ch4-2')">Continue</button></div>
-    </div>
-  </div></main>
+<section class="screen reflective-screen" id="ch5-conflict" data-chapter="5" data-step="3" data-steps="3">
+  <div class="bubble"><span class="tag">donna</span><h1 id="q-conflict">When something is bothering you in a relationship, what usually happens next?</h1></div>
+  <form class="answer-card" novalidate><div class="field" data-required-field="applicant.reflectiveConflict"><label class="sr-only" for="reflectiveConflict">Your answer</label><textarea id="reflectiveConflict" data-field="applicant.reflectiveConflict" maxlength="400" aria-labelledby="q-conflict"></textarea><p class="hint">Do you say it immediately, take time first, become quiet or handle it another way?</p><p class="counter" data-counter-for="reflectiveConflict">0 / 400</p><p class="field-error" hidden></p></div><div class="actions"><button class="back" type="button" data-back="ch5-week">Back</button><button class="next-btn" type="submit">Continue</button></div></form>
 </section>
-<section class="screen" id="ch4-2">
 
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch4-2">This next one matters — take your time with it.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch4-2">
-      <div class="field"><label>DO YOU HAVE CHILDREN?</label>
-        <div class="pill-group"><div class="pill" onclick="selectPill(this)">No</div><div class="pill" onclick="selectPill(this)">Yes</div></div>
-      </div>
-      <div class="field"><label>WOULD YOU LIKE TO HAVE CHILDREN IN THE FUTURE?</label>
-        <div class="pill-group"><div class="pill" onclick="selectPill(this)">Yes</div><div class="pill" onclick="selectPill(this)">No</div><div class="pill" onclick="selectPill(this)">Depends</div></div>
-      </div>
-      <div class="field"><label>IS HAVING CHILDREN A NON-NEGOTIABLE FOR YOU?</label>
-        <div class="pill-group"><div class="pill" onclick="selectPill(this)">Yes</div><div class="pill" onclick="selectPill(this)">No</div></div>
-      </div>
-
-        <div class="actions">
-          <button class="back show" onclick="goTo('ch4-1')">Back</button>
-          <button class="next-btn" onclick="goTo('ch5-1')">Continue</button>
-        </div>
-      </div>
-
-  </div></main>
+<section class="screen grouped-screen" id="ch6-boundaries" data-chapter="6" data-step="1" data-steps="3">
+  <div class="bubble"><span class="tag">donna</span><h1>Before I introduce you.</h1></div>
+  <form class="answer-card" novalidate><p class="card-intro">This is not a description of your ideal person. I only need to know what would make a shared life unworkable.</p>
+    <div class="field" data-required-field="applicant.nonNegotiables"><label>What would make you decline an introduction even if everything else looked promising?</label><div class="topic-prompts" data-boundary-prompts>
+      <button class="chip" type="button" data-topic="Living with parents after marriage">Living with parents after marriage</button><button class="chip" type="button" data-topic="Whether both partners continue working">Whether both partners continue working</button><button class="chip" type="button" data-topic="How involved families are in decisions">How involved families are in decisions</button><button class="chip" type="button" data-topic="Financial responsibilities toward parents or relatives">Financial responsibilities toward parents or relatives</button><button class="chip" type="button" data-topic="Where to settle long-term">Where to settle long-term</button><button class="chip" type="button" data-topic="Traditional versus equal roles at home">Traditional versus equal roles at home</button>
+    </div><div data-boundary-list></div><button class="add-boundary" type="button" data-add-boundary>Add a custom non-negotiable</button><p class="hint">Add up to three. Explain exactly where each boundary is.</p><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.familyRequirement"><legend>Does anyone else involved in your decision have a requirement you do not personally share?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.familyRequirement" data-value="no" aria-pressed="false">No</button><button class="pill" type="button" data-field="applicant.familyRequirement" data-value="yes" aria-pressed="false">Yes</button><button class="pill" type="button" data-field="applicant.familyRequirement" data-value="unsure" aria-pressed="false">I’m not sure</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="field conditional" data-condition-field="applicant.familyRequirement" data-condition-values="yes,unsure" data-required-field="applicant.familyRequirementDetail"><label for="familyRequirementDetail">What is it—or what do you need to confirm with them?</label><input id="familyRequirementDetail" data-field="applicant.familyRequirementDetail" type="text"><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.boundariesConfirmed"><legend>Have you listed everything that could prevent you or your family from continuing after an introduction?</legend><div class="pill-group"><button class="pill" type="button" data-field="applicant.boundariesConfirmed" data-value="yes" aria-pressed="false">Yes</button><button class="pill" type="button" data-field="applicant.boundariesConfirmed" data-value="change" aria-pressed="false">I need to change something</button></div><p class="field-error" hidden></p></fieldset>
+    <div class="actions"><button class="back" type="button" data-back="ch5-conflict">Back</button><button class="next-btn" type="submit">Continue</button></div>
+  </form>
 </section>
-<section class="screen" id="ch5-1">
 
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch5-1">I'm not filtering you out here — just understanding what matters.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch5-1">
-      <div class="field"><label>HAVE YOU BEEN MARRIED BEFORE?</label>
-        <div class="pill-group"><div class="pill" onclick="selectPill(this)">No</div><div class="pill" onclick="selectPill(this)">Yes</div></div>
-      </div>
-      <div class="field"><label>IS THERE A FAITH OR COMMUNITY BACKGROUND THAT'S IMPORTANT TO YOU?</label>
-        <select>
-          <option value="">Select one...</option>
-          <option>Hindu</option>
-          <option>Muslim</option>
-          <option>Christian</option>
-          <option>Sikh</option>
-          <option>Jain</option>
-          <option>Buddhist</option>
-          <option>Parsi</option>
-          <option>Jewish</option>
-          <option>Spiritual, not religious</option>
-          <option>Non-religious</option>
-          <option>Prefer not to say</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="field"><label>HOW MUCH DOES SHARED FAITH, CULTURE, OR BACKGROUND MATTER IN A PARTNER?</label>
-        <div class="slider-track" id="faithSlider">
-          <div class="slider-fill" id="faithFill" style="width:50%"></div>
-          <div class="slider-handle" id="faithHandle" style="left:50%"></div>
-        </div>
-        <div class="slider-labels"><span>Not important</span><span>Very important</span></div>
-      </div>
-      <div class="actions"><button class="back show" onclick="goTo('ch4-2')">Back</button><button class="next-btn" onclick="goTo('ch5-2')">Continue</button></div>
-    </div>
-  </div></main>
+<section class="screen grouped-screen" id="ch6-photos" data-chapter="6" data-step="2" data-steps="3">
+  <div class="bubble"><span class="tag">donna</span><h1>Photographs.</h1></div>
+  <form class="answer-card" novalidate><h2>Add three recent photographs that look like you now.</h2><p class="card-intro">Your photographs are shared only after both people are interested.</p><p class="hint">JPEG, PNG or WebP, up to 10 MB each. Kept in this browser tab only.</p>
+    <div class="photo-grid"><div class="photo-slot" data-photo-slot="face"><h3>Your face</h3><p>One where the face is clear</p><div data-photo-preview></div><input id="photo-face" type="file" accept="image/jpeg,image/png,image/webp" aria-label="One recent photograph where your face is clear"><label class="file-button" for="photo-face">Choose photograph</label><p class="field-error" hidden></p></div><div class="photo-slot" data-photo-slot="fullLength"><h3>Full length</h3><p>One full-length photograph</p><div data-photo-preview></div><input id="photo-full" type="file" accept="image/jpeg,image/png,image/webp" aria-label="One recent full-length photograph"><label class="file-button" for="photo-full">Choose photograph</label><p class="field-error" hidden></p></div><div class="photo-slot" data-photo-slot="ordinaryLife"><h3>Ordinary life</h3><p>One from ordinary life</p><div data-photo-preview></div><input id="photo-life" type="file" accept="image/jpeg,image/png,image/webp" aria-label="One recent photograph from ordinary life"><label class="file-button" for="photo-life">Choose photograph</label><p class="field-error" hidden></p></div></div>
+    <div class="actions"><button class="back" type="button" data-back="ch6-boundaries">Back</button><button class="next-btn" type="submit">Continue</button></div>
+  </form>
 </section>
-<section class="screen" id="ch5-2">
 
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch5-2">Just a few lifestyle basics, then we're through this chapter.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch5-2">
-      <div class="field"><label>WHAT'S YOUR DIET?</label>
-        <div class="pill-group"><div class="pill" onclick="selectPill(this)">Vegetarian</div><div class="pill" onclick="selectPill(this)">Non-vegetarian</div><div class="pill" onclick="selectPill(this)">Eggetarian</div><div class="pill" onclick="selectPill(this)">Vegan</div></div>
-      </div>
-      <div class="field"><label>HOW DO YOU FEEL ABOUT DRINKING?</label>
-        <div class="pill-group"><div class="pill" onclick="selectPill(this)">Socially</div><div class="pill" onclick="selectPill(this)">Never</div><div class="pill" onclick="selectPill(this)">Regularly</div></div>
-      </div>
-      <div class="field"><label>DO YOU SMOKE?</label>
-        <div class="pill-group"><div class="pill" onclick="selectPill(this)">No</div><div class="pill" onclick="selectPill(this)">Occasionally</div><div class="pill" onclick="selectPill(this)">Yes</div></div>
-      </div>
-
-        <div class="actions">
-          <button class="back show" onclick="goTo('ch5-1')">Back</button>
-          <button class="next-btn" onclick="goTo('ch6')">Continue</button>
-        </div>
-      </div>
-
-  </div></main>
+<section class="screen grouped-screen" id="ch6-review" data-chapter="6" data-step="3" data-steps="3">
+  <div class="bubble"><span class="tag">donna</span><h1>Review and submit.</h1></div>
+  <form class="answer-card review-card" novalidate><p class="card-intro">Read this as though I were about to introduce you tomorrow. If something important is missing, add it now.</p><div data-review></div>
+    <fieldset class="consents"><legend>Before you submit</legend><label><input data-consent="informationAccurate" type="checkbox"> <span>The information I’ve given is accurate.</span></label><label><input data-consent="personReadsApplication" type="checkbox"> <span>I understand a person at donna will read my application and consider me for introductions.</span></label><label><input data-consent="photographStorage" type="checkbox"> <span>I consent to donna storing my photographs privately for review.</span></label><label><input data-consent="writtenAnswers" type="checkbox"> <span>I understand my written answers are read by donna and used to consider potential introductions.</span></label><label><input data-consent="noGuarantee" type="checkbox"> <span>I understand applying does not guarantee acceptance or an introduction.</span></label><label><input data-consent="legalDocuments" type="checkbox"> <span>I have read the Privacy Notice and the Pilot Terms.</span></label><p class="legal-note">The Privacy Notice and Pilot Terms links are not configured yet.</p><p class="field-error" hidden data-consent-error></p></fieldset>
+    <div class="actions"><button class="back" type="button" data-back="ch6-photos">Back</button><button class="next-btn" type="submit">Submit application</button></div>
+  </form>
 </section>
-<section class="screen" id="ch6">
 
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch6">Now for the part where I get a little more direct — what would genuinely rule someone out?</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch6">
-      <div class="field">
-        <label>WHAT WOULD GENUINELY RULE SOMEONE OUT FOR YOU?</label>
-        <textarea id="boundariesText" placeholder="e.g. Smoking, unwillingness to relocate, no interest in having children..."></textarea>
-        <div class="hint">Tap any that apply — they'll drop straight into the box above.</div>
-        <div class="pill-group" style="margin-top:6px;"><div class="chip" onclick="toggleChip(this, 'Smoking')">+ Smoking</div><div class="chip" onclick="toggleChip(this, 'Heavy drinking')">+ Heavy drinking</div><div class="chip" onclick="toggleChip(this, 'Unwillingness to relocate')">+ Unwillingness to relocate</div><div class="chip" onclick="toggleChip(this, 'Doesn't want children')">+ Doesn't want children</div><div class="chip" onclick="toggleChip(this, 'Different views on marriage timeline')">+ Different views on marriage timeline</div><div class="chip" onclick="toggleChip(this, 'Long-distance')">+ Long-distance</div><div class="chip" onclick="toggleChip(this, 'Different faith background')">+ Different faith background</div><div class="chip" onclick="toggleChip(this, 'Not financially independent')">+ Not financially independent</div></div>
-      </div>
-
-        <div class="actions">
-          <button class="back show" onclick="goTo('ch5-2')">Back</button>
-          <button class="next-btn" onclick="goTo('ch7-1')">Continue</button>
-        </div>
-      </div>
-
-  </div></main>
-</section>
-<section class="screen" id="ch7-1">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch7-1">Okay, enough of the basics. I have the practical picture now — tell me a little about the person behind it.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch7-1">
-      <div class="field"><textarea aria-labelledby="d-ch7-1" placeholder="e.g. Someone who challenges me, someone steady..."></textarea></div>
-      <div class="actions"><button class="back show" onclick="goTo('ch6')">Back</button><button class="next-btn" onclick="goTo('ch7-2')">Continue</button></div>
-    </div>
-  </div></main>
-</section>
-<section class="screen" id="ch7-2">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch7-2">Keep going, you're doing great.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch7-2">
-      <div class="field"><textarea aria-labelledby="d-ch7-2" placeholder="e.g. Loyal, a little stubborn, always the planner..."></textarea></div>
-      <div class="actions"><button class="back show" onclick="goTo('ch7-1')">Back</button><button class="next-btn" onclick="goTo('ch7-3')">Continue</button></div>
-    </div>
-  </div></main>
-</section>
-<section class="screen" id="ch7-3">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch7-3">Keep going, you're doing great.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch7-3">
-      <div class="field"><textarea aria-labelledby="d-ch7-3" placeholder="e.g. My playlist, how competitive I get at board games..."></textarea></div>
-      <div class="actions"><button class="back show" onclick="goTo('ch7-2')">Back</button><button class="next-btn" onclick="goTo('ch7-4')">Continue</button></div>
-    </div>
-  </div></main>
-</section>
-<section class="screen" id="ch7-4">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch7-4">Keep going, you're doing great.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch7-4">
-      <div class="field"><textarea aria-labelledby="d-ch7-4" placeholder="e.g. Gym, dinner with roommates, an hour of Netflix..."></textarea></div>
-      <div class="actions"><button class="back show" onclick="goTo('ch7-3')">Back</button><button class="next-btn" onclick="goTo('ch7-5')">Continue</button></div>
-    </div>
-  </div></main>
-</section>
-<section class="screen" id="ch7-5">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch7-5">Keep going, you're doing great.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch7-5">
-      <div class="field"><textarea aria-labelledby="d-ch7-5" placeholder="e.g. I've learned I need more directness than I used to think..."></textarea></div>
-      <div class="actions"><button class="back show" onclick="goTo('ch7-4')">Back</button><button class="next-btn" onclick="goTo('ch7-6')">Continue</button></div>
-    </div>
-  </div></main>
-</section>
-<section class="screen" id="ch7-6">
-
-    <div class="topbar">
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-    </div>
-    <div class="progress-wrap"></div>
-
-  <main><div class="donna-stage">
-
-    <div class="donna-row">
-      <div class="donna-icon"></div>
-      <div class="bubble"><span class="tag">donna</span><h1 class="bubble-question" id="d-ch7-6">Keep going, you're doing great.</h1></div>
-    </div>
-
-    <div class="card answer-card" aria-labelledby="d-ch7-6">
-      <div class="field"><textarea aria-labelledby="d-ch7-6" placeholder="Optional, but often the most telling answer."></textarea></div>
-      <div class="actions"><button class="back show" onclick="goTo('ch7-5')">Back</button><button class="next-btn" onclick="goTo('submitted')">Complete profile</button></div>
-    </div>
-  </div></main>
-</section>
-<section class="screen" id="submitted">
-  <main>
-    <div class="center-card">
-      <h1 class="headline">Received.</h1>
-      <p class="sub">This is a placeholder. Submission is not yet wired.</p>
-    </div>
-  </main>
-</section>
+<section class="screen submitted-screen" id="submitted"><div class="center-card"><h1>That’s with me now.</h1><p>I’ll read it properly, not skim it. If I’ve got someone, you’ll hear from me. If I haven’t, you’ll hear that too.</p></div></section>

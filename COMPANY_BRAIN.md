@@ -75,7 +75,7 @@ Employer and institution are present in the code but conflict with settled produ
 - Importance of shared faith, culture, or background
 - Diet, drinking, and smoking
 
-There is no caste, gotra, sub-community, or mother-tongue field in the active journey.
+The pilot collects any caste preference or requirement in a dedicated free-entry field. The answer is available only to the matchmaker, is not automatically shown to a prospective match, and remains separate from general faith, community, or cultural-background data.
 
 ### Chapter VI — boundaries and personal context
 
@@ -92,7 +92,7 @@ The code splits this chapter across `ch6` and `ch7-*` screen IDs while keeping t
 
 These are product constraints and should not be reopened casually:
 
-- **No caste field.** Do not add caste, gotra, sub-community, or a proxy field intended to reproduce caste matching.
+- **Caste is collected during the pilot.** Keep it as a dedicated free-entry field so applicants can state a preference or requirement in their own words. Store it separately from general faith, community, or cultural-background data. It is matchmaker-only and must not be automatically shown to a prospective match. Do not convert it into predefined caste options.
 - **No employer or institution fields.** Work and education may be understood without collecting the names of an employer or school.
 - **No verification claims.** Do not claim that donna verifies identity, employment, intentions, or that a member is “real.” Manual review and consistency checks must not be described as guarantees or verification.
 - **No praise or reassurance copy.** Do not congratulate, encourage, soothe, or reward applicants for answering. donna asks the next question.

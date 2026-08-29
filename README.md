@@ -124,7 +124,7 @@ export const siteConfig = Object.freeze({
 })
 ```
 
-`privacyNoticeUrl`, `pilotTermsUrl`, and `pilotCity` are currently empty. The legal-document references live in the older application schema; the active journey does not currently render a legal consent step.
+`privacyNoticeUrl`, `pilotTermsUrl`, and `pilotCity` are currently empty. The active journey renders a required legal consent step, but the Privacy Notice and Pilot Terms links are not configured. The empty legal URLs are production blockers: real application data must not be collected until both documents exist and the URLs are populated.
 
 ## Known incomplete areas
 

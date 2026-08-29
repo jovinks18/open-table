@@ -14,22 +14,25 @@ test('journey state is versioned, isolated per store, and serializable', () => {
   const second = createJourneyStore()
 
   first.setField('applicant.fullName', 'Aanya Rao')
-  first.setScreen('ch1-2')
+  first.setScreen('ch1-decision')
 
-  assert.equal(JOURNEY_STATE_VERSION, 1)
+  assert.equal(JOURNEY_STATE_VERSION, 2)
   assert.equal(first.getState().applicant.fullName, 'Aanya Rao')
-  assert.equal(first.getState().currentScreen, 'ch1-2')
+  assert.equal(first.getState().currentScreen, 'ch1-decision')
   assert.equal(second.getState().applicant.fullName, '')
   assert.deepEqual(JSON.parse(first.serialize()), first.getState())
   assert.equal(initialJourneyState.mode, 'preview')
 })
 
 test('every DOM binding has a unique stable state path', () => {
-  assert.equal(fieldBindings.length, 32)
+  assert.equal(fieldBindings.length, 54)
   assert.equal(new Set(applicationFieldPaths).size, applicationFieldPaths.length)
   assert.ok(applicationFieldPaths.every((path) => /^applicant\./.test(path)))
   assert.ok(!('referrer' in initialJourneyState))
   assert.ok(!('friendPerspectiveChoice' in initialJourneyState.applicant))
+  assert.ok(!('chapterOne' in initialJourneyState.applicant))
+  assert.ok(!('employer' in initialJourneyState.applicant))
+  assert.ok(!('institution' in initialJourneyState.applicant))
 })
 
 test('the backend adapter is explicit and safely inactive', async () => {
