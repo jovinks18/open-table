@@ -19,6 +19,29 @@ test('the journey uses six chapters in the requested card order', () => {
   ])
   for (let chapter = 1; chapter <= 6; chapter += 1) assert.match(template, new RegExp(`data-chapter="${chapter}"`))
   assert.match(controller, /`Chapter \$\{chapter\} of 6 · Step \$\{step\} of \$\{steps\}`/)
+  assert.match(controller, /`Chapter \$\{chapter\} of 6`/)
+  assert.doesNotMatch(main, /chapter-progress|data-chapter-track|data-chapter-steps/)
+})
+
+test('every card uses one donna prompt headline without duplicated card headers', () => {
+  for (const heading of [
+    'What brings you here?', 'You and the people involved', 'How I can reach you',
+    'Where life could happen', 'The life someone would be joining', 'What fills your week',
+    'The practical picture', 'What follows you into a marriage',
+    'Ordinary life, not special occasions', 'Your non-negotiables',
+    'Three photographs that look like you now', 'Review your profile',
+  ]) assert.match(template, new RegExp(`<h1>${heading.replace(/[?]/g, '\\?')}</h1>`))
+  assert.equal((template.match(/class="journey-prompt-row"/g) || []).length, 15)
+  assert.equal((template.match(/class="answer-card journey-answer-panel/g) || []).length, 15)
+  assert.doesNotMatch(template, /card-header|card-eyebrow|card-subline|donna-message/)
+  for (const message of [
+    'Let’s begin with whether you’re ready—and who else is part of the decision.',
+    'Now the practical part: whether two lives could actually fit.',
+    'A few facts I only want to ask once.',
+    'Background matters differently in different homes. I need to understand yours.',
+    'The practical picture is done. This is the part I actually match on.',
+    'Last thing: what would make an introduction impossible?',
+  ]) assert.ok(!template.includes(message))
 })
 
 test('entry and confirmation use the supplied copy', () => {
@@ -36,7 +59,7 @@ test('Chapters I through IV use grouped cards and Chapter V has only three refle
   for (const id of ['ch1-intent', 'ch1-decision', 'ch1-contact', 'ch2-place', 'ch2-marriage', 'ch3-facts-1', 'ch3-facts-2', 'ch4-background', 'ch4-habits']) {
     const start = template.indexOf(`id="${id}"`)
     const section = template.slice(start, template.indexOf('</section>', start))
-    assert.match(section, /class="answer-card"/)
+    assert.match(section, /class="answer-card journey-answer-panel"/)
     assert.equal((section.match(/type="submit"/g) || []).length, 1)
   }
   assert.deepEqual(screens.filter((id) => id.startsWith('ch5-')), ['ch5-ease', 'ch5-week', 'ch5-conflict'])
@@ -90,9 +113,11 @@ test('the mascot and chrome are persistent while only the active screen is mount
 })
 
 test('responsive and reduced-motion safeguards remain in place', () => {
-  assert.match(styles, /@media\(max-width:899px\)/)
+  assert.match(styles, /@media\(max-width:760px\)/)
   assert.match(styles, /\.photo-grid\{grid-template-columns:1fr;/)
-  assert.match(styles, /overflow-x:hidden/)
+  assert.match(styles, /min-width:320px/)
+  assert.match(styles, /\.journey-stage\{width:calc\(100% - 32px\);/)
+  assert.match(styles, /grid-template-columns:48px minmax\(0,1fr\)/)
   assert.match(styles, /@media\(prefers-reduced-motion:reduce\)/)
 })
 
