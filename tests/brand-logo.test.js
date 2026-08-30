@@ -6,11 +6,12 @@ const logoPath = new URL('../public/images/donna-logo-transparent.png', import.m
 const homeBackgroundPath = new URL('../public/images/donna-home-background.png', import.meta.url)
 const journeyBackgroundPath = new URL('../public/images/application/landing-background.png', import.meta.url)
 const journeyTemplate = readFileSync(new URL('../src/application/journey/template.html', import.meta.url), 'utf8')
+const journeyMain = readFileSync(new URL('../src/application/journey/main.js', import.meta.url), 'utf8')
 const navigation = readFileSync(new URL('../src/scripts/modules/site-navigation.js', import.meta.url), 'utf8')
 test('the legacy image mark remains available to the application prototype', () => {
   assert.equal(existsSync(logoPath), true)
-  assert.match(journeyTemplate, /src="\/images\/donna-logo-transparent\.png"/)
-  assert.doesNotMatch(journeyTemplate, /src="\/images\/donna-logo\.png"/)
+  assert.match(journeyMain, /src="\/images\/donna-logo-transparent\.png"/)
+  assert.doesNotMatch(journeyMain, /src="\/images\/donna-logo\.png"/)
 })
 
 test('marketing-page header and footer wordmarks use the transition text treatment', () => {
@@ -43,10 +44,10 @@ test('the homepage retains its content and intro while using the onboarding back
 })
 
 test('apply links enter the onboarding brief instead of its marketing landing screen', () => {
-  assert.match(journeyTemplate, /<section class="screen" id="landing">/)
-  assert.match(journeyTemplate, /<section class="screen active" id="welcome">/)
-  assert.match(journeyTemplate, /<h1 class="headline">Before you start\.<\/h1>/)
-  assert.match(journeyTemplate, /<button class="next-btn" onclick="goTo\('ch1-1'\)">Start<\/button>/)
-  assert.match(journeyTemplate, />What are you looking for\?<\/h1>/)
+  assert.doesNotMatch(journeyTemplate, /<section class="screen" id="landing">/)
+  assert.match(journeyTemplate, /<section class="screen entry-screen" id="welcome">/)
+  assert.match(journeyTemplate, /<h1>Before you start\.<\/h1>/)
+  assert.match(journeyTemplate, /<button class="next-btn" type="button" data-next="ch1-intent">Start<\/button>/)
+  assert.match(journeyTemplate, /<legend>What are you looking for\?<\/legend>/)
   assert.doesNotMatch(journeyTemplate, /Let's start with the obvious one/)
 })

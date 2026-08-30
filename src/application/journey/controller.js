@@ -1,557 +1,555 @@
-import { journeyStore } from './store.js';
-import { calculateAgeFromDateOfBirth, dateValueFromParts, initChapterOne } from './chapter-one.js';
+import { journeyStore, valueAtPath } from './store.js'
+import {
+  dateOfBirthBounds,
+  datePartsFromValue,
+  dateValueFromParts,
+  isValidEmail,
+  validateApplicantDateOfBirth,
+} from './chapter-one.js'
+import { isValidPhone } from '../validation.js'
 
-let firstName = '';
+const ROUTES = Object.freeze([
+  'welcome',
+  'ch1-intent', 'ch1-decision', 'ch1-contact',
+  'ch2-place', 'ch2-marriage',
+  'ch3-facts-1', 'ch3-facts-2',
+  'ch4-background', 'ch4-habits',
+  'ch5-ease', 'ch5-week', 'ch5-conflict',
+  'ch6-boundaries', 'ch6-photos', 'ch6-review',
+  'submitted',
+])
 
-const CHAPTERS = Object.freeze(['I', 'II', 'III', 'IV', 'V', 'VI']);
+const CITY_OPTIONS = Object.freeze([
+  'Bengaluru', 'Mumbai', 'Delhi', 'Chennai', 'Hyderabad', 'Pune', 'Kolkata', 'Ahmedabad',
+  'Kochi', 'Coimbatore', 'Jaipur', 'Chandigarh', 'Gurugram', 'Noida', 'Dubai', 'Singapore',
+  'London', 'New York', 'San Francisco', 'Toronto', 'Sydney', 'Melbourne', 'Berlin', 'Amsterdam',
+])
 
-function chapterForScreen(screen){
-  const chapterMatch = screen.id.match(/^ch([1-7])(?:-|$)/);
-  if (chapterMatch) return Math.min(Number(chapterMatch[1]), CHAPTERS.length);
-  return null;
+const LANGUAGE_OPTIONS = Object.freeze([
+  'English', 'Hindi', 'Kannada', 'Tamil', 'Telugu', 'Malayalam', 'Marathi', 'Bengali',
+  'Gujarati', 'Punjabi', 'Urdu', 'Konkani', 'Tulu', 'Odia', 'Assamese', 'Other',
+])
+
+const PHOTO_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
+const MAX_PHOTO_BYTES = 10 * 1024 * 1024
+const photoFiles = new Map()
+let journeyRoot
+let screenHost
+let screenMarkup
+
+const REVIEW_SECTIONS = Object.freeze([
+  { chapter: 'Chapter I — What brings you here?', screen: 'ch1-intent', fields: ['intent', 'marriageTimeline', 'meetingReadiness', 'preferredAge'] },
+  { chapter: 'Chapter I — You and the decision', screen: 'ch1-decision', fields: ['gender', 'genderDescription', 'seeking', 'familySearchInvolvement', 'familyDecisionInfluence'] },
+  { chapter: 'Chapter I — Contact', screen: 'ch1-contact', fields: ['fullName', 'dateOfBirth', 'phone', 'email'] },
+  { chapter: 'Chapter II — Place and home', screen: 'ch2-place', fields: ['currentCity', 'livingSituation', 'livingSituationOther', 'willingToRelocate', 'relocationCities', 'postMarriageLiving', 'postMarriageLivingOther'] },
+  { chapter: 'Chapter II — Marriage and children', screen: 'ch2-marriage', fields: ['maritalStatus', 'priorRelationshipEnd', 'hasChildren', 'childrenCount', 'wantsChildren', 'openToPartnerWithChildren'] },
+  { chapter: 'Chapter III — The facts', screen: 'ch3-facts-1', fields: ['occupation', 'industry', 'highestDegree', 'annualIncome'] },
+  { chapter: 'Chapter III — More facts', screen: 'ch3-facts-2', fields: ['languages', 'height', 'linkedinUrl'] },
+  { chapter: 'Chapter IV — Background', screen: 'ch4-background', fields: ['faithBackground', 'faithBackgroundOther', 'faithPresence', 'interfaithOpenness', 'interfaithConditions', 'familyInterfaithView', 'castePreference'] },
+  { chapter: 'Chapter IV — Everyday habits', screen: 'ch4-habits', fields: ['diet', 'dietOther', 'drinking', 'smoking'] },
+  { chapter: 'Chapter V — What it’s like to be with you', screen: 'ch5-ease', fields: ['reflectiveEase', 'reflectiveOrdinaryWeek', 'reflectiveConflict'] },
+  { chapter: 'Chapter VI — What cannot work', screen: 'ch6-boundaries', fields: ['nonNegotiables', 'familyRequirement', 'familyRequirementDetail', 'boundariesConfirmed'] },
+  { chapter: 'Chapter VI — Photographs', screen: 'ch6-photos', fields: ['photographs'] },
+])
+
+const FIELD_LABELS = Object.freeze({
+  intent: 'What are you looking for?', marriageTimeline: 'Marriage timeline', meetingReadiness: 'Available in the next four weeks', preferredAge: 'Age range',
+  gender: 'You are', genderDescription: 'Gender description', seeking: 'Looking to meet', familySearchInvolvement: 'Who else is involved', familyDecisionInfluence: 'Family’s say in the final decision',
+  fullName: 'Full name', dateOfBirth: 'Date of birth', phone: 'Phone number', email: 'Email address',
+  currentCity: 'Current city', livingSituation: 'Current living situation', livingSituationOther: 'Living situation detail', willingToRelocate: 'Could relocate', relocationCities: 'Cities considered', postMarriageLiving: 'Expected living arrangement', postMarriageLivingOther: 'Living arrangement detail',
+  maritalStatus: 'Previous marriage or engagement', priorRelationshipEnd: 'Relationship ended', hasChildren: 'Has children', childrenCount: 'Number of children', wantsChildren: 'Wants children', openToPartnerWithChildren: 'Open to someone with children',
+  occupation: 'Work', industry: 'Field', highestDegree: 'Education', annualIncome: 'Annual income', languages: 'Languages', height: 'Height', linkedinUrl: 'LinkedIn profile',
+  faithBackground: 'Faith, community or cultural background', faithBackgroundOther: 'Background detail', faithPresence: 'Presence in everyday life', interfaithOpenness: 'Different faith or community', interfaithConditions: 'What would need to be true', familyInterfaithView: 'Family’s answer', castePreference: 'Caste preference or requirement',
+  diet: 'Diet', dietOther: 'Diet detail', drinking: 'Alcohol', smoking: 'Smoking or nicotine',
+  reflectiveEase: 'Easy and difficult parts of being close', reflectiveOrdinaryWeek: 'An ordinary week together', reflectiveConflict: 'What happens when something is bothering you',
+  nonNegotiables: 'Non-negotiables', familyRequirement: 'Another person’s requirement', familyRequirementDetail: 'Requirement detail', boundariesConfirmed: 'Everything listed', photographs: 'Photographs',
+})
+
+function createScreen(id) {
+  const markup = screenMarkup.get(id)
+  if (!markup) throw new Error(`Unknown journey screen: ${id}`)
+  const template = document.createElement('template')
+  template.innerHTML = markup
+  return template.content.firstElementChild
 }
 
-function renderChapterProgress(wrap, currentChapter){
-  if (!currentChapter) {
-    wrap.replaceChildren();
-    return;
+function setError(container, message) {
+  const error = container.querySelector(':scope > .field-error') || container.querySelector('.field-error')
+  if (!error) return
+  error.textContent = message
+  error.hidden = !message
+  container.classList.toggle('has-error', Boolean(message))
+}
+
+function clearErrorFor(control) {
+  const field = control.closest('.field, .photo-slot, .consents')
+  if (field) setError(field, '')
+}
+
+function fieldValue(path) {
+  return valueAtPath(journeyStore.getState(), path)
+}
+
+function setField(path, value) {
+  journeyStore.setField(path, value)
+}
+
+function conditionMatches(element) {
+  if (!element.dataset.conditionField) return true
+  const values = element.dataset.conditionValues.split(',')
+  return values.includes(String(fieldValue(element.dataset.conditionField)))
+}
+
+function clearConditionalFields(element) {
+  element.querySelectorAll('[data-field]').forEach((control) => {
+    const path = control.dataset.field
+    const current = fieldValue(path)
+    if (current && typeof current === 'object') return
+    if (current !== '') setField(path, '')
+    if ('value' in control) control.value = ''
+  })
+  const tags = element.querySelector('[data-tags-field]')
+  if (tags && fieldValue(tags.dataset.tagsField).length) setField(tags.dataset.tagsField, [])
+}
+
+function syncConditions(screen) {
+  screen.querySelectorAll('[data-condition-field]').forEach((element) => {
+    const visible = conditionMatches(element)
+    if (!visible && !element.hidden) clearConditionalFields(element)
+    element.hidden = !visible
+  })
+}
+
+function hydrateControls(screen) {
+  screen.querySelectorAll('.pill[data-field]').forEach((button) => {
+    const selected = fieldValue(button.dataset.field) === button.dataset.value
+    button.classList.toggle('selected', selected)
+    button.setAttribute('aria-pressed', String(selected))
+  })
+
+  screen.querySelectorAll('input[data-field], textarea[data-field], select[data-field]').forEach((control) => {
+    const value = fieldValue(control.dataset.field)
+    if (control.type === 'date') control.value = dateValueFromParts(value)
+    else if (control.type !== 'file') control.value = value ?? ''
+  })
+
+  screen.querySelectorAll('[data-output]').forEach((output) => { output.value = String(fieldValue(output.dataset.output)) })
+  const unit = fieldValue('applicant.height.unit') || 'ft'
+  screen.querySelectorAll('[data-height-unit]').forEach((button) => {
+    const selected = button.dataset.heightUnit === unit
+    button.classList.toggle('selected', selected)
+    button.setAttribute('aria-pressed', String(selected))
+  })
+  screen.querySelectorAll('[data-height-fields]').forEach((fields) => { fields.hidden = fields.dataset.heightFields !== unit })
+
+  screen.querySelectorAll('[data-counter-for]').forEach((counter) => {
+    const textarea = screen.querySelector(`#${counter.dataset.counterFor}`)
+    counter.textContent = `${textarea?.value.length || 0} / 400`
+  })
+
+  const dateInput = screen.querySelector('#dateOfBirth')
+  if (dateInput) {
+    const bounds = dateOfBirthBounds()
+    dateInput.min = bounds.min
+    dateInput.max = bounds.max
   }
 
-  const numeral = document.createElement('span');
-  numeral.className = 'chapter-numeral';
-  numeral.textContent = CHAPTERS[currentChapter - 1];
-  numeral.setAttribute('aria-label', `Chapter ${currentChapter} of ${CHAPTERS.length}`);
-  numeral.setAttribute('aria-current', 'step');
-  wrap.replaceChildren(numeral);
+  syncConditions(screen)
 }
 
-function upgradeClickableControls(screen){
-  const selector = '.pill, .unit-pill, .chip, .choice-card';
-  screen.querySelectorAll(selector).forEach((control) => {
-    if (control.tagName === 'BUTTON') return;
-    const button = document.createElement('button');
-    [...control.attributes].forEach(({ name, value }) => button.setAttribute(name, value));
-    button.type = 'button';
-    button.setAttribute('aria-pressed', String(control.classList.contains('selected')));
-    button.innerHTML = control.innerHTML;
-    control.replaceWith(button);
-  });
+function renderProgress(screen) {
+  const header = journeyRoot.querySelector('[data-journey-header]')
+  const mascot = journeyRoot.querySelector('[data-persistent-mascot]')
+  const chapter = Number(screen.dataset.chapter)
+  const applicationScreen = Number.isInteger(chapter) && chapter > 0
+  header.hidden = !applicationScreen
+  mascot.hidden = !applicationScreen
+  if (!applicationScreen) return
+  const step = Number(screen.dataset.step)
+  const steps = Number(screen.dataset.steps)
+  journeyRoot.querySelector('.progress-wrap').textContent = steps > 1
+    ? `Chapter ${chapter} of 6 · Step ${step} of ${steps}`
+    : `Chapter ${chapter} of 6`
 }
 
-function associateFieldLabels(screen){
-  screen.querySelectorAll('.field').forEach((field, index) => {
-    const label = field.querySelector(':scope > label');
-    if (!label) return;
-    if (!label.id) label.id = `${screen.id}-field-label-${index + 1}`;
-
-    const control = field.querySelector(':scope > input, :scope > select, :scope > textarea');
-    if (control) {
-      if (!control.id) control.id = `${screen.id}-field-${index + 1}`;
-      label.htmlFor = control.id;
-      return;
-    }
-
-    const group = field.querySelector('.pill-group, .unit-toggle, .tag-input-wrap, .age-preference, .slider-track');
-    if (group) {
-      if (!group.hasAttribute('role')) group.setAttribute('role', 'group');
-      group.setAttribute('aria-labelledby', label.id);
-    }
-  });
+function renderTags(control) {
+  const path = control.dataset.tagsField
+  const values = fieldValue(path) || []
+  const list = control.querySelector('[data-tag-list]')
+  list.replaceChildren(...values.map((value) => {
+    const chip = document.createElement('span')
+    chip.className = 'tag-bubble'
+    chip.append(value)
+    const remove = document.createElement('button')
+    remove.type = 'button'
+    remove.setAttribute('aria-label', `Remove ${value}`)
+    remove.textContent = '×'
+    remove.addEventListener('click', () => {
+      setField(path, values.filter((item) => item !== value))
+      renderTags(control)
+    })
+    chip.append(remove)
+    return chip
+  }))
 }
 
-function prepareJourneyLayout(screen){
-  const stage = screen.querySelector('.donna-stage');
-  const question = stage?.querySelector(':scope > .donna-row');
-  const answer = stage?.querySelector(':scope > .answer-zone, :scope > .answer-card');
-  const actions = stage?.querySelector(':scope > .actions') || answer?.querySelector(':scope > .actions');
+function initTagControl(control) {
+  const path = control.dataset.tagsField
+  const input = control.querySelector('[data-tag-input]')
+  const dropdown = control.querySelector('[data-tag-dropdown]')
+  const options = path === 'applicant.languages' ? LANGUAGE_OPTIONS : CITY_OPTIONS
 
-  if (!stage || !question || !answer || !actions) return;
-
-  question.classList.add('question-block');
-  answer.classList.add('answer-region');
-  answer.tabIndex = 0;
-  answer.setAttribute('aria-label', 'Answer area');
-  answer.addEventListener('focusin', ({ target }) => {
-    target.scrollIntoView({ block: 'nearest' });
-  });
-  actions.classList.add('journey-actions');
-  stage.append(actions);
-  upgradeClickableControls(screen);
-  associateFieldLabels(screen);
-}
-
-function initJourneyHeaders(){
-  document.querySelectorAll('.progress-wrap').forEach((wrap) => {
-    const screen = wrap.closest('.screen');
-    if (!screen) return;
-    screen.classList.add('journey-screen');
-    screen.querySelectorAll('.exit').forEach((exit) => exit.remove());
-    prepareJourneyLayout(screen);
-    renderChapterProgress(wrap, chapterForScreen(screen));
-  });
-}
-
-function initAgePreference(){
-  const root = document.querySelector('[data-age-preference]');
-  const dateInput = document.getElementById('chapterOneDateOfBirth');
-  const anchor = document.getElementById('agePreferenceAnchor');
-  const applicantAge = document.getElementById('applicantAge');
-  const youngerLabel = document.getElementById('youngerLabel');
-  const olderLabel = document.getElementById('olderLabel');
-  const youngerOutput = document.getElementById('youngerOffset');
-  const olderOutput = document.getElementById('olderOffset');
-  const minimumOutput = document.getElementById('ageRangeMinimum');
-  const maximumOutput = document.getElementById('ageRangeMaximum');
-  if (!root || !dateInput || !anchor || !applicantAge || !youngerLabel || !olderLabel || !youngerOutput || !olderOutput || !minimumOutput || !maximumOutput) return;
-
-  const buttons = [...root.querySelectorAll('[data-age-step]')];
-  let younger = 3;
-  let older = 7;
-  let fallbackMinimum = Math.max(22,Math.min(55,journeyStore.getState().applicant.preferredAge.minimum));
-  let fallbackMaximum = Math.max(fallbackMinimum,Math.min(55,journeyStore.getState().applicant.preferredAge.maximum));
-
-  function setButton(button, label, disabled){
-    button.setAttribute('aria-label', label);
-    button.disabled = disabled;
+  const add = (value) => {
+    const clean = value.trim()
+    if (!clean) return
+    const current = fieldValue(path) || []
+    if (!current.some((item) => item.toLowerCase() === clean.toLowerCase())) setField(path, [...current, clean])
+    input.value = ''
+    dropdown.classList.remove('show')
+    renderTags(control)
+    clearErrorFor(control)
   }
 
-  function sync(){
-    const age = calculateAgeFromDateOfBirth(dateInput.value || dateValueFromParts(journeyStore.getState().applicant.dateOfBirth));
-    const anchored = age !== null;
-    anchor.hidden = !anchored;
-    if (anchored) {
-      root.setAttribute('aria-labelledby','agePreferenceAnchor');
-      root.removeAttribute('aria-label');
-    } else {
-      root.removeAttribute('aria-labelledby');
-      root.setAttribute('aria-label','Age range');
-    }
-    youngerLabel.textContent = anchored ? 'Younger by' : 'Minimum age';
-    olderLabel.textContent = anchored ? 'Older by' : 'Maximum age';
-
-    let minimum;
-    let maximum;
-    if (anchored) {
-      const maximumYounger = Math.max(0,Math.min(20,age - 22));
-      younger = Math.min(younger,maximumYounger);
-      older = Math.max(0,Math.min(20,older));
-      minimum = Math.max(22,age - younger);
-      maximum = age + older;
-      applicantAge.textContent = String(age);
-      youngerOutput.value = String(younger);
-      olderOutput.value = String(older);
-      setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'decrement'),'Fewer years younger',younger === 0);
-      setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'increment'),'More years younger',younger === maximumYounger);
-      setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'decrement'),'Fewer years older',older === 0);
-      setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'increment'),'More years older',older === 20);
-    } else {
-      minimum = fallbackMinimum;
-      maximum = fallbackMaximum;
-      youngerOutput.value = String(minimum);
-      olderOutput.value = String(maximum);
-      setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'decrement'),'Lower minimum age',minimum === 22);
-      setButton(buttons.find((button) => button.dataset.ageStep === 'younger' && button.dataset.direction === 'increment'),'Raise minimum age',minimum === maximum);
-      setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'decrement'),'Lower maximum age',maximum === minimum);
-      setButton(buttons.find((button) => button.dataset.ageStep === 'older' && button.dataset.direction === 'increment'),'Raise maximum age',maximum === 55);
-    }
-
-    minimumOutput.value = String(minimum);
-    maximumOutput.value = String(maximum);
-    journeyStore.setField('applicant.preferredAge.minimum',minimum);
-    journeyStore.setField('applicant.preferredAge.maximum',maximum);
+  const showOptions = () => {
+    const query = input.value.trim().toLowerCase()
+    const selected = fieldValue(path) || []
+    const matches = options.filter((option) => !selected.includes(option) && (!query || option.toLowerCase().includes(query))).slice(0, 8)
+    dropdown.replaceChildren(...matches.map((option) => {
+      const button = document.createElement('button')
+      button.type = 'button'
+      button.className = 'tag-option'
+      button.textContent = option
+      button.addEventListener('click', () => add(option))
+      return button
+    }))
+    dropdown.classList.toggle('show', matches.length > 0)
   }
-
-  buttons.forEach((button) => button.addEventListener('click', () => {
-    const direction = button.dataset.direction === 'increment' ? 1 : -1;
-    const age = calculateAgeFromDateOfBirth(dateInput.value || dateValueFromParts(journeyStore.getState().applicant.dateOfBirth));
-    if (age !== null) {
-      if (button.dataset.ageStep === 'younger') younger += direction;
-      else older += direction;
-    } else if (button.dataset.ageStep === 'younger') {
-      fallbackMinimum += direction;
-    } else {
-      fallbackMaximum += direction;
+  input.addEventListener('input', showOptions)
+  input.addEventListener('focus', showOptions)
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      add(input.value)
     }
-    sync();
-  }));
-
-  dateInput.addEventListener('input', sync);
-  sync();
+    if (event.key === 'Escape') dropdown.classList.remove('show')
+  })
+  renderTags(control)
 }
 
-initJourneyHeaders();
-initAgePreference();
-
-function showScreen(id){
-  if (id === 'signup-choice') id = 'landing';
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const target = document.getElementById(id);
-  target.classList.add('active');
-  document.getElementById('journey-root').dispatchEvent(new CustomEvent('journey:navigate', {
-    bubbles: true,
-    detail: { screenId: id },
-  }));
-  window.scrollTo(0,0);
-  return target;
+function renderBoundaries(screen) {
+  const host = screen.querySelector('[data-boundary-list]')
+  if (!host) return
+  const entries = fieldValue('applicant.nonNegotiables') || []
+  host.replaceChildren(...entries.map((entry, index) => {
+    const row = document.createElement('div')
+    row.className = 'boundary-entry'
+    const label = document.createElement('label')
+    label.htmlFor = `boundary-${index}`
+    label.textContent = entry.topic || `Custom non-negotiable ${index + 1}`
+    const input = document.createElement('input')
+    input.id = `boundary-${index}`
+    input.type = 'text'
+    input.value = entry.detail
+    input.placeholder = 'Explain exactly where your boundary is'
+    input.addEventListener('input', () => {
+      const next = structuredClone(fieldValue('applicant.nonNegotiables'))
+      next[index].detail = input.value
+      setField('applicant.nonNegotiables', next)
+      clearErrorFor(host)
+    })
+    const remove = document.createElement('button')
+    remove.type = 'button'
+    remove.className = 'remove-boundary'
+    remove.textContent = 'Remove'
+    remove.addEventListener('click', () => {
+      setField('applicant.nonNegotiables', entries.filter((_, itemIndex) => itemIndex !== index))
+      renderBoundaries(screen)
+    })
+    row.append(label, input, remove)
+    return row
+  }))
+  screen.querySelectorAll('[data-topic]').forEach((button) => {
+    const selected = entries.some((entry) => entry.topic === button.dataset.topic)
+    button.classList.toggle('selected', selected)
+    button.setAttribute('aria-pressed', String(selected))
+  })
 }
 
-let chapterTransitionTimer = null;
+function addBoundary(screen, topic = '') {
+  const entries = fieldValue('applicant.nonNegotiables') || []
+  if (entries.length >= 3 || (topic && entries.some((entry) => entry.topic === topic))) return
+  setField('applicant.nonNegotiables', [...entries, { topic, detail: '' }])
+  renderBoundaries(screen)
+  screen.querySelector('[data-boundary-list] input:last-of-type')?.focus()
+}
 
-function goTo(id){
-  if (id === 'signup-choice') id = 'landing';
-  const current = document.querySelector('.screen.active');
-  const target = document.getElementById(id);
-  const currentChapter = current ? chapterForScreen(current) : null;
-  const targetChapter = target ? chapterForScreen(target) : null;
-  const chapterChanged = currentChapter !== null && targetChapter !== null && currentChapter !== targetChapter;
+function renderPhotoSlot(slot) {
+  const id = slot.dataset.photoSlot
+  const preview = slot.querySelector('[data-photo-preview]')
+  const stored = photoFiles.get(id)
+  preview.replaceChildren()
+  if (!stored) return
+  const image = document.createElement('img')
+  image.src = stored.url
+  image.alt = `Local preview of ${stored.file.name}`
+  const name = document.createElement('span')
+  name.textContent = stored.file.name
+  const remove = document.createElement('button')
+  remove.type = 'button'
+  remove.textContent = 'Remove'
+  remove.addEventListener('click', () => {
+    URL.revokeObjectURL(stored.url)
+    photoFiles.delete(id)
+    setField(`applicant.photographs.${id}`, null)
+    renderPhotoSlot(slot)
+  })
+  preview.append(image, name, remove)
+}
 
-  window.clearTimeout(chapterTransitionTimer);
-
-  if (!chapterChanged) {
-    const shown = showScreen(id);
-    if (currentChapter === null && targetChapter !== null) {
-      const incoming = shown.querySelector('.chapter-numeral');
-      if (incoming) {
-        incoming.classList.add('is-entering');
-        requestAnimationFrame(() => incoming.classList.remove('is-entering'));
+function initPhotos(screen) {
+  screen.querySelectorAll('[data-photo-slot]').forEach((slot) => {
+    const id = slot.dataset.photoSlot
+    renderPhotoSlot(slot)
+    slot.querySelector('input[type="file"]').addEventListener('change', (event) => {
+      const [file] = event.target.files
+      if (!file) return
+      if (!PHOTO_TYPES.has(file.type) || file.size > MAX_PHOTO_BYTES) {
+        setError(slot, 'Choose a JPEG, PNG or WebP image up to 10 MB.')
+        return
       }
+      const previous = photoFiles.get(id)
+      if (previous) URL.revokeObjectURL(previous.url)
+      photoFiles.set(id, { file, url: URL.createObjectURL(file) })
+      setField(`applicant.photographs.${id}`, { name: file.name, type: file.type, size: file.size })
+      setError(slot, '')
+      renderPhotoSlot(slot)
+    })
+  })
+}
+
+function displayValue(key, value) {
+  if (key === 'dateOfBirth') return dateValueFromParts(value)
+  if (key === 'preferredAge') return `${value.minimum} to ${value.maximum}`
+  if (key === 'height') return value.unit === 'cm' ? `${value.centimeters} cm` : `${value.feet} ft ${value.inches} in`
+  if (key === 'priorRelationshipEnd') return value.month && value.year ? `${value.month}/${value.year}` : ''
+  if (key === 'nonNegotiables') return value.map((entry) => `${entry.topic ? `${entry.topic}: ` : ''}${entry.detail}`).join('; ')
+  if (key === 'photographs') return Object.values(value).filter(Boolean).map((photo) => photo.name).join(', ')
+  if (Array.isArray(value)) return value.join(', ')
+  return String(value ?? '').replaceAll('_', ' ')
+}
+
+function renderReview(screen) {
+  const host = screen.querySelector('[data-review]')
+  if (!host) return
+  const applicant = journeyStore.getState().applicant
+  host.replaceChildren(...REVIEW_SECTIONS.map((section) => {
+    const wrapper = document.createElement('section')
+    wrapper.className = 'review-section'
+    const header = document.createElement('div')
+    const heading = document.createElement('h2')
+    heading.textContent = section.chapter
+    const edit = document.createElement('button')
+    edit.type = 'button'
+    edit.textContent = 'Edit'
+    edit.addEventListener('click', () => goTo(section.screen))
+    header.append(heading, edit)
+    const list = document.createElement('dl')
+    section.fields.forEach((key) => {
+      const value = applicant[key]
+      if (value === '' || value === null || (Array.isArray(value) && !value.length)) return
+      const term = document.createElement('dt')
+      term.textContent = FIELD_LABELS[key]
+      const description = document.createElement('dd')
+      description.textContent = displayValue(key, value) || 'Not provided'
+      list.append(term, description)
+    })
+    wrapper.append(header, list)
+    return wrapper
+  }))
+
+  screen.querySelectorAll('[data-consent]').forEach((checkbox) => {
+    checkbox.checked = Boolean(fieldValue(`applicant.consents.${checkbox.dataset.consent}`))
+  })
+}
+
+function validateField(container) {
+  if (container.hidden) return true
+  const path = container.dataset.requiredField
+  const value = fieldValue(path)
+  let message = ''
+  if (path === 'applicant.fullName' && String(value).trim().length < 2) message = 'Enter your full name.'
+  else if (path === 'applicant.dateOfBirth') message = validateApplicantDateOfBirth(dateValueFromParts(value)).message
+  else if (path === 'applicant.phone' && !isValidPhone(value)) message = 'Enter a valid phone number including country code.'
+  else if (path === 'applicant.email' && !isValidEmail(value)) message = 'Enter a valid email address.'
+  else if (path === 'applicant.linkedinUrl' && !/^https?:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/in\/[\w%+-]+\/?(?:[?#].*)?$/i.test(String(value).trim())) message = 'Enter a LinkedIn profile URL.'
+  else if (path === 'applicant.preferredAge' && (!value.minimum || !value.maximum || value.minimum < 22 || value.maximum <= value.minimum)) message = 'Choose a valid minimum and maximum age.'
+  else if (path === 'applicant.height' && (value.unit === 'cm' ? !value.centimeters : !value.feet || value.inches === '')) message = 'Enter your height.'
+  else if (path === 'applicant.priorRelationshipEnd' && (!value.month || !value.year)) message = 'Enter the month and year.'
+  else if (path === 'applicant.nonNegotiables' && (!value.length || value.length > 3 || value.some((entry) => !entry.detail.trim()))) message = 'Add one to three boundaries and explain each one.'
+  else if (Array.isArray(value) && value.length === 0) message = 'Answer this question.'
+  else if (typeof value === 'string' && !value.trim()) message = 'Answer this question.'
+  setError(container, message)
+  return !message
+}
+
+function focusInvalid(container) {
+  container.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' })
+  const control = container.querySelector('input:not([type="hidden"]), textarea, select, button')
+  control?.focus({ preventScroll: true })
+}
+
+function validateScreen(screen) {
+  let firstInvalid = null
+  screen.querySelectorAll('[data-required-field]').forEach((container) => {
+    if (!validateField(container) && !firstInvalid) firstInvalid = container
+  })
+
+  if (screen.id === 'ch6-photos') {
+    screen.querySelectorAll('[data-photo-slot]').forEach((slot) => {
+      const valid = photoFiles.has(slot.dataset.photoSlot)
+      setError(slot, valid ? '' : 'This photograph is required.')
+      if (!valid && !firstInvalid) firstInvalid = slot
+    })
+  }
+
+  if (screen.id === 'ch6-review') {
+    const missing = [...screen.querySelectorAll('[data-consent]')].filter((checkbox) => !checkbox.checked)
+    const consentError = screen.querySelector('[data-consent-error]')
+    consentError.textContent = missing.length ? 'Accept each required consent before submitting.' : ''
+    consentError.hidden = missing.length === 0
+    if (missing.length && !firstInvalid) firstInvalid = missing[0].closest('.consents')
+  }
+  if (firstInvalid) focusInvalid(firstInvalid)
+  return !firstInvalid
+}
+
+function nextFor(screen) {
+  const index = ROUTES.indexOf(screen.id)
+  return ROUTES[index + 1]
+}
+
+function mountScreen(id) {
+  const screen = createScreen(id)
+  screenHost.replaceChildren(screen)
+  renderProgress(screen)
+  hydrateControls(screen)
+  screen.querySelectorAll('[data-tags-field]').forEach(initTagControl)
+  renderBoundaries(screen)
+  initPhotos(screen)
+  renderReview(screen)
+  journeyStore.setScreen(id)
+  screen.querySelector('h1')?.focus?.({ preventScroll: true })
+  return screen
+}
+
+function captureMountedFields() {
+  const screen = screenHost.querySelector('.screen')
+  if (!screen) return
+  screen.querySelectorAll('input[data-field], textarea[data-field], select[data-field]').forEach((control) => {
+    if (control.type === 'file') return
+    let value = control.value
+    if (control.type === 'date') value = datePartsFromValue(value) || { day: '', month: '', year: '' }
+    if (control.type === 'number' && value !== '') value = Number(value)
+    setField(control.dataset.field, value)
+  })
+}
+
+function goTo(id) {
+  if (!screenMarkup.has(id)) throw new Error(`Unknown journey screen: ${id}`)
+  captureMountedFields()
+  mountScreen(id)
+}
+
+function handleChoice(button) {
+  const path = button.dataset.field
+  const value = button.dataset.value
+  setField(path, value)
+  button.closest('.pill-group').querySelectorAll('.pill').forEach((option) => {
+    const selected = option === button
+    option.classList.toggle('selected', selected)
+    option.setAttribute('aria-pressed', String(selected))
+  })
+  clearErrorFor(button)
+  syncConditions(button.closest('.screen'))
+  if (path === 'applicant.intent' && value === 'not_sure') goTo('chapter-one-exit')
+}
+
+function handleInput(control) {
+  let value = control.value
+  if (control.type === 'date') value = datePartsFromValue(value) || { day: '', month: '', year: '' }
+  if (control.type === 'number' && value !== '') value = Number(value)
+  setField(control.dataset.field, value)
+  clearErrorFor(control)
+  const counter = control.id && screenHost.querySelector(`[data-counter-for="${control.id}"]`)
+  if (counter) counter.textContent = `${control.value.length} / 400`
+  syncConditions(control.closest('.screen'))
+}
+
+function handleStepper(button) {
+  const path = button.dataset.stepper
+  const direction = Number(button.dataset.direction)
+  const minimum = path.endsWith('minimum') ? 22 : fieldValue('applicant.preferredAge.minimum') + 1
+  const maximum = path.endsWith('minimum') ? fieldValue('applicant.preferredAge.maximum') - 1 : 70
+  const value = Math.max(minimum, Math.min(maximum, Number(fieldValue(path)) + direction))
+  setField(path, value)
+  const output = button.closest('.age-stepper').querySelector('output')
+  output.value = String(value)
+  clearErrorFor(button)
+}
+
+function bindEvents() {
+  journeyRoot.addEventListener('click', (event) => {
+    const choice = event.target.closest('.pill[data-field]')
+    if (choice) return handleChoice(choice)
+    const next = event.target.closest('[data-next]')
+    if (next) return goTo(next.dataset.next)
+    const back = event.target.closest('[data-back]')
+    if (back) return goTo(back.dataset.back)
+    const stepper = event.target.closest('[data-stepper]')
+    if (stepper) return handleStepper(stepper)
+    const heightUnit = event.target.closest('[data-height-unit]')
+    if (heightUnit) {
+      setField('applicant.height.unit', heightUnit.dataset.heightUnit)
+      hydrateControls(heightUnit.closest('.screen'))
+      return
     }
-    return;
-  }
+    const topic = event.target.closest('[data-topic]')
+    if (topic) return addBoundary(topic.closest('.screen'), topic.dataset.topic)
+    const addCustom = event.target.closest('[data-add-boundary]')
+    if (addCustom) return addBoundary(addCustom.closest('.screen'))
+  })
 
-  current.querySelector('.chapter-numeral')?.classList.add('is-leaving');
-  chapterTransitionTimer = window.setTimeout(() => {
-    const shown = showScreen(id);
-    const incoming = shown.querySelector('.chapter-numeral');
-    if (!incoming) return;
-    incoming.classList.add('is-entering');
-    requestAnimationFrame(() => incoming.classList.remove('is-entering'));
-  }, 180);
-}
-
-initChapterOne(goTo);
-
-function updateName(val){
-  firstName = val.trim().split(' ')[0];
-  const h = document.getElementById('ch1Headline');
-  if (h) h.textContent = firstName ? `Nice to meet you, ${firstName}` : "Who are we talking to?";
-  const ch1c = document.getElementById('ch1CompleteHeadline');
-  if (ch1c) ch1c.textContent = firstName ? `Nicely done, ${firstName}.` : "That section is done.";
-  const finalH = document.getElementById('finalHeadline');
-  if (finalH) finalH.textContent = firstName ? `That's everything, ${firstName}.` : "That's everything, for now.";
-}
-
-function selectChoice(el){
-  const parent = el.parentElement;
-  [...parent.children].forEach(c => {
-    c.classList.remove('selected');
-    c.setAttribute('aria-pressed', 'false');
-  });
-  el.classList.add('selected');
-  el.setAttribute('aria-pressed', 'true');
-  if (parent.closest('#signup-choice')) {
-    journeyStore.setField('route', [...parent.children].indexOf(el) === 1 ? 'referrer' : 'applicant');
-  }
-}
-
-function selectPill(el){
-  const parent = el.parentElement;
-  [...parent.children].forEach(c => {
-    c.classList.remove('selected');
-    c.setAttribute('aria-pressed', 'false');
-  });
-  el.classList.add('selected');
-  el.setAttribute('aria-pressed', 'true');}
-
-const selectedChips = new Set();
-function toggleChip(el, label){
-  const textarea = document.getElementById('boundariesText');
-  if (selectedChips.has(label)) {
-    selectedChips.delete(label);
-    el.classList.remove('selected');
-    el.setAttribute('aria-pressed', 'false');
-  } else {
-    selectedChips.add(label);
-    el.classList.add('selected');
-    el.setAttribute('aria-pressed', 'true');
-  }
-  textarea.value = Array.from(selectedChips).join(', ');
-  textarea.dispatchEvent(new Event('input', { bubbles: true }));
-}
-
-function clearLinkedInError(){
-  document.getElementById('linkedinInput').classList.remove('error');
-  document.getElementById('linkedinError').style.display = 'none';
-}
-
-// ---- Generic tag input factory ----
-function makeTagInput({ boxId, inputId, dropdownId, list, statePath }){
-  const selected = [];
-  let highlightIdx = -1;
-
-  function render(){
-    const box = document.getElementById(boxId);
-    const input = document.getElementById(inputId);
-    box.querySelectorAll('.tag-bubble').forEach(b => b.remove());
-    selected.forEach((item, i) => {
-      const bubble = document.createElement('div');
-      bubble.className = 'tag-bubble';
-      bubble.innerHTML = `<span>${item}</span><span class="tag-x">&times;</span>`;
-      bubble.querySelector('.tag-x').onclick = (e) => { e.stopPropagation(); selected.splice(i,1); render(); syncState(); };
-      box.insertBefore(bubble, input);
-    });
-  }
-
-  function syncState(){
-    if (statePath) journeyStore.setField(statePath, [...selected]);
-  }
-
-  function add(item){
-    item = item.trim();
-    if (!item) return;
-    if (!selected.some(s => s.toLowerCase() === item.toLowerCase())) selected.push(item);
-    document.getElementById(inputId).value = '';
-    render();
-    syncState();
-    close();
-  }
-
-  function renderOptions(items){
-    const dropdown = document.getElementById(dropdownId);
-    if (items.length === 0){ close(); return; }
-    dropdown.innerHTML = items.map(i => `<div class="tag-option">${i}</div>`).join('');
-    [...dropdown.children].forEach((el, i) => el.onclick = () => add(items[i]));
-    dropdown.classList.add('show');
-  }
-
-  function filter(val){
-    highlightIdx = -1;
-    const remaining = list.filter(l => !selected.includes(l));
-    if (!val.trim()){ renderOptions(remaining.slice(0, 8)); return; }
-    const matches = remaining.filter(l => l.toLowerCase().includes(val.toLowerCase()));
-    renderOptions(matches.slice(0, 8));
-  }
-
-  function close(){ document.getElementById(dropdownId).classList.remove('show'); }
-
-  function keydown(evt){
-    const dropdown = document.getElementById(dropdownId);
-    const options = dropdown.querySelectorAll('.tag-option');
-    if (evt.key === 'Enter'){
-      evt.preventDefault();
-      if (highlightIdx >= 0 && options[highlightIdx]) add(options[highlightIdx].textContent);
-      else if (evt.target.value.trim()) add(evt.target.value);
-    } else if (evt.key === 'Backspace' && !evt.target.value && selected.length){
-      selected.pop(); render(); syncState();
-    } else if (evt.key === 'ArrowDown'){
-      evt.preventDefault();
-      highlightIdx = Math.min(highlightIdx + 1, options.length - 1);
-      options.forEach((o,i) => o.classList.toggle('highlighted', i === highlightIdx));
-    } else if (evt.key === 'ArrowUp'){
-      evt.preventDefault();
-      highlightIdx = Math.max(highlightIdx - 1, 0);
-      options.forEach((o,i) => o.classList.toggle('highlighted', i === highlightIdx));
-    } else if (evt.key === 'Escape'){ close(); }
-  }
-
-  return { filter, keydown, close };
-}
-
-const CITIES = [
-  "Bengaluru","Mumbai","Delhi","Chennai","Hyderabad","Pune","Kolkata","Ahmedabad",
-  "Kochi","Coimbatore","Jaipur","Chandigarh","Gurugram","Noida",
-  "Dubai","Singapore","London","New York","San Francisco","Toronto","Sydney","Melbourne","Berlin","Amsterdam"
-];
-const cityTagInput = makeTagInput({ boxId:'cityTagBox', inputId:'cityInput', dropdownId:'cityDropdown', list: CITIES, statePath:'applicant.relocationCities' });
-function filterCities(val){ cityTagInput.filter(val); }
-function cityKeydown(evt){ cityTagInput.keydown(evt); }
-
-function selectLivingSituation(el){
-  selectPill(el);
-  const otherInput = document.getElementById('livingOtherInput');
-  otherInput.style.display = el.textContent.trim() === 'Other' ? 'block' : 'none';
-}
-
-function setHeightUnit(unit, el){
-  const parent = el.parentElement;
-  [...parent.children].forEach(c => {
-    c.classList.remove('selected');
-    c.setAttribute('aria-pressed', 'false');
-  });
-  el.classList.add('selected');
-  el.setAttribute('aria-pressed', 'true');
-  document.getElementById('heightFtRow').style.display = unit === 'ft' ? 'grid' : 'none';
-  document.getElementById('heightCmInput').style.display = unit === 'cm' ? 'block' : 'none';
-  journeyStore.setField('applicant.height.unit', unit);
-}
-
-function validateLinkedIn(){
-  const input = document.getElementById('linkedinInput');
-  const error = document.getElementById('linkedinError');
-  if (!input.value.trim()){
-    input.classList.add('error');
-    error.style.display = 'block';
-    input.focus();
-    return;
-  }
-  input.classList.remove('error');
-  error.style.display = 'none';
-  goTo('ch4-1');
-}
-
-function setSlider(evt, track){
-  const rect = track.getBoundingClientRect();
-  let pct = ((evt.clientX - rect.left) / rect.width) * 100;
-  pct = Math.max(0, Math.min(100, pct));
-  document.getElementById('faithFill').style.width = pct + '%';
-  document.getElementById('faithHandle').style.left = pct + '%';
-  journeyStore.setField('applicant.sharedBackgroundImportance', Math.round(pct));
-}
-
-(function initFaithSlider(){
-  const track = document.getElementById('faithSlider');
-  const handle = document.getElementById('faithHandle');
-  let dragging = false;
-
-  function update(clientX){
-    const rect = track.getBoundingClientRect();
-    let pct = ((clientX - rect.left) / rect.width) * 100;
-    pct = Math.max(0, Math.min(100, pct));
-    document.getElementById('faithFill').style.width = pct + '%';
-    document.getElementById('faithHandle').style.left = pct + '%';
-    journeyStore.setField('applicant.sharedBackgroundImportance', Math.round(pct));
-  }
-
-  track.addEventListener('click', (e) => { if (!dragging) update(e.clientX); });
-  handle.addEventListener('mousedown', (e) => { dragging = true; e.preventDefault(); });
-  handle.addEventListener('touchstart', (e) => { dragging = true; }, {passive:true});
-
-  document.addEventListener('mousemove', (e) => { if (dragging) update(e.clientX); });
-  document.addEventListener('touchmove', (e) => { if (dragging) update(e.touches[0].clientX); }, {passive:true});
-  document.addEventListener('mouseup', () => dragging = false);
-  document.addEventListener('touchend', () => dragging = false);
-})();
-
-// ---- Language tag input ----
-const LANGUAGES = [
-  "English","Hindi","Tamil","Telugu","Kannada","Malayalam","Marathi","Gujarati","Punjabi",
-  "Bengali","Urdu","Odia","Assamese","Konkani","Sanskrit","Sindhi","Kashmiri",
-  "French","Spanish","German","Mandarin","Japanese","Korean","Arabic","Portuguese",
-  "Italian","Russian","Dutch"
-];
-const selectedLangs = [];
-let langHighlightIdx = -1;
-
-function renderLangBubbles(){
-  const box = document.getElementById('langTagBox');
-  const input = document.getElementById('langInput');
-  box.querySelectorAll('.tag-bubble').forEach(b => b.remove());
-  selectedLangs.forEach((lang, i) => {
-    const bubble = document.createElement('div');
-    bubble.className = 'tag-bubble';
-    bubble.innerHTML = `<span>${lang}</span><span class="tag-x" onclick="removeLang(event, ${i})">&times;</span>`;
-    box.insertBefore(bubble, input);
-  });
-}
-
-function removeLang(evt, i){
-  evt.stopPropagation();
-  selectedLangs.splice(i, 1);
-  renderLangBubbles();
-  journeyStore.setField('applicant.languages', [...selectedLangs]);
-}
-
-function addLang(lang){
-  lang = lang.trim();
-  if (!lang) return;
-  const exists = selectedLangs.some(l => l.toLowerCase() === lang.toLowerCase());
-  if (!exists) selectedLangs.push(lang);
-  document.getElementById('langInput').value = '';
-  renderLangBubbles();
-  journeyStore.setField('applicant.languages', [...selectedLangs]);
-  closeLangDropdown();
-}
-
-function filterLangs(val){
-  const dropdown = document.getElementById('langDropdown');
-  langHighlightIdx = -1;
-  if (!val.trim()){
-    const remaining = LANGUAGES.filter(l => !selectedLangs.includes(l));
-    renderLangOptions(remaining.slice(0, 8));
-    return;
-  }
-  const matches = LANGUAGES.filter(l =>
-    l.toLowerCase().includes(val.toLowerCase()) && !selectedLangs.includes(l)
-  );
-  renderLangOptions(matches.slice(0, 8));
-}
-
-function renderLangOptions(list){
-  const dropdown = document.getElementById('langDropdown');
-  if (list.length === 0){ closeLangDropdown(); return; }
-  dropdown.innerHTML = list.map((l, i) => `<div class="tag-option" data-idx="${i}" onclick="addLang('${l}')">${l}</div>`).join('');
-  dropdown.classList.add('show');
-}
-
-function closeLangDropdown(){
-  document.getElementById('langDropdown').classList.remove('show');
-}
-
-function langKeydown(evt){
-  const dropdown = document.getElementById('langDropdown');
-  const options = dropdown.querySelectorAll('.tag-option');
-  if (evt.key === 'Enter'){
-    evt.preventDefault();
-    if (langHighlightIdx >= 0 && options[langHighlightIdx]){
-      addLang(options[langHighlightIdx].textContent);
-    } else if (evt.target.value.trim()){
-      addLang(evt.target.value);
+  journeyRoot.addEventListener('input', (event) => {
+    if (event.target.matches('[data-field]')) handleInput(event.target)
+  })
+  journeyRoot.addEventListener('change', (event) => {
+    if (event.target.matches('input[type="checkbox"][data-consent]')) {
+      setField(`applicant.consents.${event.target.dataset.consent}`, event.target.checked)
+      clearErrorFor(event.target)
+      return
     }
-  } else if (evt.key === 'Backspace' && !evt.target.value && selectedLangs.length){
-    selectedLangs.pop();
-    renderLangBubbles();
-    journeyStore.setField('applicant.languages', [...selectedLangs]);
-  } else if (evt.key === 'ArrowDown'){
-    evt.preventDefault();
-    langHighlightIdx = Math.min(langHighlightIdx + 1, options.length - 1);
-    options.forEach((o,i) => o.classList.toggle('highlighted', i === langHighlightIdx));
-  } else if (evt.key === 'ArrowUp'){
-    evt.preventDefault();
-    langHighlightIdx = Math.max(langHighlightIdx - 1, 0);
-    options.forEach((o,i) => o.classList.toggle('highlighted', i === langHighlightIdx));
-  } else if (evt.key === 'Escape'){
-    closeLangDropdown();
-  }
+    if (event.target.matches('input[data-field], textarea[data-field], select[data-field]')) handleInput(event.target)
+  })
+  journeyRoot.addEventListener('submit', (event) => {
+    event.preventDefault()
+    const screen = event.target.closest('.screen')
+    captureMountedFields()
+    if (!validateScreen(screen)) return
+    if (screen.id === 'ch6-boundaries' && fieldValue('applicant.boundariesConfirmed') === 'change') {
+      const field = screen.querySelector('[data-required-field="applicant.nonNegotiables"]')
+      setError(field, 'Update the boundaries above, then choose Yes.')
+      focusInvalid(field)
+      return
+    }
+    goTo(nextFor(screen))
+  })
 }
 
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.tag-input-wrap')){
-    closeLangDropdown();
-    document.getElementById('cityDropdown').classList.remove('show');
-  }
-});
-
-Object.assign(window, {
-  initJourneyHeaders,
-  initAgePreference,
-  goTo,
-  updateName,
-  selectChoice,
-  selectPill,
-  toggleChip,
-  clearLinkedInError,
-  makeTagInput,
-  filterCities,
-  cityKeydown,
-  selectLivingSituation,
-  setHeightUnit,
-  validateLinkedIn,
-  setSlider,
-  renderLangBubbles,
-  removeLang,
-  addLang,
-  filterLangs,
-  renderLangOptions,
-  closeLangDropdown,
-  langKeydown,
-});
+export function initializeJourney(options) {
+  journeyRoot = options.root
+  screenHost = options.screenHost
+  screenMarkup = options.screenMarkup
+  bindEvents()
+  const initial = screenMarkup.has(journeyStore.getState().currentScreen) ? journeyStore.getState().currentScreen : 'welcome'
+  mountScreen(initial)
+}

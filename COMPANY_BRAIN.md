@@ -1,234 +1,170 @@
 # donna company brain
 
-This document is the working source of context for product, copy, design, engineering, safety, and launch decisions in this repository. It describes what exists now, distinguishes implemented behaviour from public promises, and records conflicts instead of silently resolving them.
+This document records durable product context for anyone changing donna's product, onboarding, public copy, or data model. It is separate from `README.md`, which documents how the repository is organised and run. Code and public pages describe the current implementation; settled decisions below describe product constraints, including places where the implementation has not caught up.
 
-Verified against the working tree based on branch `application-conversation-mode` at commit `6ce94e7` on 2026-08-24.
+## Product model
 
-## How to use this document
+donna is a human-operated introduction service for people seeking a serious relationship or marriage.
 
-- Read this before changing product behaviour, application copy, trust claims, or the data model.
-- Treat `src/application/schema.js`, `src/application/validation.js`, `src/config/site.js`, the rendered HTML, and tests as implementation sources of truth.
-- Treat public page copy as a promise, even when the supporting operation is not implemented in this repository.
-- Treat items under **Conflicts to resolve** and **Launch blockers** as open. Do not infer a resolution from nearby copy.
-- Update this document in the same change whenever a verified fact, policy, route, application field, safety commitment, or launch blocker changes.
+The operating model is:
 
-## Company
+1. A person applies and donna reviews the application using human judgment, not algorithmic matching.
+2. donna considers and proposes one introduction at a time. There is no directory to browse, swipe queue, or search experience.
+3. Each person decides whether to accept the proposed introduction.
+4. donna arranges an in-person first meeting in a public place.
+5. Contact details are not exchanged until after that meeting, and only if the people want them.
+6. Both people complete a private debrief after the meeting. The two-sided debrief is part of the service, not an optional rating feature.
 
-donna is a human-operated introduction service for people looking to marry. The current public pilot is in Bangalore.
+The other person does not receive someone's private debrief. The purpose is to understand the meeting, improve later introductions, and identify behaviour that should stop further introductions.
 
-The central product model is:
+## Current product surface
 
-1. A person applies and describes who they are, their life, preferences, boundaries, and relationship intent.
-2. A person at donna reviews the application. The product explicitly says this is not algorithmic matching.
-3. donna considers one introduction at a time and approaches each person separately.
-4. Nothing is shared for an introduction until the applicant agrees.
-5. If both people agree, donna arranges an in-person meeting in a public place.
-6. donna follows up after the meeting and asks each person how it went.
+- The marketing site consists of home, Our story, FAQ, and Safety pages.
+- `/apply.html` mounts the browser-only journey from `src/application/journey/`.
+- The journey stores data in memory and does not submit or persist it.
+- The journey ends at a temporary submitted placeholder; no post-application member experience is currently rendered.
+- The public FAQ says the pilot is free, based in Bangalore for now, and open to applicants outside Bangalore for future availability.
 
-This is not a browsable dating app. There is no directory, search, swipe interface, or matching algorithm in the repository.
+## Onboarding structure
 
-## Positioning and audience
+The applicant path starts on a separate entry screen. It has no mascot or chapter numeral and contains one action, **Start**. Its current heading is **Before you start.** and it tells applicants to expect six chapters and about fifteen minutes.
 
-- Relationship intent: marriage, or a serious long-term relationship open to marriage.
-- Pilot geography: Bangalore publicly; applications from other cities are accepted for future availability.
-- Capacity: deliberately small and manually operated.
-- Current application eligibility in code: age 25 or older.
-- Casual dating is explicitly outside the intended use.
-- The service is free during the pilot. Public copy says applicants will be told first if that changes.
+The header then shows only the current Roman numeral. The implementation uses six displayed chapters; internal template IDs named `ch7-*` remain under the displayed Chapter VI.
 
-## Product principles
+### Chapter I — intent, readiness, and contact
 
-- Human judgment over automated matching.
-- One considered introduction over a large volume of profiles.
-- Mutual permission before profile information is shared.
-- Meeting in person over extended pre-meeting texting.
-- Honest follow-up over ratings or public reviews.
-- Clear safety limitations over guarantees.
-- Applicant control: decline, leave, stop communicating, withdraw, or report a concern.
+- What the applicant is looking for
+- Marriage timeline
+- Whether family is also looking and how much influence family has
+- Whether the applicant can realistically meet in the next four weeks
+- Name, date of birth, Indian mobile number, and email
 
-## Voice and brand rules
+Choosing **I'm not sure yet** on the first question takes the applicant to the early exit screen. The exit explains that the service is not the right fit at this time and links back to the marketing site.
 
-- Write the brand as **donna**, including at the start of a sentence. The lowercase form is enforced by tests.
-- Marketing-page wordmarks use the lowercase text treatment introduced by the homepage transition. The older image mark remains available at `public/images/donna-logo-transparent.png` for the application prototype. Ordinary written mentions remain lowercase text.
-- Sound direct, warm, specific, and human. Avoid corporate or app-marketplace language.
-- Describe donna as people doing the work, not software doing it.
-- Do not imply certainty, guaranteed compatibility, guaranteed identity, or guaranteed safety.
-- Prefer honest operational language such as “we review” and “we arrange.”
-- The application deliberately avoids praise, reassurance, or performative acknowledgement after every answer.
-- The application may use the applicant's first name only in the two intentional transition moments covered by tests.
+### Chapter II — timing and age preferences
 
-## Current customer journey
+- Relationship intent
+- Marriage timeline
+- Four-week availability
+- Preferred age range, entered as years younger and older than the age computed from date of birth
 
-### Marketing site
+The first three topics currently repeat questions already asked in Chapter I.
 
-- `/` and `/index.html`: session-aware visual intro, origin-led hero, four-step explanation, and application CTA. The hero uses the exact photographic background and dark overlay extracted from the supplied onboarding landing screen; later sections retain the burgundy journey background.
-- `/faq.html`: three FAQ groups with expandable answers.
-- `/safety.html`: eight safety guidance cards, reporting contact, emergency contacts, and limitations.
-- `/apply.html`: the complete client-side journey prototype, including application, referral, introduction, meeting, and matchmaker-tree screens.
+### Chapter III — work, education, and practical profile details
 
-The homepage intro runs once per browser session using `donnaExperienceSeen` in `sessionStorage`. `?intro=1` replays it. It is skippable and reduced-motion aware. Eight local city photographs on desktop, or four on mobile, use the scale-and-clip preloader choreography adapted from `code (4).zip`; the dark curtain then retracts directly into the existing photographic homepage hero.
+- Occupation, employer, and industry
+- Highest degree and institution
+- Languages
+- Height
+- LinkedIn profile
 
-### Application experience
+Employer and institution are present in the code but conflict with settled product decisions below. Income is not present.
 
-`apply.html` now contains the supplied 33-screen full-journey prototype as a self-contained experience. Clicking any site “Apply to join” link skips its marketing landing screen and opens directly on `signup-choice`, beginning with “Hi, I'm donna. First things first — which brings you here today?” The supplied landing screen remains in the document for the journey's existing return-to-start actions.
+### Chapter IV — location and family plans
 
-The journey includes:
+- Living situation
+- Cities the applicant would consider moving to
+- Willingness to relocate
+- Whether the applicant has children
+- Whether they want children and whether that is non-negotiable
 
-- a donna landing page and applicant/friend entry choice;
-- a friend-verification branch;
-- welcome and seven application chapters;
-- the completion and “introduce a friend” pivot;
-- note writing, sealing, and nominee consent;
-- a sample introduction and limited chat;
-- meeting scheduling and invitations;
-- a matchmaker tree and full-circle outcome screen.
+### Chapter V — background and lifestyle
 
-The application chapters collect identity and contact details, gender and interest, relationship intent and timeline, work and education, languages, height, LinkedIn, geography, children, background, lifestyle, boundaries, and long-form personal answers.
+- Previous marriage
+- Broad faith or community background
+- Importance of shared faith, culture, or background
+- Diet, drinking, and smoking
 
-The supplied interface uses screen-to-screen client-side navigation. Most controls demonstrate interaction but do not enforce the former schema validation. LinkedIn is the only field that blocks its Continue action when empty. The date-of-birth control currently offers ages 18–75 and does not enforce the former 25+ boundary.
+The pilot collects any caste preference or requirement in a dedicated free-entry field. The answer is available only to the matchmaker, is not automatically shown to a prospective match, and remains separate from general faith, community, or cultural-background data.
 
-The previous schema-driven application remains under `src/application/`, but `apply.html` no longer imports it. Its 18-step schema, validation, photograph consent, conversational mascot runtime, and related tests are legacy code until they are deliberately removed or reconciled with the new journey.
+### Chapter VI — boundaries and personal context
 
-## Current technical state
+- Non-negotiables and deal-breakers
+- What the applicant wants a partnership to feel like
+- How friends would describe and tease them
+- An ordinary evening
+- What they have learned from past relationships
+- Anything else they want donna to know
 
-- Stack: static multi-page HTML, vanilla JavaScript, CSS, and Vite.
-- There is no front-end framework and no backend in this repository.
-- `src/styles/main.css` is the shared stylesheet entry point.
-- Shared tokens live in `src/styles/tokens.css`; new page work should reuse them.
-- Body type is Instrument Sans with system fallbacks. Display and wordmark type uses the Iowan Old Style/Palatino/Georgia serif stack.
-- Vite builds four HTML entry points to `dist/`.
-- The new `apply.html` is intentionally self-contained and uses its supplied Cormorant/Inter typography, dark-red palette, inline CSS and JavaScript, five embedded images, and one embedded video. Its production HTML is approximately 3.15 MB before compression.
+The code splits this chapter across `ch6` and `ch7-*` screen IDs while keeping the displayed numeral at VI. After `ch7-6`, the journey renders a temporary submitted placeholder.
 
-The full journey is **prototype-only**:
+## Settled positioning decisions
 
-- field state exists only in the current page DOM;
-- refresh clears entered information and returns to the landing screen;
-- there is no local storage, cookie, IndexedDB, submission request, upload, chat service, scheduling service, or analytics transport;
-- “Save & exit,” sign-in, chat, scheduling, invitations, and the matchmaker tree are visual prototype affordances, not implemented services;
-- `siteConfig.applicationMode` is `preview`.
+These are product constraints and should not be reopened casually:
 
-## Configuration and contacts
+- **Caste is collected during the pilot.** Keep it as a dedicated free-entry field so applicants can state a preference or requirement in their own words. Store it separately from general faith, community, or cultural-background data. It is matchmaker-only and must not be automatically shown to a prospective match. Do not convert it into predefined caste options.
+- **No employer or institution fields.** Work and education may be understood without collecting the names of an employer or school.
+- **No verification claims.** Do not claim that donna verifies identity, employment, intentions, or that a member is “real.” Manual review and consistency checks must not be described as guarantees or verification.
+- **No praise or reassurance copy.** Do not congratulate, encourage, soothe, or reward applicants for answering. donna asks the next question.
+- **Income is required with no opt-out.** The application must collect it; “prefer not to say” is not an option. The exact control and placement remain to be specified.
+- **Mascot per question.** Each question screen uses the donna mascot alongside the question. The entry and exit screens are exceptions because they are not question screens.
+- **Human judgment is the product.** Do not frame selection as an algorithm, recommendation engine, compatibility score, or automated match.
+- **One introduction at a time.** Do not add browsing, queues of profiles, or simultaneous candidate selection.
+- **Meeting precedes contact exchange.** Do not move phone-number exchange or extended private messaging before the first in-person meeting.
+- **Two-sided debrief is mandatory.** Do not reduce it to a star rating or optional feedback prompt.
 
-`src/config/site.js` currently contains:
+## Current implementation mismatches
 
-- contact email: `thedonnapilot@gmail.com`;
-- pilot city: empty;
-- application mode: `preview`;
-- Privacy Notice URL: empty;
-- Pilot Terms URL: empty.
+These are not open product questions. They are places where the repository contradicts the settled decisions:
 
-Safety reporting copy also offers WhatsApp at `+1 3413338019`. It says Jovin reads reports and donna replies within two hours.
+- `template.html`, `fields.js`, and `store.js` still collect and store employer and institution.
+- Neither the active journey nor its state model contains a required income field.
+- The LinkedIn error copy says it helps “verify who you are,” and the FAQ claims government-ID and proof-of-work verification.
+- The active journey contains praise and reassurance, including “Good,” “I promise,” “Keep going, you're doing great,” “don't worry,” and “Thank you for being honest with me.”
+- The older schema under `src/application/` also contains employer and institution fields and no income field.
 
-Emergency information on the safety page:
+Resolve these by aligning implementation and public copy with the settled decisions, not by weakening the decisions in this document.
 
-- immediate danger: `112`;
-- women's helpline: `1091`;
-- women in distress: `181`;
-- cyber and financial fraud: `1930`.
+## Voice rules
 
-donna is explicitly not an emergency service.
+donna's voice is:
 
-## Safety model and limits
+- direct;
+- unhurried;
+- unembarrassed about asking clear questions;
+- specific rather than euphemistic;
+- lowercase when writing the brand name.
 
-Current safety guidance says donna:
+Writing rules:
 
-- reads every application and checks whether what the applicant says is consistent;
-- shares a profile only for a specific introduction and only with permission;
-- arranges public first meetings and knows their time and place;
-- follows up after the meeting unless the member opts out;
-- warns against money requests and sharing financial information;
-- accepts reports without requiring the member to first prove seriousness;
-- stops introductions when someone has behaved badly.
+- Ask the question plainly.
+- Give a reason only when the question is intrusive or the use of the answer would not be obvious.
+- Keep the reason short and operational: what donna needs to understand or decide.
+- Do not praise, reassure, encourage, congratulate, or give permission to answer honestly.
+- Do not add filler acknowledgements between questions.
+- Do not imply certainty about identity, compatibility, intentions, safety, or outcomes.
+- Describe people doing the work: “we read,” “we decide,” and “we arrange,” not software processing matches.
+- Preserve the applicant's agency without turning every screen into reassurance copy.
 
-The non-negotiable limitation is that manual review can reduce avoidable risk but cannot guarantee another person's identity, intentions, judgment, future behaviour, or safety.
+## Open decisions
 
-## Public data promises
+These remain unresolved and should stay phrased as questions until a product owner answers them:
 
-The FAQ currently promises that:
+- What income format should be required: exact amount or range, monthly or annual, gross or take-home, and in which currency?
+- Where should the required income question sit in the six-chapter flow?
+- Should Chapter II continue to repeat intent, timeline, and four-week readiness after Chapter I already captures them?
+- Is there an applicant age boundary, given that the FAQ says there is no age limit and the active date-of-birth validator only rejects invalid or future dates?
+- Is the operating geography Bangalore only, Bangalore-first with a waitlist elsewhere, or multi-city from application day?
+- How should manual review be described publicly once all verification language is removed?
+- Which of the post-application prototype screens belong in the first operational release?
+- What retention periods apply to applications, debriefs, contact details, and safety reports?
+- What deletion exceptions, if any, apply to safety records?
+- What will the service cost after the pilot, and when must applicants be told?
 
-- applications are not sold or used for advertising;
-- only team members who need the information can see it;
-- introduction candidates learn only information the applicant is comfortable sharing;
-- government ID and proof of work are checked before an introduction;
-- verification documents are deleted after checking;
-- applicants may request deletion of held data;
-- a safety-report note may be retained when other applicant data is deleted;
-- private debriefs are not shown to the other person.
+## Public commitments that need operational support
 
-These are public operational commitments. The current preview does not collect government ID or proof-of-work documents and does not implement storage or deletion. A production system must turn these promises into explicit data handling rules before collecting real data.
+The current FAQ and Safety pages say or imply that donna:
 
-## Explicit product boundaries in the legacy schema
+- asks both people for a private debrief;
+- does not sell application data or use it for advertising;
+- limits access to people who need it;
+- accepts deletion requests, with a safety-report exception;
+- arranges public first meetings and follows up afterwards;
+- responds to safety reports within two hours;
+- stops introducing someone who behaved badly.
 
-These boundaries remain encoded and tested under `src/application/`, but the active `apply.html` journey does not import that schema.
+These are public commitments even though the repository does not implement the required backend or operating processes.
 
-- No salary or income field exists.
-- Faith is collected at a broad self-described level. There is no caste, sub-community, denomination, sect, gotra, or mother-tongue field.
-- The non-negotiables helper is the only place where donna says it takes a preference literally.
-- Non-negotiable suggestions intentionally exclude financial independence.
-- Background answers are described as context, not an automatic donna filter.
+## Future and launch work — not current behaviour
 
-## Conflicts to resolve
-
-Do not silently choose a side. A product owner must decide, then copy, schema, validation, tests, and this document must be aligned together.
-
-1. **Age eligibility:** the legacy gateway and validation require 25+, the FAQ says “there's no age limit,” and the active journey offers birth years for applicants as young as 18 without enforcing a minimum.
-2. **Verification scope:** the FAQ promises government-ID and proof-of-work checks; the active journey says LinkedIn helps verify that every member is real; the legacy application tests explicitly prevent identity-verification claims.
-3. **Contact-detail timing:** the FAQ says both people receive details after meeting if they want them; the README says details are exchanged after both agree. The actual operating rule needs one precise statement.
-4. **Matching language:** the company description says there is no matching algorithm, while homepage copy uses “match profiles,” “find your match,” and “matching service” language. Human matching may be intended, but the distinction is not consistently expressed.
-5. **Pilot geography configuration:** public copy says Bangalore, but `siteConfig.pilotCity` is empty.
-6. **Application structure documentation:** the README and most application tests describe the previous schema-driven experience, not the active 33-screen journey.
-7. **Prototype versus product:** the active journey shows sign-in, Save & exit, chat, scheduling, invitations, a shareable matchmaker tree, and successful outcomes although none has supporting storage or services.
-
-## Launch blockers
-
-Real application collection must not begin until all of these are resolved:
-
-- a secure submission endpoint and error/retry behaviour;
-- secure photograph and application storage;
-- implemented authentication, save-and-exit, chat, scheduling, invitation, and matchmaker-tree behaviour, or removal of those affordances before launch;
-- authentication and access controls for reviewers;
-- a documented retention and deletion process, including the safety-report exception;
-- consent-record storage and versioning;
-- a written and published Privacy Notice;
-- written and published Pilot Terms;
-- replacement of the legal placeholders and validation of both configured URLs;
-- an operational review process for the public ID, employment, safety, and two-hour response commitments;
-- a decision and aligned implementation for every conflict listed above;
-- confirmation that production use of the intro photographs is permitted.
-
-Do not switch `applicationMode` away from `preview` before these controls exist.
-
-## Engineering map
-
-- `index.html`, `faq.html`, `safety.html`, `apply.html`: routes and public promises.
-- `apply.html`: active 33-screen journey, supplied visual system, embedded media, and client-side interactions.
-- `src/application/schema.js`: legacy gateway copy, chapters, fields, options, photographs, and consent model; not imported by `apply.html`.
-- `src/application/validation.js`: legacy applicant-data validation rules; not active on `apply.html`.
-- `src/application/app.js`: legacy conversational/focused application runtime; not imported by `apply.html`.
-- `src/application/navigation.js`: legacy progress and step-clamping utilities.
-- `src/config/site.js`: launch-sensitive URLs, contact, pilot city, and application mode.
-- `src/scripts/modules/`: homepage intro, navigation, links, heading motion, and story-card behaviour.
-- `src/styles/`: tokens, shared components, page styles, and responsive rules.
-- `tests/`: behavioural contracts, brand rules, copy assertions, build checks, and browser regressions.
-
-## Verification baseline
-
-Verified on 2026-08-24:
-
-- `npm test`: 107 tests passed and the production build succeeded.
-- The active journey was walked at 375 × 812 through all 32 screens on the main path, from `landing` to `full-circle-reveal`, with no horizontal overflow or capitalised brand text.
-- The alternate friend-introduction branch was checked from `landing` through `friend-verification` to `write-note` at the same viewport.
-
-The existing phone-flow and mascot browser scripts exercise the disconnected legacy runtime under `src/application/`. They are not verification of the active, self-contained `apply.html` journey and were not rerun for this replacement.
-
-## Brain maintenance checklist
-
-When the company or product changes:
-
-1. Update the implementation and its tests.
-2. Search all public pages for the affected promise or term.
-3. Reconcile FAQ, safety, homepage, gateway, consent, and configuration copy.
-4. Move resolved conflicts into the relevant factual section; do not merely delete them.
-5. Add new legal, safety, privacy, pricing, geography, eligibility, or response commitments here.
-6. Run the default suite and the relevant browser suite.
-7. Update the verified commit and date at the top.
+Real application collection requires a backend submission path, secure storage, authentication and reviewer access, consent records, retention and deletion rules, legal documents, and operational processes for debriefs and safety reports. The journey's `api.js` is only a stub today, so none of those capabilities should be described as implemented.

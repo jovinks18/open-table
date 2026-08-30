@@ -1,71 +1,37 @@
 const clone = (value) => structuredClone(value)
 
-export const JOURNEY_STATE_VERSION = 1
+export const JOURNEY_STATE_VERSION = 2
 
 export const initialJourneyState = Object.freeze({
   version: JOURNEY_STATE_VERSION,
   mode: 'preview',
   currentScreen: 'welcome',
-  route: 'applicant',
   applicant: {
-    fullName: '',
-    introductionName: '',
-    dateOfBirth: { day: '', month: '', year: '' },
-    gender: '',
-    interestedIn: '',
-    currentCity: '',
-    email: '',
-    countryCode: '🇮🇳 +91',
-    phone: '',
-    chapterOne: {
-      intent: '',
-      marriageTimeline: '',
-      familySearchInvolvement: '',
-      familyDecisionInfluence: '',
-      meetingReadiness: '',
-    },
-    intent: '',
-    marriageTimeline: '',
-    availableWithinFourWeeks: '',
+    intent: '', marriageTimeline: '', meetingReadiness: '',
     preferredAge: { minimum: 25, maximum: 40 },
-    occupation: '',
-    employer: '',
-    industry: '',
-    highestDegree: '',
-    institution: '',
-    languages: [],
-    height: { unit: 'ft', feet: '', inches: '', centimeters: '' },
-    linkedinUrl: '',
-    livingSituation: '',
-    livingSituationOther: '',
-    relocationCities: [],
-    willingToRelocate: '',
-    hasChildren: '',
-    wantsChildren: '',
-    childrenNonNegotiable: '',
-    maritalStatus: '',
-    faithBackground: '',
-    sharedBackgroundImportance: 50,
-    diet: '',
-    drinking: '',
-    smoking: '',
-    nonNegotiables: '',
-    partnershipRole: '',
-    friendsDescribe: '',
-    friendsTease: '',
-    ordinaryEvening: '',
-    relationshipLearning: '',
-    anythingElse: '',
-    friendPerspectiveChoice: 'self',
-  },
-  referrer: {
-    name: '',
-    email: '',
-    linkedinUrl: '',
-    nomineeName: '',
-    nominationFor: '',
-    reason: '',
-    relationship: '',
+    gender: '', genderDescription: '', seeking: '',
+    familySearchInvolvement: '', familyDecisionInfluence: '',
+    fullName: '', dateOfBirth: { day: '', month: '', year: '' }, phone: '', email: '',
+    currentCity: '', livingSituation: '', livingSituationOther: '',
+    willingToRelocate: '', relocationCities: [], postMarriageLiving: '', postMarriageLivingOther: '',
+    maritalStatus: '', priorRelationshipEnd: { month: '', year: '' },
+    hasChildren: '', childrenCount: '', wantsChildren: '', openToPartnerWithChildren: '',
+    occupation: '', industry: '', highestDegree: '', annualIncome: '', languages: [],
+    height: { unit: 'ft', feet: '', inches: '', centimeters: '' }, linkedinUrl: '',
+    faithBackground: '', faithBackgroundOther: '', faithPresence: '', interfaithOpenness: '',
+    interfaithConditions: '', familyInterfaithView: '', castePreference: '',
+    diet: '', dietOther: '', drinking: '', smoking: '',
+    reflectiveEase: '', reflectiveOrdinaryWeek: '', reflectiveConflict: '',
+    nonNegotiables: [], familyRequirement: '', familyRequirementDetail: '', boundariesConfirmed: '',
+    photographs: { face: null, fullLength: null, ordinaryLife: null },
+    consents: {
+      informationAccurate: false,
+      personReadsApplication: false,
+      photographStorage: false,
+      writtenAnswers: false,
+      noGuarantee: false,
+      legalDocuments: false,
+    },
   },
 })
 
@@ -76,10 +42,13 @@ function setAtPath(target, path, value) {
   parent[finalPart] = value
 }
 
+export function valueAtPath(target, path) {
+  return path.split('.').reduce((value, part) => value?.[part], target)
+}
+
 export function createJourneyStore(seed = initialJourneyState) {
   let state = clone(seed)
   const subscribers = new Set()
-
   const notify = (change) => {
     const snapshot = clone(state)
     subscribers.forEach((subscriber) => subscriber(snapshot, change))
