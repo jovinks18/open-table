@@ -41,8 +41,8 @@ const REVIEW_SECTIONS = Object.freeze([
   { chapter: 'Chapter I — What brings you here?', screen: 'ch1-intent', fields: ['intent', 'marriageTimeline', 'meetingReadiness', 'preferredAge'] },
   { chapter: 'Chapter I — You and the decision', screen: 'ch1-decision', fields: ['gender', 'genderDescription', 'seeking', 'familySearchInvolvement', 'familyDecisionInfluence'] },
   { chapter: 'Chapter I — Contact', screen: 'ch1-contact', fields: ['fullName', 'dateOfBirth', 'phone', 'email'] },
-  { chapter: 'Chapter II — Place and home', screen: 'ch2-place', fields: ['currentCity', 'livingSituation', 'livingSituationOther', 'willingToRelocate', 'relocationCities', 'postMarriageLiving', 'postMarriageLivingOther'] },
-  { chapter: 'Chapter II — Marriage and children', screen: 'ch2-marriage', fields: ['maritalStatus', 'priorRelationshipEnd', 'hasChildren', 'childrenCount', 'wantsChildren', 'openToPartnerWithChildren'] },
+  { chapter: 'Chapter II — Place and home', screen: 'ch2-place', fields: ['currentCity', 'livingSituation', 'livingSituationOther', 'willingToRelocate', 'relocationCities'] },
+  { chapter: 'Chapter II — Marriage and children', screen: 'ch2-marriage', fields: ['postMarriageLiving', 'postMarriageLivingOther', 'maritalStatus', 'priorRelationshipEnd', 'hasChildren', 'childrenCount', 'wantsChildren', 'openToPartnerWithChildren'] },
   { chapter: 'Chapter III — The facts', screen: 'ch3-facts-1', fields: ['occupation', 'industry', 'highestDegree', 'annualIncome'] },
   { chapter: 'Chapter III — More facts', screen: 'ch3-facts-2', fields: ['languages', 'height', 'linkedinUrl'] },
   { chapter: 'Chapter IV — Background', screen: 'ch4-background', fields: ['faithBackground', 'faithBackgroundOther', 'faithPresence', 'interfaithOpenness', 'interfaithConditions', 'familyInterfaithView', 'castePreference'] },
@@ -154,6 +154,19 @@ function hydrateControls(screen) {
     dateInput.max = bounds.max
   }
 
+  screen.querySelectorAll('.field, .photo-slot').forEach((container, index) => {
+    const descriptions = [...container.querySelectorAll('.hint, .reason, .field-error')]
+    if (!descriptions.length) return
+    const ids = descriptions.map((description, descriptionIndex) => {
+      description.id ||= `${screen.id}-description-${index}-${descriptionIndex}`
+      return description.id
+    })
+    const target = container.matches('fieldset')
+      ? container
+      : container.querySelector('input, textarea, select, [role="combobox"]')
+    if (target) target.setAttribute('aria-describedby', ids.join(' '))
+  })
+
   syncConditions(screen)
 }
 
@@ -167,7 +180,7 @@ function renderProgress(screen) {
   if (!applicationScreen) return
   const step = Number(screen.dataset.step)
   const steps = Number(screen.dataset.steps)
-  journeyRoot.querySelector('.progress-wrap').textContent = steps > 1
+  journeyRoot.querySelector('[data-chapter-status]').textContent = steps > 1
     ? `Chapter ${chapter} of 6 · Step ${step} of ${steps}`
     : `Chapter ${chapter} of 6`
 }
@@ -329,6 +342,7 @@ function initPhotos(screen) {
 
 function displayValue(key, value) {
   if (key === 'dateOfBirth') return dateValueFromParts(value)
+  if (key === 'marriageTimeline' && value === 'when_right') return 'When the time is right'
   if (key === 'preferredAge') return `${value.minimum} to ${value.maximum}`
   if (key === 'height') return value.unit === 'cm' ? `${value.centimeters} cm` : `${value.feet} ft ${value.inches} in`
   if (key === 'priorRelationshipEnd') return value.month && value.year ? `${value.month}/${value.year}` : ''
@@ -431,6 +445,7 @@ function nextFor(screen) {
 function mountScreen(id) {
   const screen = createScreen(id)
   screenHost.replaceChildren(screen)
+  window.scrollTo({ top: 0, behavior: 'auto' })
   renderProgress(screen)
   hydrateControls(screen)
   screen.querySelectorAll('[data-tags-field]').forEach(initTagControl)

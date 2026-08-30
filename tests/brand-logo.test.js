@@ -8,9 +8,9 @@ const journeyBackgroundPath = new URL('../public/images/application/landing-back
 const journeyTemplate = readFileSync(new URL('../src/application/journey/template.html', import.meta.url), 'utf8')
 const journeyMain = readFileSync(new URL('../src/application/journey/main.js', import.meta.url), 'utf8')
 const navigation = readFileSync(new URL('../src/scripts/modules/site-navigation.js', import.meta.url), 'utf8')
-test('the legacy image mark remains available to the application prototype', () => {
+test('the journey header uses the centred transparent donna wordmark', () => {
   assert.equal(existsSync(logoPath), true)
-  assert.match(journeyMain, /src="\/images\/donna-logo-transparent\.png"/)
+  assert.match(journeyMain, /<img class="brand" src="\/images\/donna-logo-transparent\.png" alt="donna">/)
   assert.doesNotMatch(journeyMain, /src="\/images\/donna-logo\.png"/)
 })
 

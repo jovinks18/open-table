@@ -15,12 +15,14 @@ source.innerHTML = ''
 root.innerHTML = `
   <div class="journey-shell">
     <header class="journey-header" data-journey-header hidden>
-      <div class="brand"><img src="/images/donna-logo-transparent.png" alt="donna"></div>
-      <div class="progress-wrap" aria-live="polite"></div>
+      <img class="brand" src="/images/donna-logo-transparent.png" alt="donna">
+      <p class="chapter-status" data-chapter-status aria-live="polite"></p>
     </header>
     <main class="journey-main">
-      <div class="persistent-mascot" data-persistent-mascot aria-hidden="true"></div>
-      <div class="screen-host" data-screen-host></div>
+      <div class="journey-stage">
+        <div class="persistent-mascot" data-persistent-mascot aria-hidden="true"></div>
+        <div class="screen-host" data-screen-host></div>
+      </div>
     </main>
   </div>`
 
