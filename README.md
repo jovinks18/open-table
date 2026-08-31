@@ -1,15 +1,15 @@
 # donna
 
-donna is a human-operated introduction service for people looking for a serious relationship or marriage. The product proposes one introduction at a time; it does not expose a browsable directory or use an applicant-facing matching algorithm. This repository contains the public marketing site and a browser-only application prototype.
+donna is a human-operated introduction service for people seeking a serious relationship or marriage. This repository contains its static marketing site and a browser-based application and nomination journey. There is no backend, account system, or application transport in this codebase.
 
 ## Technology
 
 - Static multi-page HTML
 - Vanilla JavaScript and CSS
-- Vite 8 for local development and production builds
-- Node's built-in test runner, with Playwright for the optional browser suites
+- Vite 8 for development and production builds
+- Node's built-in test runner
 
-There is no front-end framework and no backend in this repository.
+There is no front-end framework.
 
 ## Routes
 
@@ -19,51 +19,79 @@ There is no front-end framework and no backend in this repository.
 | `/our-story.html` | `our-story.html` | Company story |
 | `/faq.html` | `faq.html` | Product, process, safety, cost, and data questions |
 | `/safety.html` | `safety.html` | Safety guidance, reporting, and emergency contacts |
-| `/apply.html` | `apply.html` | Full-screen application prototype |
+| `/apply.html` | `apply.html` | Full-screen application and nomination journey |
 
-The marketing routes use the shared navigation, footer, scripts, and styles. `apply.html` is deliberately separate: it mounts a full-viewport journey and does not render the marketing navigation.
+The marketing routes share navigation, footer, scripts, and styles. `apply.html` is a separate full-screen experience without the marketing navigation.
 
 ## Repository structure
 
 ```text
 .
-├── index.html, our-story.html, faq.html, safety.html
-├── apply.html                     Application route shell
-├── public/                        Images, video, and other static assets
+├── index.html
+├── our-story.html
+├── faq.html
+├── safety.html
+├── apply.html
+├── public/                         Static images and video
 ├── src/
 │   ├── application/
-│   │   ├── journey/               Active apply-route implementation
-│   │   ├── app.js                 Earlier application runtime; not imported by apply.html
-│   │   ├── schema.js              Earlier schema; not imported by apply.html
-│   │   └── validation.js          Earlier validation module
-│   ├── config/site.js             Checked-in runtime configuration
-│   ├── scripts/                   Shared marketing-page behaviour
-│   └── styles/                    Shared tokens, components, and page styles
-├── tests/                         Node regression tests and optional browser tests
-├── vite.config.js                 Five-page Vite build configuration
-└── package.json                   Scripts and development dependencies
+│   │   ├── journey/                Active apply route
+│   │   ├── legacy/                 Earlier unmounted runtime and its styles
+│   │   ├── schema.js               Legacy schema loaded by shared validation
+│   │   └── validation.js           Shared validation helpers
+│   ├── config/site.js               Checked-in site configuration
+│   └── marketing/
+│       ├── styles.css               Marketing stylesheet entry
+│       ├── shared/                  Navigation, links, common behavior and styles
+│       ├── home/                    Homepage behavior and styles
+│       ├── faq/                     FAQ styles
+│       ├── safety/                  Safety styles
+│       └── story/                   Our story styles
+├── tests/                           Node regression tests
+├── vite.config.js                  Multi-page Vite build configuration
+└── package.json                    Scripts and development dependencies
 ```
 
-### `src/application/journey/`
+## Active journey architecture
 
-This directory owns the application currently mounted by `apply.html`.
+`apply.html` mounts `src/application/journey/main.js`. The active implementation lives in `src/application/journey/`.
 
 | File | Responsibility |
 | --- | --- |
-| `template.html` | Markup for the entry screen, six displayed application chapters, the early exit, and the temporary submitted placeholder. |
-| `controller.js` | Screen navigation, the single Roman-numeral chapter header, chapter transitions, shared control behaviour, age preferences, language/city inputs, height units, LinkedIn gating, and other DOM interactions. |
-| `styles.css` | The full-screen journey's palette, typography, responsive layout, controls, mascot treatment, and reduced-motion rules. |
-| `main.js` | Bootstrap: inserts `template.html`, loads journey CSS, registers field bindings, exposes the read-only `window.donnaJourney` interface, and imports the controller. |
-| `chapter-one.js` | Validation and state handling specific to Chapter I, including intent gates and contact fields. |
-| `fields.js` | Maps rendered controls to stable state paths. |
-| `store.js` | Versioned, serializable state held in browser memory for the current page session. |
-| `api.js` | Reserved backend boundary. Every method currently returns a `preview-only` result and the file is not wired into the journey runtime. |
+| `template.html` | Owns the markup for every routeable journey screen, including the applicant and nominator fork, six applicant chapters, save and exit, early exit, and terminal screens. |
+| `controller.js` | Owns routing, validation, control hydration, conditional fields, photographs, review rendering, chapter status, local persistence, resume, and delete behavior. Only the active screen is mounted in the DOM. |
+| `store.js` | Defines state version 3, applicant and nominator state, serialization, hydration, and subscriptions. |
+| `fields.js` | Lists the stable applicant and nominator field paths used by the journey. |
+| `main.js` | Loads the raw screen template and journey CSS, creates persistent shell elements, mounts the screen host, starts the controller, and exposes the read-only `window.donnaJourney` interface. |
+| `styles.css` | Defines the full-screen journey palette, layout, controls, mascot placement, responsive rules, and reduced-motion behavior. |
+| `api.js` | Defines the future backend boundary. It is not imported by the active runtime and every method returns `preview-only`. |
+| `chapter-one.js` | Provides date-of-birth parsing, age bounds, age calculation, and Chapter I validation helpers. |
 
-The older modules directly under `src/application/` remain in the repository and have their own regression coverage, but `apply.html` imports `src/application/journey/main.js`, not the older `app.js` runtime.
+`src/application/validation.js` contains shared validation helpers. The active controller imports its phone validator. The module imports photograph constants from the earlier `src/application/schema.js`, so that schema is loaded transitively even though it does not define the active journey's fields.
+
+## Journey shape
+
+The first screen is `signup-choice`. It branches to one of two paths:
+
+- Applicant: `welcome`, then Chapters I through VI, then `submitted`.
+- Nominator: `friend-verification`, `write-note`, `seal-send`, then `nomination-sent`.
+
+The applicant chapter panel counts are:
+
+| Chapter | Panels |
+| --- | ---: |
+| I | 3 |
+| II | 2 |
+| III | 1 |
+| IV | 1 |
+| V | 4 |
+| VI | 3 |
+
+`template.html` currently contains 23 routeable `<section>` screens in total. Eighteen use the standard prompt-and-card layout. The other five are `welcome`, `saved`, `chapter-one-exit`, `nomination-sent`, and `submitted`.
 
 ## Run locally
 
-Node is not pinned in the repository. Use a Node release compatible with Vite 8.
+Node is not pinned in this repository. Use a Node release compatible with Vite 8.
 
 ```bash
 npm ci
@@ -78,65 +106,57 @@ Vite prints the local URL, normally `http://localhost:5173`.
 npm test
 ```
 
-`npm test` runs every `tests/*.test.js` file with Node's test runner and then runs a production build.
+The script runs:
 
-Optional browser suites:
-
-```bash
-npm run test:e2e
-npm run test:e2e:mascot
-npm run test:e2e:mascot-image
+```text
+node --test tests/*.test.js
+npm run build
 ```
 
-The browser suites require Playwright's browser binaries. Install them separately if they are not already present.
+The build runs only if the Node test command succeeds. The current suite contains 132 tests and all 132 pass.
 
-## Production build and deployment
+## Build and deployment
 
 ```bash
 npm run build
 npm run preview
 ```
 
-The build writes five HTML entry points and their assets to `dist/`. There is no provider-specific deployment configuration or CI deployment workflow in the repository. Deploy the contents of `dist/` to a static host at the site root; the application uses root-relative asset and route URLs.
+Vite writes the static site to `dist/`. The repository has no provider-specific deployment configuration or CI deployment workflow. Deploy `dist/` at the site root because routes and assets use root-relative URLs.
 
-## Persistence and backend state
+## Persistence and transport
 
-The active journey is a preview, not a data-collection system.
+The active journey is browser-only, but it is not memory-only.
 
-- `store.js` keeps answers in JavaScript memory only.
-- Refreshing or closing the page loses the state.
-- No journey code writes to local storage, cookies, IndexedDB, or a remote service.
-- `api.js` performs no network, storage, submission, or upload work and is not imported by `main.js` or `controller.js`.
+- State is versioned at `3` and written to `localStorage` under `donna.journey`.
+- State changes are saved automatically. The Save & exit control writes the current state and opens the saved screen.
+- Resume accepts only a record with the current state version.
+- Delete my answers from this device clears the local record and resets the in-memory store.
+- Photograph files and object URLs are held only in the current tab. Photograph metadata may enter serialized state, but all three photograph entries are reset to `null` when a saved record is resumed.
+- `api.js` has `configured: false`, is not wired into `main.js` or `controller.js`, and performs no request, upload, or remote storage operation.
+- There are no accounts. Nothing in the active journey leaves the browser.
 
-Do not treat `window.donnaJourney.serialize()` as persistence; it only returns the current in-memory state as JSON.
+The nominator seal screen says that a nominee's note will be deleted if they decline and that the nominator will not be told who declined. The repository has no backend or lifecycle code that enforces those promises. They are operational commitments handled outside this code.
 
 ## Configuration and environment variables
 
-The repository does not read environment variables and contains no `.env` contract. Checked-in site configuration lives in `src/config/site.js`:
+The repository has no environment-variable contract and does not read `.env` values. Checked-in site configuration lives in `src/config/site.js`.
 
-```js
-export const siteConfig = Object.freeze({
-  contactEmail: 'thedonnapilot@gmail.com',
-  pilotCity: '',
-  applicationMode: 'preview',
-  privacyNoticeUrl: '',
-  pilotTermsUrl: '',
-})
-```
-
-`privacyNoticeUrl`, `pilotTermsUrl`, and `pilotCity` are currently empty. The active journey renders a required legal consent step, but the Privacy Notice and Pilot Terms links are not configured. The empty legal URLs are production blockers: real application data must not be collected until both documents exist and the URLs are populated.
+`privacyNoticeUrl` and `pilotTermsUrl` are empty. The application still requires consent to both documents, so the missing documents and URLs block production data collection.
 
 ## Known incomplete areas
 
-- No backend, authentication, draft saving, submission, photograph upload, reviewer interface, or durable storage.
-- No implemented data-retention, deletion, or consent-record workflow.
-- Privacy Notice and Pilot Terms URLs are not configured.
-- The active journey has uneven validation: Chapter I enforces its gates and contact fields, while many later screens demonstrate controls without equivalent required-field validation.
-- The submitted state is a temporary placeholder; submission is not wired.
-- The active journey still contains employer and institution questions, has no income question, and contains verification and encouragement copy. These conflict with settled product rules recorded in `COMPANY_BRAIN.md`.
-- The Chapter I and Chapter II screens repeat some intent, timeline, and readiness questions.
+- `api.js` is an inactive boundary. Submission, draft transport, and photograph upload are not implemented.
+- There is no authentication, account management, reviewer interface, server-side storage, or server-side deletion workflow.
+- All three photographs are required. There is no skip path.
+- Privacy Notice and Pilot Terms links are not configured.
+- Legal and operating details are unresolved, including the legal entity name, grievance officer, registered address, and retention period.
+- The journey collects caste preference and conditional caste detail separately from faith and community background. This data needs to be identified and handled as sensitive personal data under DPDP before production use.
+- The seal-and-send confidentiality and deletion promises are not enforced by code.
 - No deployment provider or Node version is pinned.
 
-## Future work (not current behaviour)
+## Current data-model removals
 
-Before the site collects real applications, the inactive API boundary must be implemented alongside secure storage, authentication and reviewer access, legal documents, consent records, retention/deletion rules, and operational handling for the promises made on the FAQ and safety pages.
+The active journey and state no longer contain the earlier intent question, gender choices beyond woman and man, employer, institution, industry, alcohol, or smoking. They also no longer contain conditional follow-ups for living-situation Other, prior relationship end date, children count, faith Other, interfaith conditions, diet Other, or family requirement detail.
+
+The earlier runtime under `src/application/legacy/` and the older `src/application/schema.js` describe a previous form. They are retained for legacy regression coverage and are not the source of truth for the journey mounted by `apply.html`.

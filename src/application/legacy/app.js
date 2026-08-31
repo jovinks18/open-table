@@ -1,4 +1,4 @@
-import { siteConfig } from '../config/site.js'
+import { siteConfig } from '../../config/site.js'
 import {
   APPLICATION_GATEWAY,
   APPLICATION_STEPS,
@@ -6,7 +6,7 @@ import {
   DATA_FIELDS,
   PHOTO_SHARE_CONSENT,
   PHOTO_SLOTS,
-} from './schema.js'
+} from '../schema.js'
 import { buildProgressLabel } from './navigation.js'
 import {
   deriveHeightCm,
@@ -17,7 +17,7 @@ import {
   validateAgeRange,
   validateField,
   validatePhoto,
-} from './validation.js'
+} from '../validation.js'
 
 const root = document.querySelector('#application-root')
 if (!root) throw new Error('Application root was not found.')

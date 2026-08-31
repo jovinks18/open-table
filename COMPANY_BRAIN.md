@@ -1,6 +1,6 @@
 # donna company brain
 
-This document records durable product context for anyone changing donna's product, onboarding, public copy, or data model. It is separate from `README.md`, which documents how the repository is organised and run. Code and public pages describe the current implementation; settled decisions below describe product constraints, including places where the implementation has not caught up.
+This document records durable product context for anyone changing donna's product, onboarding, public copy, or data model. It is separate from `README.md`, which documents how the repository is organized and run. The active code is the source of truth for current behavior. Settled decisions describe product constraints, including operational requirements that are not implemented in code.
 
 ## Product model
 
@@ -15,105 +15,211 @@ The operating model is:
 5. Contact details are not exchanged until after that meeting, and only if the people want them.
 6. Both people complete a private debrief after the meeting. The two-sided debrief is part of the service, not an optional rating feature.
 
-The other person does not receive someone's private debrief. The purpose is to understand the meeting, improve later introductions, and identify behaviour that should stop further introductions.
+The other person does not receive someone's private debrief. The purpose is to understand the meeting, improve later introductions, and identify behavior that should stop further introductions.
 
 ## Current product surface
 
-- The marketing site consists of home, Our story, FAQ, and Safety pages.
-- `/apply.html` mounts the browser-only journey from `src/application/journey/`.
-- The journey stores data in memory and does not submit or persist it.
-- The journey ends at a temporary submitted placeholder; no post-application member experience is currently rendered.
+- The marketing site consists of Home, Our story, FAQ, and Safety pages.
+- `/apply.html` mounts the active browser journey from `src/application/journey/`.
+- The journey starts at `signup-choice`, where the person chooses the applicant or nominator path.
+- The journey persists version 3 state locally under `donna.journey`.
+- The active runtime has no backend, accounts, remote storage, or transport. Nothing leaves the browser.
 - The public FAQ says the pilot is free, based in Bangalore for now, and open to applicants outside Bangalore for future availability.
 
 ## Onboarding structure
 
-The applicant path starts on a separate entry screen. It has no mascot or chapter numeral and contains one action, **Start**. Its current heading is **Before you start.** and it tells applicants to expect six chapters and about fifteen minutes.
+`template.html` defines 23 routeable screen sections. Eighteen use the standard prompt-and-card layout. The other five are the applicant welcome, saved state, early exit, applicant submission confirmation, and nomination confirmation screens.
 
-The header then shows only the current Roman numeral. The implementation uses six displayed chapters; internal template IDs named `ch7-*` remain under the displayed Chapter VI.
+### Entry and path selection
 
-### Chapter I — intent, readiness, and contact
+The first screen is `signup-choice`. It asks whether the person is applying for themselves or nominating a friend.
 
-- What the applicant is looking for
+The applicant path is:
+
+1. `welcome`
+2. Chapters I through VI
+3. `submitted`
+
+The nominator path is:
+
+1. `friend-verification`
+2. `write-note`
+3. `seal-send`
+4. `nomination-sent`
+
+The applicant welcome heading is **Before you start.** It says there are six chapters and that the journey takes about twelve minutes.
+
+### Applicant chapter counts
+
+| Chapter | Panels |
+| --- | ---: |
+| I | 3 |
+| II | 2 |
+| III | 1 |
+| IV | 1 |
+| V | 4 |
+| VI | 3 |
+
+The chapter header displays one Roman numeral at a time.
+
+### Chapter I
+
+#### Where you’re starting from.
+
 - Marriage timeline
-- Whether family is also looking and how much influence family has
-- Whether the applicant can realistically meet in the next four weeks
-- Name, date of birth, Indian mobile number, and email
+- Whether the applicant can realistically meet someone in the next four weeks
+- Gender, limited to woman or man
+- Whether the applicant is looking to meet men or women
+- Date of birth
 
-Choosing **I'm not sure yet** on the first question takes the applicant to the early exit screen. The exit explains that the service is not the right fit at this time and links back to the marketing site.
+#### Who’s in the room.
 
-### Chapter II — timing and age preferences
+- Preferred age range
+- Who else is involved in the search
+- How much say the family has in the final decision
 
-- Relationship intent
-- Marriage timeline
-- Four-week availability
-- Preferred age range, entered as years younger and older than the age computed from date of birth
+#### How to find you.
 
-The first three topics currently repeat questions already asked in Chapter I.
+- Full name
+- Phone number
+- Email address
 
-### Chapter III — work, education, and practical profile details
+Date of birth accepts applicants from 21 through 70. The preferred age range is stored as absolute minimum and maximum ages from 21 through 70.
 
-- Occupation, employer, and industry
-- Highest degree and institution
+### Chapter II
+
+#### Home, and whether it moves.
+
+- Current city, with a conditional free-text city when Somewhere else is selected
+- Expected living arrangement after marriage
+- Current living situation
+- Willingness to relocate
+- Conditional relocation cities
+
+#### What you’re bringing with you.
+
+- Previous marriage or engagement
+- Whether the applicant has children
+- Whether the applicant wants children
+- Whether both partners would expect to keep working after marriage
+
+### Chapter III
+
+#### On paper.
+
+- Occupation
+- Highest completed education level
+- Required annual income range, with no opt-out
 - Languages
 - Height
 - LinkedIn profile
 
-Employer and institution are present in the code but conflict with settled product decisions below. Income is not present.
+Employer, institution, and industry are not collected.
 
-### Chapter IV — location and family plans
+### Chapter IV
 
-- Living situation
-- Cities the applicant would consider moving to
-- Willingness to relocate
-- Whether the applicant has children
-- Whether they want children and whether that is non-negotiable
+#### What you grew up with.
 
-### Chapter V — background and lifestyle
+- Faith, community, or cultural background
+- How present that background is in everyday life
+- Openness to a different faith or community
+- The family's view of the same question
+- Whether caste preference exists
+- Conditional free-text caste detail
+- Diet
 
-- Previous marriage
-- Broad faith or community background
-- Importance of shared faith, culture, or background
-- Diet, drinking, and smoking
+Caste is stored separately from faith and community background. The active control first records whether a preference exists, then collects the detail in the applicant's own words when the answer is Yes. It is matchmaker-only and is not automatically shown to a prospective match. It must be named and handled as sensitive personal data under DPDP.
 
-The pilot collects any caste preference or requirement in a dedicated free-entry field. The answer is available only to the matchmaker, is not automatically shown to a prospective match, and remains separate from general faith, community, or cultural-background data.
+### Chapter V
 
-### Chapter VI — boundaries and personal context
+Chapter V has four one-question reflective panels:
 
-- Non-negotiables and deal-breakers
-- What the applicant wants a partnership to feel like
-- How friends would describe and tease them
-- An ordinary evening
-- What they have learned from past relationships
-- Anything else they want donna to know
+1. **What does an ordinary Tuesday evening look like for you?**
+2. **Imagine an ordinary week with a partner. What would you want to do together, and what would you still want to do separately?**
+3. **If I asked the person who knows you best, what would they say takes some getting used to about being close to you?**
+4. **When something is bothering you in a relationship, what usually happens next?**
 
-The code splits this chapter across `ch6` and `ch7-*` screen IDs while keeping the displayed numeral at VI. After `ch7-6`, the journey renders a temporary submitted placeholder.
+Each answer has a 600-character limit and a live counter.
+
+### Chapter VI
+
+#### What cannot work.
+
+- One thing the applicant would want someone to know before meeting
+- One to three explained non-negotiables
+- Whether someone else involved has a requirement the applicant does not share
+
+#### Three photographs that look like you now
+
+- One clear face photograph
+- One full-length photograph
+- One ordinary-life photograph
+
+All three photographs are required. There is no skip path.
+
+#### Review your profile
+
+- Answers grouped by chapter
+- Edit controls
+- Six required consent checkboxes
+- Completion action
+
+The applicant path ends at `submitted`. It is a browser-only confirmation, not evidence that an application reached donna.
+
+## Nominator path
+
+The nominator provides their name, email, and LinkedIn profile. They then provide the nominee's name, who the nominee might want to meet, their relationship to the nominee, and a written note.
+
+The seal screen requires two acknowledgements before continuing. It says that the nominee receives the note privately, that the note is deleted if the nominee declines, and that the nominator is not told who declined. The code records only that the note was sealed. There is no backend or deletion lifecycle that enforces the promise. It is currently an operational commitment handled by people.
+
+## Persistence and data flow
+
+- The state schema version is `3`.
+- The storage key is `donna.journey`.
+- State changes are written to `localStorage` automatically.
+- Save & exit captures mounted fields, writes state, and opens the saved screen.
+- Resume accepts only state with the current version.
+- Delete my answers from this device clears local storage, resets journey state, and revokes in-tab photograph object URLs.
+- Photograph files exist only in the current tab. Photograph metadata may be serialized, but all photograph entries are reset to `null` on resume.
+- `api.js` exports `configured: false` and preview-only methods.
+- `api.js` is not imported by `main.js` or `controller.js`.
+- There is no submission transport, remote draft storage, photo upload, authentication, or account system.
 
 ## Settled positioning decisions
 
 These are product constraints and should not be reopened casually:
 
-- **Caste is collected during the pilot.** Keep it as a dedicated free-entry field so applicants can state a preference or requirement in their own words. Store it separately from general faith, community, or cultural-background data. It is matchmaker-only and must not be automatically shown to a prospective match. Do not convert it into predefined caste options.
-- **No employer or institution fields.** Work and education may be understood without collecting the names of an employer or school.
-- **No verification claims.** Do not claim that donna verifies identity, employment, intentions, or that a member is “real.” Manual review and consistency checks must not be described as guarantees or verification.
+- **Caste is collected during the pilot.** Keep the detail in the applicant's own words. Store it separately from general faith, community, or cultural-background data. It is matchmaker-only and must not be automatically shown to a prospective match. Do not convert the detail into predefined caste options.
+- **Caste data is sensitive.** Name and handle caste preference and detail as sensitive personal data under DPDP.
+- **No employer, institution, or industry fields.** Work and education may be understood without collecting employer, school, or industry names.
+- **Income is required with no opt-out.** The active journey uses annual India-appropriate ranges.
+- **No verification claims.** Do not claim that donna verifies identity, employment, intentions, or that a member is real. Manual review and consistency checks must not be described as guarantees or verification.
 - **No praise or reassurance copy.** Do not congratulate, encourage, soothe, or reward applicants for answering. donna asks the next question.
-- **Income is required with no opt-out.** The application must collect it; “prefer not to say” is not an option. The exact control and placement remain to be specified.
-- **Mascot per question.** Each question screen uses the donna mascot alongside the question. The entry and exit screens are exceptions because they are not question screens.
 - **Human judgment is the product.** Do not frame selection as an algorithm, recommendation engine, compatibility score, or automated match.
 - **One introduction at a time.** Do not add browsing, queues of profiles, or simultaneous candidate selection.
 - **Meeting precedes contact exchange.** Do not move phone-number exchange or extended private messaging before the first in-person meeting.
 - **Two-sided debrief is mandatory.** Do not reduce it to a star rating or optional feedback prompt.
 
-## Current implementation mismatches
+## Removed from earlier versions
 
-These are not open product questions. They are places where the repository contradicts the settled decisions:
+The active journey and version 3 state no longer contain:
 
-- `template.html`, `fields.js`, and `store.js` still collect and store employer and institution.
-- Neither the active journey nor its state model contains a required income field.
-- The LinkedIn error copy says it helps “verify who you are,” and the FAQ claims government-ID and proof-of-work verification.
-- The active journey contains praise and reassurance, including “Good,” “I promise,” “Keep going, you're doing great,” “don't worry,” and “Thank you for being honest with me.”
-- The older schema under `src/application/` also contains employer and institution fields and no income field.
+- the relationship-intent question;
+- gender options beyond woman and man;
+- employer;
+- institution;
+- industry;
+- alcohol;
+- smoking;
+- the living-situation Other follow-up;
+- prior relationship end date;
+- children count;
+- faith Other follow-up;
+- interfaith condition detail;
+- diet Other follow-up;
+- family requirement detail.
 
-Resolve these by aligning implementation and public copy with the settled decisions, not by weakening the decisions in this document.
+Older modules under `src/application/` still describe an earlier form. They are not the source of truth for the journey mounted by `/apply.html`.
 
 ## Voice rules
 
@@ -136,19 +242,32 @@ Writing rules:
 - Describe people doing the work: “we read,” “we decide,” and “we arrange,” not software processing matches.
 - Preserve the applicant's agency without turning every screen into reassurance copy.
 
+## Legal and production blockers
+
+- Privacy Notice and Pilot Terms links are empty in `src/config/site.js`.
+- The active review screen still requires consent to both missing documents.
+- The legal entity name is not recorded.
+- The grievance officer is not recorded.
+- The registered address is not recorded.
+- The retention period is not defined.
+- Caste collection has not yet been supported by documented sensitive-data handling under DPDP.
+- The nominator note-deletion and decline-confidentiality promises are not enforced by code.
+
+Real application or nomination collection must not be described as operational while these blockers and the inactive transport remain.
+
 ## Open decisions
 
 These remain unresolved and should stay phrased as questions until a product owner answers them:
 
-- What income format should be required: exact amount or range, monthly or annual, gross or take-home, and in which currency?
-- Where should the required income question sit in the six-chapter flow?
-- Should Chapter II continue to repeat intent, timeline, and four-week readiness after Chapter I already captures them?
-- Is there an applicant age boundary, given that the FAQ says there is no age limit and the active date-of-birth validator only rejects invalid or future dates?
-- Is the operating geography Bangalore only, Bangalore-first with a waitlist elsewhere, or multi-city from application day?
-- How should manual review be described publicly once all verification language is removed?
-- Which of the post-application prototype screens belong in the first operational release?
-- What retention periods apply to applications, debriefs, contact details, and safety reports?
+- What is donna's legal entity name?
+- Who is the grievance officer, and how can applicants contact them?
+- What registered address belongs in the legal documents?
+- What retention periods apply to applications, nominations, photographs, caste data, debriefs, contact details, and safety reports?
 - What deletion exceptions, if any, apply to safety records?
+- What access, purpose-limitation, deletion, and audit controls will apply to caste data?
+- How will nominee declines trigger note deletion without revealing the decision to the nominator?
+- Is the operating geography Bangalore only, Bangalore-first with a waitlist elsewhere, or multi-city from application day?
+- How should manual review be described publicly without implying verification?
 - What will the service cost after the pilot, and when must applicants be told?
 
 ## Public commitments that need operational support
@@ -165,6 +284,12 @@ The current FAQ and Safety pages say or imply that donna:
 
 These are public commitments even though the repository does not implement the required backend or operating processes.
 
-## Future and launch work — not current behaviour
+## Current build state
 
-Real application collection requires a backend submission path, secure storage, authentication and reviewer access, consent records, retention and deletion rules, legal documents, and operational processes for debriefs and safety reports. The journey's `api.js` is only a stub today, so none of those capabilities should be described as implemented.
+`npm test` runs `node --test tests/*.test.js` and then `npm run build`. The build runs only if all Node tests pass.
+
+The current checkout discovers 132 tests. The latest local run passed 131 and failed one stale assertion in `tests/brand-logo.test.js`, which still expects `welcome` to be the first journey screen instead of `signup-choice`. Because the command is chained, that failing assertion prevents the production build step from running through `npm test`.
+
+## Future and launch work
+
+The repository does not currently contain a backend submission path, secure remote storage, authentication, reviewer access, consent records outside local state, or server-side retention and deletion workflows. `api.js` is only a stub, so none of those capabilities should be described as implemented.

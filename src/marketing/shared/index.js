@@ -1,7 +1,7 @@
-import { siteConfig } from '../config/site.js'
-import { initMobileMenu } from './modules/mobile-menu.js'
-import { initSiteNavigation } from './modules/site-navigation.js'
-import { buildMailtoHref, isConfiguredHttpUrl } from './modules/site-links.js'
+import { siteConfig } from '../../config/site.js'
+import { initMobileMenu } from './mobile-menu.js'
+import { initSiteNavigation } from './site-navigation.js'
+import { buildMailtoHref, isConfiguredHttpUrl } from './site-links.js'
 
 function initContactLink() {
   const contactLinks = document.querySelectorAll('[data-contact-link]')

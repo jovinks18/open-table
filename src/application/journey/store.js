@@ -1,28 +1,34 @@
 const clone = (value) => structuredClone(value)
 
-export const JOURNEY_STATE_VERSION = 2
+export const JOURNEY_STATE_VERSION = 3
 
 export const initialJourneyState = Object.freeze({
   version: JOURNEY_STATE_VERSION,
   mode: 'preview',
-  currentScreen: 'welcome',
+  currentScreen: 'signup-choice',
+  path: '',
+  nominator: {
+    fullName: '', email: '', linkedinUrl: '',
+    nomineeName: '', nomineeSeeking: '', nomineeReason: '', nomineeRelationship: '',
+    sealed: false,
+  },
   applicant: {
-    intent: '', marriageTimeline: '', meetingReadiness: '',
+    marriageTimeline: '', meetingReadiness: '',
     preferredAge: { minimum: 25, maximum: 40 },
-    gender: '', genderDescription: '', seeking: '',
+    gender: '', seeking: '',
     familySearchInvolvement: '', familyDecisionInfluence: '',
     fullName: '', dateOfBirth: { day: '', month: '', year: '' }, phone: '', email: '',
-    currentCity: '', livingSituation: '', livingSituationOther: '',
-    willingToRelocate: '', relocationCities: [], postMarriageLiving: '', postMarriageLivingOther: '',
-    maritalStatus: '', priorRelationshipEnd: { month: '', year: '' },
-    hasChildren: '', childrenCount: '', wantsChildren: '', openToPartnerWithChildren: '',
-    occupation: '', industry: '', highestDegree: '', annualIncome: '', languages: [],
+    currentCity: '', currentCityOther: '', livingSituation: '',
+    willingToRelocate: '', relocationCities: [], postMarriageLiving: '',
+    maritalStatus: '', hasChildren: '', wantsChildren: '', bothWorking: '',
+    occupation: '', highestDegree: '', annualIncome: '', languages: [],
     height: { unit: 'ft', feet: '', inches: '', centimeters: '' }, linkedinUrl: '',
-    faithBackground: '', faithBackgroundOther: '', faithPresence: '', interfaithOpenness: '',
-    interfaithConditions: '', familyInterfaithView: '', castePreference: '',
-    diet: '', dietOther: '', drinking: '', smoking: '',
-    reflectiveEase: '', reflectiveOrdinaryWeek: '', reflectiveConflict: '',
-    nonNegotiables: [], familyRequirement: '', familyRequirementDetail: '', boundariesConfirmed: '',
+    faithBackground: '', faithPresence: '', interfaithOpenness: '',
+    familyInterfaithView: '', castePreference: '', castePreferenceDetail: '',
+    diet: '',
+    reflectiveTuesday: '', reflectiveOrdinaryWeek: '', reflectiveEase: '', reflectiveConflict: '',
+    oneThingToKnow: '',
+    nonNegotiables: [], familyRequirement: '',
     photographs: { face: null, fullLength: null, ordinaryLife: null },
     consents: {
       informationAccurate: false,
@@ -69,6 +75,10 @@ export function createJourneyStore(seed = initialJourneyState) {
       return () => subscribers.delete(subscriber)
     },
     serialize: () => JSON.stringify(state),
+    hydrate(next) {
+      state = clone(next)
+      notify({ type: 'hydrate' })
+    },
     reset() {
       state = clone(initialJourneyState)
       notify({ type: 'reset' })

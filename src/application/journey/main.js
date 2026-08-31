@@ -15,8 +15,11 @@ source.innerHTML = ''
 root.innerHTML = `
   <div class="journey-shell">
     <header class="journey-header" data-journey-header hidden>
-      <img class="brand" src="/images/donna-logo-transparent.png" alt="donna">
-      <p class="chapter-status" data-chapter-status aria-live="polite"></p>
+      <div class="journey-header__mark">
+        <img class="brand" src="/images/donna-logo-transparent.png" alt="donna">
+        <p class="chapter-status" data-chapter-status aria-live="polite"></p>
+      </div>
+      <button class="save-exit" type="button" data-save-exit hidden>Save &amp; exit</button>
     </header>
     <main class="journey-main">
       <div class="journey-stage">

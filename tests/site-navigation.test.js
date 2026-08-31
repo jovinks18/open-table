@@ -2,9 +2,9 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
-const navigation = readFileSync(new URL('../src/scripts/modules/site-navigation.js', import.meta.url), 'utf8')
-const styles = readFileSync(new URL('../src/styles/base.css', import.meta.url), 'utf8')
-const responsive = readFileSync(new URL('../src/styles/responsive.css', import.meta.url), 'utf8')
+const navigation = readFileSync(new URL('../src/marketing/shared/site-navigation.js', import.meta.url), 'utf8')
+const styles = readFileSync(new URL('../src/marketing/shared/base.css', import.meta.url), 'utf8')
+const responsive = readFileSync(new URL('../src/marketing/shared/responsive.css', import.meta.url), 'utf8')
 
 test('marketing routes mount one shared navigation component and the journey does not', () => {
   for (const page of ['index.html', 'faq.html', 'safety.html', 'our-story.html']) {
@@ -12,7 +12,7 @@ test('marketing routes mount one shared navigation component and the journey doe
     assert.match(html, /data-site-navigation/)
   }
   const journey = readFileSync(new URL('../apply.html', import.meta.url), 'utf8')
-  assert.doesNotMatch(journey, /data-site-navigation|src\/scripts\/shared\.js|src\/styles\/main\.css/)
+  assert.doesNotMatch(journey, /data-site-navigation|src\/marketing\/shared\/index\.js|src\/marketing\/styles\.css/)
 })
 
 test('desktop navigation centres the wordmark and groups questions accessibly', () => {
@@ -41,7 +41,7 @@ test('mobile navigation is flat, full-height, closable and focus-trapped below 9
   assert.match(responsive, /@media \(max-width: 899px\)/)
   assert.match(responsive, /\.mobile-menu[\s\S]*position: fixed[\s\S]*inset: 0/)
   assert.match(navigation, /mobile-menu__close[\s\S]*Our story[\s\S]*How it works[\s\S]*Common questions[\s\S]*Safety[\s\S]*Apply to join/)
-  const mobileMenu = readFileSync(new URL('../src/scripts/modules/mobile-menu.js', import.meta.url), 'utf8')
+  const mobileMenu = readFileSync(new URL('../src/marketing/shared/mobile-menu.js', import.meta.url), 'utf8')
   assert.match(mobileMenu, /menuFocusables[\s\S]*event\.key !== 'Tab'/)
   assert.match(mobileMenu, /function closeMenu[\s\S]*menuButton\.focus/)
   assert.match(mobileMenu, /event\.key === 'Escape'[\s\S]*closeMenu\(\)/)

@@ -8,16 +8,12 @@
 		"dev": "vite",
 		"build": "vite build",
 		"preview": "vite preview",
-		"test": "node --test tests/*.test.js && npm run build",
-		"test:e2e": "node tests/application-phone-flow.e2e.js",
-		"test:e2e:mascot": "node tests/application-mascot-lifecycle.e2e.js",
-		"test:e2e:mascot-image": "node tests/application-mascot-image.e2e.js"
+		"test": "node --test tests/*.test.js && npm run build"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
-		"playwright": "^1.62.1",
 		"vite": "^8.1.3"
 	}
 }

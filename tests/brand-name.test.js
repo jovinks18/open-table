@@ -7,7 +7,7 @@ const brandCopyFiles = [
   '../safety.html',
   '../faq.html',
   '../apply.html',
-  '../src/application/app.js',
+  '../src/application/legacy/app.js',
   '../src/application/schema.js',
 ]
 

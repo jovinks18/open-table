@@ -5,10 +5,10 @@ import test from 'node:test'
 import {
   buildMailtoHref,
   isConfiguredHttpUrl,
-} from '../src/scripts/modules/site-links.js'
+} from '../src/marketing/shared/site-links.js'
 
 const safetyHtml = readFileSync(new URL('../safety.html', import.meta.url), 'utf8')
-const safetyCss = readFileSync(new URL('../src/styles/pages/safety.css', import.meta.url), 'utf8')
+const safetyCss = readFileSync(new URL('../src/marketing/safety/styles.css', import.meta.url), 'utf8')
 
 function visibleText(value) {
   return value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
