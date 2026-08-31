@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
 const html = readFileSync(new URL('../our-story.html', import.meta.url), 'utf8')
-const styles = readFileSync(new URL('../src/styles/pages/story.css', import.meta.url), 'utf8')
+const styles = readFileSync(new URL('../src/marketing/story/styles.css', import.meta.url), 'utf8')
 
 test('our story replaces the placeholder with the supplied story and no CTA', () => {
   assert.doesNotMatch(html, /Coming soon\./)

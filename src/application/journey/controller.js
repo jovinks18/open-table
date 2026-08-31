@@ -1,20 +1,24 @@
-import { journeyStore, valueAtPath } from './store.js'
+import { JOURNEY_STATE_VERSION, initialJourneyState, journeyStore, valueAtPath } from './store.js'
 import {
-  dateOfBirthBounds,
-  datePartsFromValue,
+  APPLICANT_MAXIMUM_AGE,
+  APPLICANT_MINIMUM_AGE,
+  calculateAgeFromDateOfBirth,
   dateValueFromParts,
   isValidEmail,
   validateApplicantDateOfBirth,
 } from './chapter-one.js'
 import { isValidPhone } from '../validation.js'
 
+const STORAGE_KEY = 'donna.journey'
+
 const ROUTES = Object.freeze([
+  'signup-choice',
   'welcome',
   'ch1-intent', 'ch1-decision', 'ch1-contact',
   'ch2-place', 'ch2-marriage',
-  'ch3-facts-1', 'ch3-facts-2',
-  'ch4-background', 'ch4-habits',
-  'ch5-ease', 'ch5-week', 'ch5-conflict',
+  'ch3-facts',
+  'ch4-background',
+  'ch5-tuesday', 'ch5-week', 'ch5-ease', 'ch5-conflict',
   'ch6-boundaries', 'ch6-photos', 'ch6-review',
   'submitted',
 ])
@@ -30,40 +34,105 @@ const LANGUAGE_OPTIONS = Object.freeze([
   'Gujarati', 'Punjabi', 'Urdu', 'Konkani', 'Tulu', 'Odia', 'Assamese', 'Other',
 ])
 
+const NOMINATOR_ROUTES = Object.freeze(['friend-verification', 'write-note', 'seal-send', 'nomination-sent'])
+
+const CHAPTER_NUMERALS = Object.freeze(['', 'I', 'II', 'III', 'IV', 'V', 'VI'])
+
+const AGE_RANGE_MINIMUM = APPLICANT_MINIMUM_AGE
+const AGE_RANGE_MAXIMUM = APPLICANT_MAXIMUM_AGE
+const AGE_SPREAD_BELOW = 5
+const AGE_SPREAD_ABOVE = 7
+
 const PHOTO_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 const MAX_PHOTO_BYTES = 10 * 1024 * 1024
 const photoFiles = new Map()
 let journeyRoot
 let screenHost
 let screenMarkup
+let ageRangeTouched = false
+let resumeTarget = 'signup-choice'
+let savingSuspended = false
 
 const REVIEW_SECTIONS = Object.freeze([
-  { chapter: 'Chapter I — What brings you here?', screen: 'ch1-intent', fields: ['intent', 'marriageTimeline', 'meetingReadiness', 'preferredAge'] },
-  { chapter: 'Chapter I — You and the decision', screen: 'ch1-decision', fields: ['gender', 'genderDescription', 'seeking', 'familySearchInvolvement', 'familyDecisionInfluence'] },
-  { chapter: 'Chapter I — Contact', screen: 'ch1-contact', fields: ['fullName', 'dateOfBirth', 'phone', 'email'] },
-  { chapter: 'Chapter II — Place and home', screen: 'ch2-place', fields: ['currentCity', 'livingSituation', 'livingSituationOther', 'willingToRelocate', 'relocationCities'] },
-  { chapter: 'Chapter II — Marriage and children', screen: 'ch2-marriage', fields: ['postMarriageLiving', 'postMarriageLivingOther', 'maritalStatus', 'priorRelationshipEnd', 'hasChildren', 'childrenCount', 'wantsChildren', 'openToPartnerWithChildren'] },
-  { chapter: 'Chapter III — The facts', screen: 'ch3-facts-1', fields: ['occupation', 'industry', 'highestDegree', 'annualIncome'] },
-  { chapter: 'Chapter III — More facts', screen: 'ch3-facts-2', fields: ['languages', 'height', 'linkedinUrl'] },
-  { chapter: 'Chapter IV — Background', screen: 'ch4-background', fields: ['faithBackground', 'faithBackgroundOther', 'faithPresence', 'interfaithOpenness', 'interfaithConditions', 'familyInterfaithView', 'castePreference'] },
-  { chapter: 'Chapter IV — Everyday habits', screen: 'ch4-habits', fields: ['diet', 'dietOther', 'drinking', 'smoking'] },
-  { chapter: 'Chapter V — What it’s like to be with you', screen: 'ch5-ease', fields: ['reflectiveEase', 'reflectiveOrdinaryWeek', 'reflectiveConflict'] },
-  { chapter: 'Chapter VI — What cannot work', screen: 'ch6-boundaries', fields: ['nonNegotiables', 'familyRequirement', 'familyRequirementDetail', 'boundariesConfirmed'] },
-  { chapter: 'Chapter VI — Photographs', screen: 'ch6-photos', fields: ['photographs'] },
+  {
+    chapter: 'Chapter I',
+    screen: 'ch1-intent',
+    fields: ['marriageTimeline', 'meetingReadiness', 'gender', 'seeking', 'dateOfBirth', 'preferredAge', 'familySearchInvolvement', 'familyDecisionInfluence', 'fullName', 'phone', 'email'],
+  },
+  {
+    chapter: 'Chapter II',
+    screen: 'ch2-place',
+    fields: ['currentCity', 'currentCityOther', 'postMarriageLiving', 'livingSituation', 'willingToRelocate', 'relocationCities', 'maritalStatus', 'hasChildren', 'wantsChildren', 'bothWorking'],
+  },
+  {
+    chapter: 'Chapter III',
+    screen: 'ch3-facts',
+    fields: ['occupation', 'highestDegree', 'annualIncome', 'languages', 'height', 'linkedinUrl'],
+  },
+  {
+    chapter: 'Chapter IV',
+    screen: 'ch4-background',
+    fields: ['faithBackground', 'faithPresence', 'interfaithOpenness', 'familyInterfaithView', 'castePreference', 'castePreferenceDetail', 'diet'],
+  },
+  {
+    chapter: 'Chapter V',
+    screen: 'ch5-tuesday',
+    fields: ['reflectiveTuesday', 'reflectiveOrdinaryWeek', 'reflectiveEase', 'reflectiveConflict'],
+  },
+  {
+    chapter: 'Chapter VI',
+    screen: 'ch6-boundaries',
+    fields: ['oneThingToKnow', 'nonNegotiables', 'familyRequirement', 'photographs'],
+  },
 ])
 
 const FIELD_LABELS = Object.freeze({
-  intent: 'What are you looking for?', marriageTimeline: 'Marriage timeline', meetingReadiness: 'Available in the next four weeks', preferredAge: 'Age range',
-  gender: 'You are', genderDescription: 'Gender description', seeking: 'Looking to meet', familySearchInvolvement: 'Who else is involved', familyDecisionInfluence: 'Family’s say in the final decision',
+  marriageTimeline: 'Marriage timeline', meetingReadiness: 'Available in the next four weeks', preferredAge: 'Age range',
+  gender: 'You are', seeking: 'Looking to meet', familySearchInvolvement: 'Who else is involved', familyDecisionInfluence: 'Family’s say in the final decision',
   fullName: 'Full name', dateOfBirth: 'Date of birth', phone: 'Phone number', email: 'Email address',
-  currentCity: 'Current city', livingSituation: 'Current living situation', livingSituationOther: 'Living situation detail', willingToRelocate: 'Could relocate', relocationCities: 'Cities considered', postMarriageLiving: 'Expected living arrangement', postMarriageLivingOther: 'Living arrangement detail',
-  maritalStatus: 'Previous marriage or engagement', priorRelationshipEnd: 'Relationship ended', hasChildren: 'Has children', childrenCount: 'Number of children', wantsChildren: 'Wants children', openToPartnerWithChildren: 'Open to someone with children',
-  occupation: 'Work', industry: 'Field', highestDegree: 'Education', annualIncome: 'Annual income', languages: 'Languages', height: 'Height', linkedinUrl: 'LinkedIn profile',
-  faithBackground: 'Faith, community or cultural background', faithBackgroundOther: 'Background detail', faithPresence: 'Presence in everyday life', interfaithOpenness: 'Different faith or community', interfaithConditions: 'What would need to be true', familyInterfaithView: 'Family’s answer', castePreference: 'Caste preference or requirement',
-  diet: 'Diet', dietOther: 'Diet detail', drinking: 'Alcohol', smoking: 'Smoking or nicotine',
-  reflectiveEase: 'Easy and difficult parts of being close', reflectiveOrdinaryWeek: 'An ordinary week together', reflectiveConflict: 'What happens when something is bothering you',
-  nonNegotiables: 'Non-negotiables', familyRequirement: 'Another person’s requirement', familyRequirementDetail: 'Requirement detail', boundariesConfirmed: 'Everything listed', photographs: 'Photographs',
+  currentCity: 'Current city', currentCityOther: 'Current city detail', livingSituation: 'Current living situation', willingToRelocate: 'Could relocate', relocationCities: 'Cities considered', postMarriageLiving: 'Expected living arrangement',
+  maritalStatus: 'Previous marriage or engagement', hasChildren: 'Has children', wantsChildren: 'Wants children', bothWorking: 'Both working after marriage',
+  occupation: 'Work', highestDegree: 'Education', annualIncome: 'Annual income', languages: 'Languages', height: 'Height', linkedinUrl: 'LinkedIn profile',
+  faithBackground: 'Faith, community or cultural background', faithPresence: 'Presence in everyday life', interfaithOpenness: 'Different faith or community', familyInterfaithView: 'Family’s answer', castePreference: 'Caste preference', castePreferenceDetail: 'Caste preference detail',
+  diet: 'Diet',
+  reflectiveTuesday: 'An ordinary Tuesday evening', reflectiveOrdinaryWeek: 'An ordinary week together', reflectiveEase: 'What takes getting used to', reflectiveConflict: 'What happens when something is bothering you',
+  oneThingToKnow: 'One thing to know before meeting', nonNegotiables: 'Non-negotiables', familyRequirement: 'Another person’s requirement', photographs: 'Photographs',
 })
+
+// Save and exit keeps a paused application in this browser only. There is no
+// transport yet, so nothing leaves the device, and the applicant is told so.
+function readSavedState() {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (!parsed || parsed.version !== JOURNEY_STATE_VERSION) return null
+    // Photograph files cannot survive a reload, so their metadata is dropped
+    // rather than leaving the review page claiming photographs that are gone.
+    parsed.applicant.photographs = { face: null, fullLength: null, ordinaryLife: null }
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function writeSavedState() {
+  if (savingSuspended) return false
+  try {
+    window.localStorage.setItem(STORAGE_KEY, journeyStore.serialize())
+    return true
+  } catch {
+    return false
+  }
+}
+
+function clearSavedState() {
+  try {
+    window.localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    // Nothing to do: a browser that refuses storage never held anything.
+  }
+}
 
 function createScreen(id) {
   const markup = screenMarkup.get(id)
@@ -112,28 +181,159 @@ function clearConditionalFields(element) {
   if (tags && fieldValue(tags.dataset.tagsField).length) setField(tags.dataset.tagsField, [])
 }
 
-function syncConditions(screen) {
-  screen.querySelectorAll('[data-condition-field]').forEach((element) => {
-    const visible = conditionMatches(element)
-    if (!visible && !element.hidden) clearConditionalFields(element)
-    element.hidden = !visible
+// Keeps the control the person just touched pinned to the same point on screen
+// while conditional content is inserted or removed above or below it.
+function preserveAnchor(anchor, mutate) {
+  if (!anchor || !anchor.isConnected) {
+    mutate()
+    return
+  }
+  const before = anchor.getBoundingClientRect().top
+  mutate()
+  const after = anchor.getBoundingClientRect().top
+  const drift = after - before
+  if (Math.abs(drift) > 1) window.scrollBy({ top: drift, left: 0, behavior: 'auto' })
+}
+
+function syncConditions(screen, anchor) {
+  preserveAnchor(anchor, () => {
+    screen.querySelectorAll('[data-condition-field]').forEach((element) => {
+      const visible = conditionMatches(element)
+      if (!visible && !element.hidden) clearConditionalFields(element)
+      element.hidden = !visible
+    })
+  })
+}
+
+function orderFieldDescriptions(container) {
+  const error = container.querySelector(':scope > .field-error')
+  if (!error) return
+  const helper = container.querySelector(':scope > .hint, :scope > .reason, :scope > .counter')
+  if (helper && error.compareDocumentPosition(helper) & Node.DOCUMENT_POSITION_PRECEDING) {
+    container.insertBefore(error, helper)
+  }
+}
+
+function populateCitySelect(select) {
+  if (select.options.length > 1) return
+  const options = [...CITY_OPTIONS.map((city) => [city, city]), ['somewhere_else', 'Somewhere else']]
+  options.forEach(([value, label]) => {
+    const option = document.createElement('option')
+    option.value = value
+    option.textContent = label
+    select.append(option)
+  })
+}
+
+function populateDateOfBirthSelects(screen) {
+  const day = screen.querySelector('[data-dob-day]')
+  const year = screen.querySelector('[data-dob-year]')
+  if (day && day.options.length === 1) {
+    for (let value = 1; value <= 31; value += 1) {
+      const option = document.createElement('option')
+      option.value = String(value)
+      option.textContent = String(value)
+      day.append(option)
+    }
+  }
+  if (year && year.options.length === 1) {
+    const thisYear = new Date().getFullYear()
+    for (let value = thisYear - APPLICANT_MINIMUM_AGE; value >= thisYear - APPLICANT_MAXIMUM_AGE; value -= 1) {
+      const option = document.createElement('option')
+      option.value = String(value)
+      option.textContent = String(value)
+      year.append(option)
+    }
+  }
+}
+
+function clampAgeInterval(minimum, maximum) {
+  let low = minimum
+  let high = maximum
+  if (low < AGE_RANGE_MINIMUM) {
+    const shift = AGE_RANGE_MINIMUM - low
+    low += shift
+    high += shift
+  }
+  if (high > AGE_RANGE_MAXIMUM) {
+    const shift = high - AGE_RANGE_MAXIMUM
+    high -= shift
+    low -= shift
+  }
+  return {
+    minimum: Math.max(AGE_RANGE_MINIMUM, Math.min(AGE_RANGE_MAXIMUM - 1, low)),
+    maximum: Math.min(AGE_RANGE_MAXIMUM, Math.max(AGE_RANGE_MINIMUM + 1, high)),
+  }
+}
+
+function derivedAgeRange() {
+  const age = calculateAgeFromDateOfBirth(dateValueFromParts(fieldValue('applicant.dateOfBirth')))
+  if (age === null) return null
+  return clampAgeInterval(age - AGE_SPREAD_BELOW, age + AGE_SPREAD_ABOVE)
+}
+
+function renderAgeRange(slider) {
+  const minimum = Number(fieldValue('applicant.preferredAge.minimum'))
+  const maximum = Number(fieldValue('applicant.preferredAge.maximum'))
+  slider.querySelector('[data-age-input="minimum"]').value = String(minimum)
+  slider.querySelector('[data-age-input="maximum"]').value = String(maximum)
+  slider.querySelector('[data-age-label="minimum"]').textContent = String(minimum)
+  slider.querySelector('[data-age-label="maximum"]').textContent = String(maximum)
+  const span = AGE_RANGE_MAXIMUM - AGE_RANGE_MINIMUM
+  const fill = slider.querySelector('[data-age-fill]')
+  fill.style.left = `${((minimum - AGE_RANGE_MINIMUM) / span) * 100}%`
+  fill.style.right = `${100 - ((maximum - AGE_RANGE_MINIMUM) / span) * 100}%`
+  slider.querySelectorAll('[data-age-label]').forEach((label) => {
+    const value = Number(label.dataset.ageLabel === 'minimum' ? minimum : maximum)
+    label.style.left = `${((value - AGE_RANGE_MINIMUM) / span) * 100}%`
+  })
+}
+
+function initAgeRange(screen) {
+  const slider = screen.querySelector('[data-age-slider]')
+  if (!slider) return
+  if (!ageRangeTouched) {
+    const derived = derivedAgeRange()
+    if (derived) {
+      setField('applicant.preferredAge.minimum', derived.minimum)
+      setField('applicant.preferredAge.maximum', derived.maximum)
+    }
+  }
+  renderAgeRange(slider)
+  slider.querySelectorAll('[data-age-input]').forEach((input) => {
+    const commit = () => {
+      ageRangeTouched = true
+      const bound = input.dataset.ageInput
+      let value = Number(input.value)
+      if (bound === 'minimum') value = Math.min(value, Number(fieldValue('applicant.preferredAge.maximum')) - 1)
+      else value = Math.max(value, Number(fieldValue('applicant.preferredAge.minimum')) + 1)
+      value = Math.max(AGE_RANGE_MINIMUM, Math.min(AGE_RANGE_MAXIMUM, value))
+      setField(`applicant.preferredAge.${bound}`, value)
+      renderAgeRange(slider)
+      clearErrorFor(input)
+      refreshAdvanceState(screen)
+    }
+    input.addEventListener('input', commit)
+    input.addEventListener('change', commit)
   })
 }
 
 function hydrateControls(screen) {
-  screen.querySelectorAll('.pill[data-field]').forEach((button) => {
+  screen.querySelectorAll('.pill[data-field], .segment[data-field], .choice-card[data-field]').forEach((button) => {
     const selected = fieldValue(button.dataset.field) === button.dataset.value
     button.classList.toggle('selected', selected)
-    button.setAttribute('aria-pressed', String(selected))
+    if (button.getAttribute('role') === 'radio') button.setAttribute('aria-checked', String(selected))
+    else button.setAttribute('aria-pressed', String(selected))
   })
+
+  screen.querySelectorAll('[data-city-select]').forEach(populateCitySelect)
+  populateDateOfBirthSelects(screen)
 
   screen.querySelectorAll('input[data-field], textarea[data-field], select[data-field]').forEach((control) => {
     const value = fieldValue(control.dataset.field)
-    if (control.type === 'date') control.value = dateValueFromParts(value)
-    else if (control.type !== 'file') control.value = value ?? ''
+    if (control.type !== 'file') control.value = value ?? ''
   })
 
-  screen.querySelectorAll('[data-output]').forEach((output) => { output.value = String(fieldValue(output.dataset.output)) })
   const unit = fieldValue('applicant.height.unit') || 'ft'
   screen.querySelectorAll('[data-height-unit]').forEach((button) => {
     const selected = button.dataset.heightUnit === unit
@@ -144,17 +344,11 @@ function hydrateControls(screen) {
 
   screen.querySelectorAll('[data-counter-for]').forEach((counter) => {
     const textarea = screen.querySelector(`#${counter.dataset.counterFor}`)
-    counter.textContent = `${textarea?.value.length || 0} / 400`
+    counter.textContent = `${textarea?.value.length || 0} / ${textarea?.maxLength || 600}`
   })
 
-  const dateInput = screen.querySelector('#dateOfBirth')
-  if (dateInput) {
-    const bounds = dateOfBirthBounds()
-    dateInput.min = bounds.min
-    dateInput.max = bounds.max
-  }
-
   screen.querySelectorAll('.field, .photo-slot').forEach((container, index) => {
+    orderFieldDescriptions(container)
     const descriptions = [...container.querySelectorAll('.hint, .reason, .field-error')]
     if (!descriptions.length) return
     const ids = descriptions.map((description, descriptionIndex) => {
@@ -173,16 +367,25 @@ function hydrateControls(screen) {
 function renderProgress(screen) {
   const header = journeyRoot.querySelector('[data-journey-header]')
   const mascot = journeyRoot.querySelector('[data-persistent-mascot]')
+  const saveExit = journeyRoot.querySelector('[data-save-exit]')
   const chapter = Number(screen.dataset.chapter)
   const applicationScreen = Number.isInteger(chapter) && chapter > 0
-  header.hidden = !applicationScreen
-  mascot.hidden = !applicationScreen
-  if (!applicationScreen) return
-  const step = Number(screen.dataset.step)
-  const steps = Number(screen.dataset.steps)
-  journeyRoot.querySelector('[data-chapter-status]').textContent = steps > 1
-    ? `Chapter ${chapter} of 6 · Step ${step} of ${steps}`
-    : `Chapter ${chapter} of 6`
+  const saveable = screen.hasAttribute('data-saveable')
+  header.hidden = !applicationScreen && !saveable
+  mascot.hidden = !applicationScreen && !screen.classList.contains('grouped-screen')
+  saveExit.hidden = !(applicationScreen || saveable)
+  const status = journeyRoot.querySelector('[data-chapter-status]')
+  if (!applicationScreen) {
+    status.textContent = ''
+    return
+  }
+  const numeral = CHAPTER_NUMERALS[chapter] || ''
+  if (status.textContent === numeral) return
+  status.classList.add('is-fading')
+  window.setTimeout(() => {
+    status.textContent = numeral
+    status.classList.remove('is-fading')
+  }, 140)
 }
 
 function renderTags(control) {
@@ -200,6 +403,7 @@ function renderTags(control) {
     remove.addEventListener('click', () => {
       setField(path, values.filter((item) => item !== value))
       renderTags(control)
+      refreshAdvanceState(control.closest('.screen'))
     })
     chip.append(remove)
     return chip
@@ -212,15 +416,21 @@ function initTagControl(control) {
   const dropdown = control.querySelector('[data-tag-dropdown]')
   const options = path === 'applicant.languages' ? LANGUAGE_OPTIONS : CITY_OPTIONS
 
+  const close = () => {
+    dropdown.classList.remove('show')
+    control.classList.remove('is-open')
+  }
+
   const add = (value) => {
     const clean = value.trim()
     if (!clean) return
     const current = fieldValue(path) || []
     if (!current.some((item) => item.toLowerCase() === clean.toLowerCase())) setField(path, [...current, clean])
     input.value = ''
-    dropdown.classList.remove('show')
+    close()
     renderTags(control)
     clearErrorFor(control)
+    refreshAdvanceState(control.closest('.screen'))
   }
 
   const showOptions = () => {
@@ -236,15 +446,17 @@ function initTagControl(control) {
       return button
     }))
     dropdown.classList.toggle('show', matches.length > 0)
+    control.classList.toggle('is-open', matches.length > 0)
   }
   input.addEventListener('input', showOptions)
   input.addEventListener('focus', showOptions)
+  input.addEventListener('blur', () => window.setTimeout(close, 120))
   input.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
       event.preventDefault()
       add(input.value)
     }
-    if (event.key === 'Escape') dropdown.classList.remove('show')
+    if (event.key === 'Escape') close()
   })
   renderTags(control)
 }
@@ -258,17 +470,20 @@ function renderBoundaries(screen) {
     row.className = 'boundary-entry'
     const label = document.createElement('label')
     label.htmlFor = `boundary-${index}`
-    label.textContent = entry.topic || `Custom non-negotiable ${index + 1}`
+    label.textContent = 'Explain exactly where your boundary is.'
+    const topic = document.createElement('p')
+    topic.className = 'boundary-topic'
+    topic.textContent = entry.topic
     const input = document.createElement('input')
     input.id = `boundary-${index}`
     input.type = 'text'
     input.value = entry.detail
-    input.placeholder = 'Explain exactly where your boundary is'
     input.addEventListener('input', () => {
       const next = structuredClone(fieldValue('applicant.nonNegotiables'))
       next[index].detail = input.value
       setField('applicant.nonNegotiables', next)
       clearErrorFor(host)
+      refreshAdvanceState(screen)
     })
     const remove = document.createElement('button')
     remove.type = 'button'
@@ -277,8 +492,9 @@ function renderBoundaries(screen) {
     remove.addEventListener('click', () => {
       setField('applicant.nonNegotiables', entries.filter((_, itemIndex) => itemIndex !== index))
       renderBoundaries(screen)
+      refreshAdvanceState(screen)
     })
-    row.append(label, input, remove)
+    row.append(topic, label, input, remove)
     return row
   }))
   screen.querySelectorAll('[data-topic]').forEach((button) => {
@@ -288,12 +504,22 @@ function renderBoundaries(screen) {
   })
 }
 
-function addBoundary(screen, topic = '') {
+function toggleBoundary(screen, topic, anchor) {
   const entries = fieldValue('applicant.nonNegotiables') || []
-  if (entries.length >= 3 || (topic && entries.some((entry) => entry.topic === topic))) return
-  setField('applicant.nonNegotiables', [...entries, { topic, detail: '' }])
-  renderBoundaries(screen)
-  screen.querySelector('[data-boundary-list] input:last-of-type')?.focus()
+  const existing = entries.findIndex((entry) => entry.topic === topic)
+  preserveAnchor(anchor, () => {
+    if (existing >= 0) {
+      setField('applicant.nonNegotiables', entries.filter((_, index) => index !== existing))
+    } else {
+      if (entries.length >= 3) {
+        setError(screen.querySelector('[data-required-field="applicant.nonNegotiables"]'), 'Choose up to three.')
+        return
+      }
+      setField('applicant.nonNegotiables', [...entries, { topic, detail: '' }])
+    }
+    renderBoundaries(screen)
+  })
+  refreshAdvanceState(screen)
 }
 
 function renderPhotoSlot(slot) {
@@ -315,6 +541,7 @@ function renderPhotoSlot(slot) {
     photoFiles.delete(id)
     setField(`applicant.photographs.${id}`, null)
     renderPhotoSlot(slot)
+    refreshAdvanceState(slot.closest('.screen'))
   })
   preview.append(image, name, remove)
 }
@@ -336,16 +563,15 @@ function initPhotos(screen) {
       setField(`applicant.photographs.${id}`, { name: file.name, type: file.type, size: file.size })
       setError(slot, '')
       renderPhotoSlot(slot)
+      refreshAdvanceState(screen)
     })
   })
 }
 
 function displayValue(key, value) {
   if (key === 'dateOfBirth') return dateValueFromParts(value)
-  if (key === 'marriageTimeline' && value === 'when_right') return 'When the time is right'
   if (key === 'preferredAge') return `${value.minimum} to ${value.maximum}`
   if (key === 'height') return value.unit === 'cm' ? `${value.centimeters} cm` : `${value.feet} ft ${value.inches} in`
-  if (key === 'priorRelationshipEnd') return value.month && value.year ? `${value.month}/${value.year}` : ''
   if (key === 'nonNegotiables') return value.map((entry) => `${entry.topic ? `${entry.topic}: ` : ''}${entry.detail}`).join('; ')
   if (key === 'photographs') return Object.values(value).filter(Boolean).map((photo) => photo.name).join(', ')
   if (Array.isArray(value)) return value.join(', ')
@@ -370,7 +596,7 @@ function renderReview(screen) {
     const list = document.createElement('dl')
     section.fields.forEach((key) => {
       const value = applicant[key]
-      if (value === '' || value === null || (Array.isArray(value) && !value.length)) return
+      if (value === '' || value === null || value === undefined || (Array.isArray(value) && !value.length)) return
       const term = document.createElement('dt')
       term.textContent = FIELD_LABELS[key]
       const description = document.createElement('dd')
@@ -386,24 +612,64 @@ function renderReview(screen) {
   })
 }
 
-function validateField(container) {
-  if (container.hidden) return true
+function fieldMessage(container) {
+  if (container.hidden) return ''
   const path = container.dataset.requiredField
   const value = fieldValue(path)
-  let message = ''
-  if (path === 'applicant.fullName' && String(value).trim().length < 2) message = 'Enter your full name.'
-  else if (path === 'applicant.dateOfBirth') message = validateApplicantDateOfBirth(dateValueFromParts(value)).message
-  else if (path === 'applicant.phone' && !isValidPhone(value)) message = 'Enter a valid phone number including country code.'
-  else if (path === 'applicant.email' && !isValidEmail(value)) message = 'Enter a valid email address.'
-  else if (path === 'applicant.linkedinUrl' && !/^https?:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/in\/[\w%+-]+\/?(?:[?#].*)?$/i.test(String(value).trim())) message = 'Enter a LinkedIn profile URL.'
-  else if (path === 'applicant.preferredAge' && (!value.minimum || !value.maximum || value.minimum < 22 || value.maximum <= value.minimum)) message = 'Choose a valid minimum and maximum age.'
-  else if (path === 'applicant.height' && (value.unit === 'cm' ? !value.centimeters : !value.feet || value.inches === '')) message = 'Enter your height.'
-  else if (path === 'applicant.priorRelationshipEnd' && (!value.month || !value.year)) message = 'Enter the month and year.'
-  else if (path === 'applicant.nonNegotiables' && (!value.length || value.length > 3 || value.some((entry) => !entry.detail.trim()))) message = 'Add one to three boundaries and explain each one.'
-  else if (Array.isArray(value) && value.length === 0) message = 'Answer this question.'
-  else if (typeof value === 'string' && !value.trim()) message = 'Answer this question.'
+  if (path === 'applicant.gender') {
+    if (!String(value).trim() || !String(fieldValue('applicant.seeking')).trim()) return 'Complete this sentence.'
+    return ''
+  }
+  if (path.endsWith('.fullName')) return String(value).trim().length < 2 ? 'Enter your full name.' : ''
+  if (path === 'applicant.dateOfBirth') return validateApplicantDateOfBirth(dateValueFromParts(value)).message
+  if (path.endsWith('.phone')) return isValidPhone(value) ? '' : 'Enter a valid phone number including country code.'
+  if (path.endsWith('.email')) return isValidEmail(value) ? '' : 'Enter a valid email address.'
+  if (path.endsWith('.linkedinUrl')) {
+    return /^https?:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/in\/[\w%+-]+\/?(?:[?#].*)?$/i.test(String(value).trim())
+      ? '' : 'Enter a LinkedIn profile URL.'
+  }
+  if (path === 'applicant.preferredAge') {
+    return (!value.minimum || !value.maximum || value.minimum < AGE_RANGE_MINIMUM || value.maximum <= value.minimum)
+      ? 'Choose a valid minimum and maximum age.' : ''
+  }
+  if (path === 'applicant.height') {
+    return (value.unit === 'cm' ? !value.centimeters : !value.feet || value.inches === '') ? 'Enter your height.' : ''
+  }
+  if (path === 'applicant.nonNegotiables') {
+    return (!value.length || value.length > 3 || value.some((entry) => !entry.detail.trim()))
+      ? 'Add one to three boundaries and explain each one.' : ''
+  }
+  if (Array.isArray(value) && value.length === 0) return 'Answer this question.'
+  if (typeof value === 'string' && !value.trim()) return 'Answer this question.'
+  return ''
+}
+
+function validateField(container) {
+  const message = fieldMessage(container)
   setError(container, message)
   return !message
+}
+
+function screenIsComplete(screen) {
+  const incomplete = [...screen.querySelectorAll('[data-required-field]')].some((container) => fieldMessage(container))
+  if (incomplete) return false
+  if (screen.id === 'ch6-photos') {
+    return [...screen.querySelectorAll('[data-photo-slot]')].every((slot) => photoFiles.has(slot.dataset.photoSlot))
+  }
+  if (screen.id === 'ch6-review') {
+    return [...screen.querySelectorAll('[data-consent]')].every((checkbox) => checkbox.checked)
+  }
+  if (screen.id === 'seal-send') {
+    return [...screen.querySelectorAll('[data-consent-nominator]')].every((checkbox) => checkbox.checked)
+  }
+  return true
+}
+
+function refreshAdvanceState(screen) {
+  if (!screen) return
+  const advance = screen.querySelector('.actions .next-btn[type="submit"]')
+  if (!advance) return
+  advance.disabled = !screenIsComplete(screen)
 }
 
 function focusInvalid(container) {
@@ -426,6 +692,14 @@ function validateScreen(screen) {
     })
   }
 
+  if (screen.id === 'seal-send') {
+    const missing = [...screen.querySelectorAll('[data-consent-nominator]')].filter((checkbox) => !checkbox.checked)
+    const consentError = screen.querySelector('[data-consent-error]')
+    consentError.textContent = missing.length ? 'Confirm both before sealing.' : ''
+    consentError.hidden = missing.length === 0
+    if (missing.length && !firstInvalid) firstInvalid = missing[0].closest('.consents')
+  }
+
   if (screen.id === 'ch6-review') {
     const missing = [...screen.querySelectorAll('[data-consent]')].filter((checkbox) => !checkbox.checked)
     const consentError = screen.querySelector('[data-consent-error]')
@@ -438,6 +712,13 @@ function validateScreen(screen) {
 }
 
 function nextFor(screen) {
+  if (screen.id === 'signup-choice') {
+    return fieldValue('path') === 'nominator' ? 'friend-verification' : 'welcome'
+  }
+  const declared = screen.querySelector('form[data-next-screen]')?.dataset.nextScreen
+  if (declared) return declared
+  const nominatorIndex = NOMINATOR_ROUTES.indexOf(screen.id)
+  if (nominatorIndex >= 0) return NOMINATOR_ROUTES[nominatorIndex + 1]
   const index = ROUTES.indexOf(screen.id)
   return ROUTES[index + 1]
 }
@@ -448,10 +729,12 @@ function mountScreen(id) {
   window.scrollTo({ top: 0, behavior: 'auto' })
   renderProgress(screen)
   hydrateControls(screen)
+  initAgeRange(screen)
   screen.querySelectorAll('[data-tags-field]').forEach(initTagControl)
   renderBoundaries(screen)
   initPhotos(screen)
   renderReview(screen)
+  refreshAdvanceState(screen)
   journeyStore.setScreen(id)
   screen.querySelector('h1')?.focus?.({ preventScroll: true })
   return screen
@@ -461,9 +744,8 @@ function captureMountedFields() {
   const screen = screenHost.querySelector('.screen')
   if (!screen) return
   screen.querySelectorAll('input[data-field], textarea[data-field], select[data-field]').forEach((control) => {
-    if (control.type === 'file') return
+    if (control.type === 'file' || control.type === 'range') return
     let value = control.value
-    if (control.type === 'date') value = datePartsFromValue(value) || { day: '', month: '', year: '' }
     if (control.type === 'number' && value !== '') value = Number(value)
     setField(control.dataset.field, value)
   })
@@ -478,86 +760,109 @@ function goTo(id) {
 function handleChoice(button) {
   const path = button.dataset.field
   const value = button.dataset.value
+  const screen = button.closest('.screen')
   setField(path, value)
-  button.closest('.pill-group').querySelectorAll('.pill').forEach((option) => {
+  button.closest('.pill-group, .segmented, .choice-cards').querySelectorAll('[data-field]').forEach((option) => {
     const selected = option === button
     option.classList.toggle('selected', selected)
-    option.setAttribute('aria-pressed', String(selected))
+    if (option.getAttribute('role') === 'radio') option.setAttribute('aria-checked', String(selected))
+    else option.setAttribute('aria-pressed', String(selected))
   })
   clearErrorFor(button)
-  syncConditions(button.closest('.screen'))
-  if (path === 'applicant.intent' && value === 'not_sure') goTo('chapter-one-exit')
+  syncConditions(screen, button)
+  refreshAdvanceState(screen)
 }
 
 function handleInput(control) {
   let value = control.value
-  if (control.type === 'date') value = datePartsFromValue(value) || { day: '', month: '', year: '' }
   if (control.type === 'number' && value !== '') value = Number(value)
   setField(control.dataset.field, value)
   clearErrorFor(control)
   const counter = control.id && screenHost.querySelector(`[data-counter-for="${control.id}"]`)
-  if (counter) counter.textContent = `${control.value.length} / 400`
-  syncConditions(control.closest('.screen'))
-}
-
-function handleStepper(button) {
-  const path = button.dataset.stepper
-  const direction = Number(button.dataset.direction)
-  const minimum = path.endsWith('minimum') ? 22 : fieldValue('applicant.preferredAge.minimum') + 1
-  const maximum = path.endsWith('minimum') ? fieldValue('applicant.preferredAge.maximum') - 1 : 70
-  const value = Math.max(minimum, Math.min(maximum, Number(fieldValue(path)) + direction))
-  setField(path, value)
-  const output = button.closest('.age-stepper').querySelector('output')
-  output.value = String(value)
-  clearErrorFor(button)
+  if (counter) counter.textContent = `${control.value.length} / ${control.maxLength}`
+  const screen = control.closest('.screen')
+  syncConditions(screen, control)
+  refreshAdvanceState(screen)
 }
 
 function bindEvents() {
   journeyRoot.addEventListener('click', (event) => {
-    const choice = event.target.closest('.pill[data-field]')
+    const choice = event.target.closest('.pill[data-field], .segment[data-field], .choice-card[data-field]')
     if (choice) return handleChoice(choice)
     const next = event.target.closest('[data-next]')
     if (next) return goTo(next.dataset.next)
     const back = event.target.closest('[data-back]')
     if (back) return goTo(back.dataset.back)
-    const stepper = event.target.closest('[data-stepper]')
-    if (stepper) return handleStepper(stepper)
     const heightUnit = event.target.closest('[data-height-unit]')
     if (heightUnit) {
+      const screen = heightUnit.closest('.screen')
       setField('applicant.height.unit', heightUnit.dataset.heightUnit)
-      hydrateControls(heightUnit.closest('.screen'))
+      preserveAnchor(heightUnit, () => hydrateControls(screen))
+      refreshAdvanceState(screen)
       return
     }
     const topic = event.target.closest('[data-topic]')
-    if (topic) return addBoundary(topic.closest('.screen'), topic.dataset.topic)
-    const addCustom = event.target.closest('[data-add-boundary]')
-    if (addCustom) return addBoundary(addCustom.closest('.screen'))
+    if (topic) return toggleBoundary(topic.closest('.screen'), topic.dataset.topic, topic)
+    if (event.target.closest('[data-save-exit]')) return saveAndExit()
+    if (event.target.closest('[data-resume]')) return goTo(resumeTarget)
+    if (event.target.closest('[data-clear-saved]')) return forgetEverything()
   })
 
   journeyRoot.addEventListener('input', (event) => {
-    if (event.target.matches('[data-field]')) handleInput(event.target)
+    if (event.target.matches('[data-field]:not([type="range"])')) handleInput(event.target)
   })
   journeyRoot.addEventListener('change', (event) => {
     if (event.target.matches('input[type="checkbox"][data-consent]')) {
       setField(`applicant.consents.${event.target.dataset.consent}`, event.target.checked)
       clearErrorFor(event.target)
+      refreshAdvanceState(event.target.closest('.screen'))
       return
     }
-    if (event.target.matches('input[data-field], textarea[data-field], select[data-field]')) handleInput(event.target)
+    if (event.target.matches('input[type="checkbox"][data-consent-nominator]')) {
+      clearErrorFor(event.target)
+      refreshAdvanceState(event.target.closest('.screen'))
+      return
+    }
+    if (event.target.matches('input[data-field]:not([type="range"]), textarea[data-field], select[data-field]')) handleInput(event.target)
   })
   journeyRoot.addEventListener('submit', (event) => {
     event.preventDefault()
     const screen = event.target.closest('.screen')
     captureMountedFields()
-    if (!validateScreen(screen)) return
-    if (screen.id === 'ch6-boundaries' && fieldValue('applicant.boundariesConfirmed') === 'change') {
-      const field = screen.querySelector('[data-required-field="applicant.nonNegotiables"]')
-      setError(field, 'Update the boundaries above, then choose Yes.')
-      focusInvalid(field)
+    if (!screenIsComplete(screen)) {
+      refreshAdvanceState(screen)
+      validateScreen(screen)
       return
     }
+    if (!validateScreen(screen)) return
+    if (screen.id === 'seal-send') setField('nominator.sealed', true)
     goTo(nextFor(screen))
   })
+}
+
+function saveAndExit() {
+  captureMountedFields()
+  resumeTarget = journeyStore.getState().currentScreen
+  const stored = writeSavedState()
+  const screen = mountScreen('saved')
+  if (!stored) {
+    const card = screen.querySelector('.center-card p')
+    if (card) card.textContent = 'This browser will not let me store anything, so your answers are only kept while this tab stays open.'
+  }
+}
+
+function forgetEverything() {
+  // Suspended while the store resets, so that resetting does not immediately
+  // write a fresh record back into the storage the person just cleared.
+  savingSuspended = true
+  photoFiles.forEach((stored) => URL.revokeObjectURL(stored.url))
+  photoFiles.clear()
+  ageRangeTouched = false
+  journeyStore.hydrate(initialJourneyState)
+  resumeTarget = 'signup-choice'
+  mountScreen('signup-choice')
+  clearSavedState()
+  savingSuspended = false
 }
 
 export function initializeJourney(options) {
@@ -565,6 +870,16 @@ export function initializeJourney(options) {
   screenHost = options.screenHost
   screenMarkup = options.screenMarkup
   bindEvents()
-  const initial = screenMarkup.has(journeyStore.getState().currentScreen) ? journeyStore.getState().currentScreen : 'welcome'
+
+  const saved = readSavedState()
+  if (saved) journeyStore.hydrate(saved)
+  journeyStore.subscribe((_snapshot, change) => {
+    if (change.type === 'hydrate') return
+    writeSavedState()
+  })
+
+  const current = journeyStore.getState().currentScreen
+  const initial = screenMarkup.has(current) && current !== 'saved' ? current : 'signup-choice'
+  resumeTarget = initial
   mountScreen(initial)
 }

@@ -3,8 +3,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import test from 'node:test'
 
 const homeHtml = readFileSync(new URL('../index.html', import.meta.url), 'utf8')
-const introScript = readFileSync(new URL('../src/scripts/modules/experience-intro.js', import.meta.url), 'utf8')
-const introCss = readFileSync(new URL('../src/styles/components/experience-intro.css', import.meta.url), 'utf8')
+const introScript = readFileSync(new URL('../src/marketing/home/experience-intro.js', import.meta.url), 'utf8')
+const introCss = readFileSync(new URL('../src/marketing/home/experience-intro.css', import.meta.url), 'utf8')
 
 test('homepage includes a skippable city-image experience intro', () => {
   assert.match(homeHtml, /data-experience-intro/)

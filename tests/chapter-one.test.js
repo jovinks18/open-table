@@ -24,31 +24,40 @@ function chapterOneSection(id, nextId) {
 
 test('Chapter I contains three grouped cards with canonical intent fields', () => {
   for (const id of ['ch1-intent', 'ch1-decision', 'ch1-contact']) assert.match(template, new RegExp(`id="${id}" data-chapter="1"`))
-  for (const path of ['applicant.intent', 'applicant.marriageTimeline', 'applicant.meetingReadiness']) {
+  for (const path of ['applicant.marriageTimeline', 'applicant.meetingReadiness']) {
     assert.equal((template.match(new RegExp(`data-field="${path.replaceAll('.', '\\.')}"`, 'g')) || []).length > 0, true)
     assert.equal((store.match(new RegExp(path.split('.').at(-1) + ':', 'g')) || []).length, 1)
   }
   assert.doesNotMatch(store, /chapterOne:/)
+  assert.doesNotMatch(template, /applicant\.intent/)
 })
 
-test('Chapter I copy and exit behavior match the rebuilt journey', () => {
+test('Chapter I copy matches the rebuilt journey', () => {
   for (const copy of [
-    'What are you looking for?',
+    'Where you’re starting from.',
     'If you met the right person, when would you want to be married?',
     'Could you realistically meet someone in the next four weeks?',
+    'I’m a ',
+    'Who’s in the room.',
     'Who else is involved in your search?',
     'When it comes to the final decision, how much say will your family have?',
-    'How I can reach you',
+    'How to find you.',
   ]) assert.ok(template.includes(copy))
-  assert.match(controller, /path === 'applicant\.intent' && value === 'not_sure'/)
-  assert.match(controller, /goTo\('chapter-one-exit'\)/)
   assert.doesNotMatch(template, /No need to overthink|Keep going|Almost through|Take your time/)
+  assert.doesNotMatch(template, /Open to either|Non-binary|Prefer to describe myself/)
 })
 
-test('the open-ended marriage timeline uses the concise display label everywhere', () => {
-  assert.match(template, /data-value="when_right"[^>]*>When the time is right<\/button>/)
-  assert.match(controller, /key === 'marriageTimeline' && value === 'when_right'\) return 'When the time is right'/)
-  assert.doesNotMatch(`${template}\n${controller}`, /When it’s right—I don’t have a date in mind/)
+test('the marriage timeline offers the four rebuilt options', () => {
+  assert.match(template, /data-value="no_timeline"[^>]*>I don’t have a timeline<\/button>/)
+  assert.doesNotMatch(template, /when_right|When the time is right/)
+})
+
+test('date of birth uses three selects rather than a native date input', () => {
+  assert.doesNotMatch(template, /type="date"/)
+  for (const path of ['applicant.dateOfBirth.day', 'applicant.dateOfBirth.month', 'applicant.dateOfBirth.year']) {
+    assert.match(template, new RegExp(`data-field="${path.replaceAll('.', '\\.')}"`))
+  }
+  assert.match(controller, /function populateDateOfBirthSelects\(screen\)/)
 })
 
 test('contact validation preserves the age and phone boundaries', () => {
@@ -64,30 +73,32 @@ test('contact validation preserves the age and phone boundaries', () => {
   assert.equal(isValidPhone('123'), false)
   assert.equal(isValidEmail('person@example.com'), true)
   assert.equal(isValidEmail('person@invalid'), false)
-  assert.match(controller, /dateInput\.min = bounds\.min/)
-  assert.match(controller, /dateInput\.max = bounds\.max/)
 })
 
-test('age preference stores absolute bounds and never uses offset wording', () => {
-  assert.match(template, />Minimum age</)
-  assert.match(template, />Maximum age</)
-  assert.match(template, /data-stepper="applicant\.preferredAge\.minimum"/)
-  assert.match(template, /data-stepper="applicant\.preferredAge\.maximum"/)
-  assert.doesNotMatch(template, /Younger by|Older by/)
+test('age preference is a two-handle range with derived defaults', () => {
+  assert.match(template, /data-age-input="minimum"/)
+  assert.match(template, /data-age-input="maximum"/)
+  assert.doesNotMatch(template, /data-stepper=/)
+  assert.match(template, /min="21" max="70"/)
+  assert.match(controller, /function clampAgeInterval\(minimum, maximum\)/)
+  assert.match(controller, /function derivedAgeRange\(\)/)
+  assert.match(controller, /AGE_SPREAD_BELOW = 5/)
+  assert.match(controller, /AGE_SPREAD_ABOVE = 7/)
 })
 
-test('Chapter I keeps seeking in Step 1 and preferred age in Step 2', () => {
+test('Chapter I keeps gender and seeking in panel 1 and preferred age in panel 2', () => {
   const intent = chapterOneSection('ch1-intent', 'ch1-decision')
   const decision = chapterOneSection('ch1-decision', 'ch1-contact')
   const contact = chapterOneSection('ch1-contact', 'chapter-one-exit')
 
-  assert.match(intent, /data-required-field="applicant\.seeking"/)
+  assert.match(intent, /data-field="applicant\.gender"/)
+  assert.match(intent, /data-field="applicant\.seeking"/)
+  assert.match(intent, /data-required-field="applicant\.dateOfBirth"/)
   assert.doesNotMatch(intent, /data-required-field="applicant\.preferredAge"/)
-  assert.match(decision, /data-required-field="applicant\.gender"[\s\S]*data-required-field="applicant\.preferredAge"[\s\S]*data-required-field="applicant\.familySearchInvolvement"/)
-  assert.doesNotMatch(decision, /data-required-field="applicant\.seeking"/)
-  assert.match(contact, /data-required-field="applicant\.fullName"[\s\S]*data-required-field="applicant\.dateOfBirth"/)
+  assert.match(decision, /data-required-field="applicant\.preferredAge"[\s\S]*data-required-field="applicant\.familySearchInvolvement"/)
+  assert.match(contact, /data-required-field="applicant\.fullName"[\s\S]*data-required-field="applicant\.email"/)
+  assert.doesNotMatch(contact, /data-required-field="applicant\.dateOfBirth"/)
 
-  assert.equal((template.match(/data-required-field="applicant\.seeking"/g) || []).length, 1)
   assert.equal((template.match(/data-required-field="applicant\.preferredAge"/g) || []).length, 1)
   assert.equal((store.match(/\bseeking:/g) || []).length, 1)
   assert.equal((store.match(/\bpreferredAge:/g) || []).length, 1)

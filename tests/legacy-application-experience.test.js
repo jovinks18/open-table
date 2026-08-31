@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync, statSync } from 'node:fs'
 import test from 'node:test'
 
-import { buildProgressLabel, clampApplicationStep, GATEWAY_STEP } from '../src/application/navigation.js'
+import { buildProgressLabel, clampApplicationStep, GATEWAY_STEP } from '../src/application/legacy/navigation.js'
 import {
   APPLICATION_CHAPTERS,
   APPLICATION_GATEWAY,
@@ -18,9 +18,9 @@ const field = (name) => allFields.find((item) => item.name === name)
 const screen = (id) => APPLICATION_STEPS.find((item) => item.id === id)
 const fieldNames = (id) => screen(id).fields.map(({ name }) => name)
 
-const appSource = readFileSync(new URL('../src/application/app.js', import.meta.url), 'utf8')
+const appSource = readFileSync(new URL('../src/application/legacy/app.js', import.meta.url), 'utf8')
 const schemaSource = readFileSync(new URL('../src/application/schema.js', import.meta.url), 'utf8')
-const styleSource = readFileSync(new URL('../src/styles/pages/apply.css', import.meta.url), 'utf8')
+const styleSource = readFileSync(new URL('../src/application/legacy/styles.css', import.meta.url), 'utf8')
 
 function extractObjectLiteral(source, constName) {
   const match = source.match(new RegExp(`const ${constName} = Object\\.freeze\\((\\{[\\s\\S]*?\\n\\})\\)`))
