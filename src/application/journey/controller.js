@@ -1,4 +1,4 @@
-import { JOURNEY_STATE_VERSION, initialJourneyState, journeyStore, valueAtPath } from './store.js'
+import { journeyStore, valueAtPath } from './store.js'
 import {
   APPLICANT_MAXIMUM_AGE,
   APPLICANT_MINIMUM_AGE,
@@ -8,8 +8,6 @@ import {
   validateApplicantDateOfBirth,
 } from './chapter-one.js'
 import { isValidPhone } from '../validation.js'
-
-const STORAGE_KEY = 'donna.journey'
 
 const ROUTES = Object.freeze([
   'signup-choice',
@@ -34,8 +32,6 @@ const LANGUAGE_OPTIONS = Object.freeze([
   'Gujarati', 'Punjabi', 'Urdu', 'Konkani', 'Tulu', 'Odia', 'Assamese', 'Other',
 ])
 
-const NOMINATOR_ROUTES = Object.freeze(['friend-verification', 'write-note', 'seal-send', 'nomination-sent'])
-
 const CHAPTER_NUMERALS = Object.freeze(['', 'I', 'II', 'III', 'IV', 'V', 'VI'])
 
 const AGE_RANGE_MINIMUM = APPLICANT_MINIMUM_AGE
@@ -50,8 +46,20 @@ let journeyRoot
 let screenHost
 let screenMarkup
 let ageRangeTouched = false
-let resumeTarget = 'signup-choice'
-let savingSuspended = false
+
+export function resolveEntryRoute(search) {
+  const target = new URLSearchParams(search).get('for')
+  if (target === 'me') return { path: 'applicant', screen: 'welcome' }
+  if (target === 'friend') return { path: 'nominator', screen: 'introduce' }
+  return { path: null, screen: 'signup-choice' }
+}
+
+function stripEntryParameter() {
+  const url = new URL(window.location.href)
+  if (!url.searchParams.has('for')) return
+  url.searchParams.delete('for')
+  window.history.replaceState(window.history.state, '', url)
+}
 
 const REVIEW_SECTIONS = Object.freeze([
   {
@@ -98,61 +106,6 @@ const FIELD_LABELS = Object.freeze({
   reflectiveTuesday: 'An ordinary Tuesday evening', reflectiveOrdinaryWeek: 'A regular weekday together', reflectiveLearning: 'What past relationships taught you', reflectiveEase: 'What takes getting used to',
   nonNegotiables: 'Non-negotiables', familyRequirement: 'Another person’s requirement', familyRequirementDetail: 'Their requirement', photographs: 'Photographs',
 })
-
-// Save and exit keeps a paused application in this browser only. There is no
-// transport yet, so nothing leaves the device, and the applicant is told so.
-function readSavedState() {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw)
-    if (!parsed || parsed.version !== JOURNEY_STATE_VERSION) return null
-    if (parsed.applicant.marriageTimeline === 'two_to_three_years') parsed.applicant.marriageTimeline = ''
-    parsed.applicant.relationshipIntent ||= ''
-    if (parsed.applicant.seeking === 'both') parsed.applicant.seeking = 'all'
-    if (parsed.applicant.interfaithOpenness === 'depends') parsed.applicant.interfaithOpenness = ''
-    parsed.applicant.reflectiveLearning ||= ''
-    delete parsed.applicant.familySearchInvolvement
-    delete parsed.applicant.livingSituation
-    parsed.applicant.relocationCities ||= []
-    if (parsed.applicant.willingToRelocate === 'certain_places') parsed.applicant.willingToRelocate = ''
-    if (parsed.applicant.postMarriageLiving === 'undecided') parsed.applicant.postMarriageLiving = ''
-    delete parsed.applicant.reflectiveConflict
-    delete parsed.applicant.oneThingToKnow
-    delete parsed.applicant.bothWorking
-    parsed.applicant.familyRequirementDetail ||= ''
-    if (Array.isArray(parsed.applicant.nonNegotiables)) {
-      parsed.applicant.nonNegotiables = parsed.applicant.nonNegotiables
-        .map((entry) => `${entry.topic ? `${entry.topic}: ` : ''}${entry.detail || ''}`.trim())
-        .filter(Boolean)
-        .join('\n')
-    }
-    // Photograph files cannot survive a reload, so their metadata is dropped
-    // rather than leaving the review page claiming photographs that are gone.
-    parsed.applicant.photographs = { face: null, fullLength: null, ordinaryLife: null }
-    return parsed
-  } catch {
-    return null
-  }
-}
-
-function writeSavedState() {
-  if (savingSuspended) return false
-  try {
-    window.localStorage.setItem(STORAGE_KEY, journeyStore.serialize())
-    return true
-  } catch {
-    return false
-  }
-}
-
-function clearSavedState() {
-  try {
-    window.localStorage.removeItem(STORAGE_KEY)
-  } catch {
-    // Nothing to do: a browser that refuses storage never held anything.
-  }
-}
 
 function createScreen(id) {
   const markup = screenMarkup.get(id)
@@ -387,13 +340,11 @@ function hydrateControls(screen) {
 function renderProgress(screen) {
   const header = journeyRoot.querySelector('[data-journey-header]')
   const mascot = journeyRoot.querySelector('[data-persistent-mascot]')
-  const saveExit = journeyRoot.querySelector('[data-save-exit]')
   const chapter = Number(screen.dataset.chapter)
   const applicationScreen = Number.isInteger(chapter) && chapter > 0
-  const saveable = screen.hasAttribute('data-saveable')
-  header.hidden = !applicationScreen && !saveable
+  const showHeader = screen.hasAttribute('data-show-header')
+  header.hidden = !applicationScreen && !showHeader
   mascot.hidden = !applicationScreen && !screen.classList.contains('grouped-screen')
-  saveExit.hidden = !(applicationScreen || saveable)
   const status = journeyRoot.querySelector('[data-chapter-status]')
   if (!applicationScreen) {
     status.textContent = ''
@@ -578,6 +529,9 @@ function fieldMessage(container) {
   if (path === 'applicant.dateOfBirth') return validateApplicantDateOfBirth(dateValueFromParts(value)).message
   if (path.endsWith('.phone')) return isValidPhone(value) ? '' : 'Enter a valid phone number including country code.'
   if (path.endsWith('.email')) return isValidEmail(value) ? '' : 'Enter a valid email address.'
+  if (path === 'nominator.nomineeContact' || path === 'nominator.contact') {
+    return isValidEmail(value) || isValidPhone(value) ? '' : 'Enter a valid email address or phone number.'
+  }
   if (path.endsWith('.linkedinUrl')) {
     return /^https?:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/in\/[\w%+-]+\/?(?:[?#].*)?$/i.test(String(value).trim())
       ? '' : 'Enter a LinkedIn profile URL.'
@@ -612,9 +566,6 @@ function screenIsComplete(screen) {
   if (screen.id === 'ch6-review') {
     return [...screen.querySelectorAll('[data-consent]')].every((checkbox) => checkbox.checked)
   }
-  if (screen.id === 'seal-send') {
-    return [...screen.querySelectorAll('[data-consent-nominator]')].every((checkbox) => checkbox.checked)
-  }
   return true
 }
 
@@ -645,14 +596,6 @@ function validateScreen(screen) {
     })
   }
 
-  if (screen.id === 'seal-send') {
-    const missing = [...screen.querySelectorAll('[data-consent-nominator]')].filter((checkbox) => !checkbox.checked)
-    const consentError = screen.querySelector('[data-consent-error]')
-    consentError.textContent = missing.length ? 'Confirm both before sealing.' : ''
-    consentError.hidden = missing.length === 0
-    if (missing.length && !firstInvalid) firstInvalid = missing[0].closest('.consents')
-  }
-
   if (screen.id === 'ch6-review') {
     const missing = [...screen.querySelectorAll('[data-consent]')].filter((checkbox) => !checkbox.checked)
     const consentError = screen.querySelector('[data-consent-error]')
@@ -666,12 +609,10 @@ function validateScreen(screen) {
 
 function nextFor(screen) {
   if (screen.id === 'signup-choice') {
-    return fieldValue('path') === 'nominator' ? 'friend-verification' : 'welcome'
+    return fieldValue('path') === 'nominator' ? 'introduce' : 'welcome'
   }
   const declared = screen.querySelector('form[data-next-screen]')?.dataset.nextScreen
   if (declared) return declared
-  const nominatorIndex = NOMINATOR_ROUTES.indexOf(screen.id)
-  if (nominatorIndex >= 0) return NOMINATOR_ROUTES[nominatorIndex + 1]
   const index = ROUTES.indexOf(screen.id)
   return ROUTES[index + 1]
 }
@@ -744,6 +685,10 @@ function bindEvents() {
     if (choice) return handleChoice(choice)
     const next = event.target.closest('[data-next]')
     if (next) return goTo(next.dataset.next)
+    if (event.target.closest('[data-start-nomination]')) {
+      setField('path', 'nominator')
+      return goTo('introduce')
+    }
     const back = event.target.closest('[data-back]')
     if (back) return goTo(back.dataset.back)
     const heightUnit = event.target.closest('[data-height-unit]')
@@ -754,9 +699,6 @@ function bindEvents() {
       refreshAdvanceState(screen)
       return
     }
-    if (event.target.closest('[data-save-exit]')) return saveAndExit()
-    if (event.target.closest('[data-resume]')) return goTo(resumeTarget)
-    if (event.target.closest('[data-clear-saved]')) return forgetEverything()
   })
 
   journeyRoot.addEventListener('input', (event) => {
@@ -765,11 +707,6 @@ function bindEvents() {
   journeyRoot.addEventListener('change', (event) => {
     if (event.target.matches('input[type="checkbox"][data-consent]')) {
       setField(`applicant.consents.${event.target.dataset.consent}`, event.target.checked)
-      clearErrorFor(event.target)
-      refreshAdvanceState(event.target.closest('.screen'))
-      return
-    }
-    if (event.target.matches('input[type="checkbox"][data-consent-nominator]')) {
       clearErrorFor(event.target)
       refreshAdvanceState(event.target.closest('.screen'))
       return
@@ -786,34 +723,8 @@ function bindEvents() {
       return
     }
     if (!validateScreen(screen)) return
-    if (screen.id === 'seal-send') setField('nominator.sealed', true)
     goTo(nextFor(screen))
   })
-}
-
-function saveAndExit() {
-  captureMountedFields()
-  resumeTarget = journeyStore.getState().currentScreen
-  const stored = writeSavedState()
-  const screen = mountScreen('saved')
-  if (!stored) {
-    const card = screen.querySelector('.center-card p')
-    if (card) card.textContent = 'This browser will not let me store anything, so your answers are only kept while this tab stays open.'
-  }
-}
-
-function forgetEverything() {
-  // Suspended while the store resets, so that resetting does not immediately
-  // write a fresh record back into the storage the person just cleared.
-  savingSuspended = true
-  photoFiles.forEach((stored) => URL.revokeObjectURL(stored.url))
-  photoFiles.clear()
-  ageRangeTouched = false
-  journeyStore.hydrate(initialJourneyState)
-  resumeTarget = 'signup-choice'
-  mountScreen('signup-choice')
-  clearSavedState()
-  savingSuspended = false
 }
 
 export function initializeJourney(options) {
@@ -822,15 +733,11 @@ export function initializeJourney(options) {
   screenMarkup = options.screenMarkup
   bindEvents()
 
-  const saved = readSavedState()
-  if (saved) journeyStore.hydrate(saved)
-  journeyStore.subscribe((_snapshot, change) => {
-    if (change.type === 'hydrate') return
-    writeSavedState()
-  })
+  const entry = resolveEntryRoute(window.location.search)
+  stripEntryParameter()
+  if (entry.path) journeyStore.setField('path', entry.path)
 
-  const current = journeyStore.getState().currentScreen
-  const initial = screenMarkup.has(current) && current !== 'saved' ? current : 'signup-choice'
-  resumeTarget = initial
+  const current = entry.screen
+  const initial = screenMarkup.has(current) ? current : 'signup-choice'
   mountScreen(initial)
 }

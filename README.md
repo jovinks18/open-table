@@ -58,9 +58,9 @@ The marketing routes share navigation, footer, scripts, and styles. `apply.html`
 
 | File | Responsibility |
 | --- | --- |
-| `template.html` | Owns the markup for every routeable journey screen, including the applicant and nominator fork, six applicant chapters, save and exit, early exit, and terminal screens. |
-| `controller.js` | Owns routing, validation, control hydration, conditional fields, photographs, review rendering, chapter status, local persistence, resume, and delete behavior. Only the active screen is mounted in the DOM. |
-| `store.js` | Defines state version 3, applicant and nominator state, serialization, hydration, and subscriptions. |
+| `template.html` | Owns the markup for every routeable journey screen, including the applicant and nominator fork, six applicant chapters, early exit, and terminal screens. |
+| `controller.js` | Owns routing, validation, control hydration, conditional fields, photographs, review rendering, and chapter status. Only the active screen is mounted in the DOM. |
+| `store.js` | Defines state version 4, applicant and nominator state, serialization, hydration, and subscriptions. |
 | `fields.js` | Lists the stable applicant and nominator field paths used by the journey. |
 | `main.js` | Loads the raw screen template and journey CSS, creates persistent shell elements, mounts the screen host, starts the controller, and exposes the read-only `window.donnaJourney` interface. |
 | `styles.css` | Defines the full-screen journey palette, layout, controls, mascot placement, responsive rules, and reduced-motion behavior. |
@@ -74,7 +74,9 @@ The marketing routes share navigation, footer, scripts, and styles. `apply.html`
 The first screen is `signup-choice`. It branches to one of two paths:
 
 - Applicant: `welcome`, then Chapters I through VI, then `submitted`.
-- Nominator: `friend-verification`, `write-note`, `seal-send`, then `nomination-sent`.
+- Nominator: `introduce`, then `nomination-sent`.
+
+Homepage links may enter directly with `/apply.html?for=me` or `/apply.html?for=friend`. The parameter selects the corresponding path and is then removed from the URL. Without a parameter, the journey opens the path-selection screen.
 
 The applicant chapter panel counts are:
 
@@ -87,7 +89,7 @@ The applicant chapter panel counts are:
 | V | 4 |
 | VI | 3 |
 
-`template.html` currently contains 23 routeable `<section>` screens in total. Eighteen use the standard prompt-and-card layout. The other five are `welcome`, `saved`, `chapter-one-exit`, `nomination-sent`, and `submitted`.
+`template.html` currently contains 20 routeable `<section>` screens in total. Sixteen use the standard prompt-and-card layout. The other four are `welcome`, `chapter-one-exit`, `nomination-sent`, and `submitted`.
 
 ## Run locally
 
@@ -113,7 +115,7 @@ node --test tests/*.test.js
 npm run build
 ```
 
-The build runs only if the Node test command succeeds. The current suite contains 132 tests and all 132 pass.
+The build runs only if the Node test command succeeds. The current suite contains 134 tests.
 
 ## Build and deployment
 
@@ -126,13 +128,11 @@ Vite writes the static site to `dist/`. The repository has no provider-specific 
 
 ## Persistence and transport
 
-The active journey is browser-only, but it is not memory-only.
+The active journey is browser-only and memory-only.
 
-- State is versioned at `3` and written to `localStorage` under `donna.journey`.
-- State changes are saved automatically. The Save & exit control writes the current state and opens the saved screen.
-- Resume accepts only a record with the current state version.
-- Delete my answers from this device clears the local record and resets the in-memory store.
-- Photograph files and object URLs are held only in the current tab. Photograph metadata may enter serialized state, but all three photograph entries are reset to `null` when a saved record is resumed.
+- Answers and photograph files are retained only in the current page session.
+- Reloading or leaving the journey discards progress.
+- There is no Save & exit, resume, or localStorage persistence interface.
 - `api.js` has `configured: false`, is not wired into `main.js` or `controller.js`, and performs no request, upload, or remote storage operation.
 - There are no accounts. Nothing in the active journey leaves the browser.
 

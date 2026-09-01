@@ -1,4 +1,4 @@
-<section class="screen grouped-screen" id="signup-choice" data-saveable>
+<section class="screen grouped-screen" id="signup-choice" data-show-header>
   <div class="journey-prompt-row"><span aria-hidden="true"></span><div class="bubble"><h1>Which brings you here?</h1></div></div>
   <form class="answer-card journey-answer-panel" novalidate data-next-screen>
     <p class="card-intro">This changes what I ask you next. Nothing is locked in.</p>
@@ -10,54 +10,34 @@
   </form>
 </section>
 
-<section class="screen grouped-screen" id="friend-verification" data-saveable>
-  <div class="journey-prompt-row"><span aria-hidden="true"></span><div class="bubble"><h1>Who’s vouching.</h1></div></div>
-  <form class="answer-card journey-answer-panel" novalidate data-next-screen="write-note">
-    <p class="card-intro">No dating questions here. I only need to know who is vouching, not who you are looking for.</p>
-    <div class="field" data-required-field="nominator.fullName"><label for="nominatorName">Your name</label><input id="nominatorName" data-field="nominator.fullName" type="text" minlength="2" autocomplete="name" placeholder="e.g. Rahul Menon"><p class="field-error" hidden></p></div>
-    <div class="field" data-required-field="nominator.email"><label for="nominatorEmail">Your email address</label><input id="nominatorEmail" data-field="nominator.email" type="email" autocomplete="email" placeholder="you@email.com"><p class="field-error" hidden></p></div>
-    <div class="field" data-required-field="nominator.linkedinUrl"><label for="nominatorLinkedin">LinkedIn profile</label><input id="nominatorLinkedin" data-field="nominator.linkedinUrl" type="url" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://linkedin.com/in/yourname"><p class="field-error" hidden></p></div>
-    <div class="actions"><button class="back" type="button" data-back="signup-choice">Back</button><button class="next-btn" type="submit">Continue</button></div>
-  </form>
-</section>
-
-<section class="screen grouped-screen" id="write-note" data-saveable>
-  <div class="journey-prompt-row"><span aria-hidden="true"></span><div class="bubble"><h1>Who are you thinking of?</h1></div></div>
-  <form class="answer-card journey-answer-panel" novalidate data-next-screen="seal-send">
-    <p class="card-intro">Tell me about them honestly. They will see this before anything happens, and nothing happens unless they say yes.</p>
-    <div class="field" data-required-field="nominator.nomineeName"><label for="nomineeName">Their name</label><input id="nomineeName" data-field="nominator.nomineeName" type="text" minlength="2" placeholder="Their full name"><p class="field-error" hidden></p></div>
-    <fieldset class="field" data-required-field="nominator.nomineeSeeking"><legend>Who are you nominating them for?</legend><div class="pill-group"><button class="pill" type="button" data-field="nominator.nomineeSeeking" data-value="men" aria-pressed="false">They’d be meeting men</button><button class="pill" type="button" data-field="nominator.nomineeSeeking" data-value="women" aria-pressed="false">They’d be meeting women</button><button class="pill" type="button" data-field="nominator.nomineeSeeking" data-value="unsure" aria-pressed="false">I’d rather they told you themselves</button></div><p class="field-error" hidden></p></fieldset>
-    <fieldset class="field" data-required-field="nominator.nomineeRelationship"><legend>How do you know them?</legend><div class="pill-group"><button class="pill" type="button" data-field="nominator.nomineeRelationship" data-value="close_friend" aria-pressed="false">Close friend</button><button class="pill" type="button" data-field="nominator.nomineeRelationship" data-value="friend" aria-pressed="false">Friend</button><button class="pill" type="button" data-field="nominator.nomineeRelationship" data-value="family" aria-pressed="false">Family</button><button class="pill" type="button" data-field="nominator.nomineeRelationship" data-value="colleague" aria-pressed="false">Colleague</button></div><p class="field-error" hidden></p></fieldset>
-    <div class="field" data-required-field="nominator.nomineeReason"><label for="nomineeReason">What is the one thing about them that makes you think of this?</label><textarea id="nomineeReason" data-field="nominator.nomineeReason" maxlength="600"></textarea><p class="field-error" hidden></p><p class="hint">Write it as though they will read it, because they will.</p><p class="counter" data-counter-for="nomineeReason">0 / 600</p></div>
-    <div class="actions"><button class="back" type="button" data-back="friend-verification">Back</button><button class="next-btn" type="submit">Continue</button></div>
-  </form>
-</section>
-
-<section class="screen grouped-screen" id="seal-send" data-saveable>
-  <div class="journey-prompt-row"><span aria-hidden="true"></span><div class="bubble"><h1>Seal your note to me?</h1></div></div>
-  <form class="answer-card journey-answer-panel" novalidate data-next-screen="nomination-sent">
-    <p class="card-intro">Once sealed, I will reach out to them privately with your note attached. They choose whether to join. If they say no, I delete the note and you will not be told who declined.</p>
-    <fieldset class="consents"><legend class="sr-only">Before you seal</legend>
-      <label><input data-consent-nominator="permission" type="checkbox"> <span>I am comfortable with donna contacting them about this.</span></label>
-      <label><input data-consent-nominator="shareNote" type="checkbox"> <span>I understand they will read what I wrote, with my name on it.</span></label>
-      <p class="legal-note">The Privacy Notice and Pilot Terms links are not configured yet.</p>
-      <p class="field-error" hidden data-consent-error></p>
-    </fieldset>
-    <div class="actions"><button class="back" type="button" data-back="write-note">Keep editing</button><button class="next-btn" type="submit">Seal and send</button></div>
+<section class="screen grouped-screen" id="introduce" data-show-header>
+  <div class="journey-prompt-row"><span aria-hidden="true"></span><div class="bubble"><h1>Introduce a friend.</h1></div></div>
+  <form class="answer-card journey-answer-panel nomination-card" novalidate data-next-screen="nomination-sent">
+    <header class="nomination-card__header">
+      <p class="nomination-card__eyebrow">A note to your matchmaker</p>
+      <h2>Who are you thinking of?</h2>
+      <p>A few questions, then I’ll take it from here.</p>
+    </header>
+    <div class="nomination-grid">
+      <div class="field" data-required-field="nominator.nomineeName"><label for="nomineeName">Their name</label><input id="nomineeName" data-field="nominator.nomineeName" type="text" minlength="2" autocomplete="off" placeholder="e.g. Ananya Rao"><p class="field-error" hidden></p></div>
+      <div class="field" data-required-field="nominator.nomineeContact"><label for="nomineeContact">Their contact</label><input id="nomineeContact" data-field="nominator.nomineeContact" type="text" autocomplete="off" placeholder="Email or phone number"><p class="field-error" hidden></p></div>
+      <div class="field nomination-grid__wide" data-required-field="nominator.nomineeReason"><label for="nomineeReason">Why them?</label><textarea id="nomineeReason" data-field="nominator.nomineeReason" maxlength="600" placeholder="What makes you think they should meet someone through donna?"></textarea><p class="field-error" hidden></p><p class="counter" data-counter-for="nomineeReason">0 / 600</p></div>
+      <div class="field" data-required-field="nominator.fullName"><label for="nominatorName">Your name</label><input id="nominatorName" data-field="nominator.fullName" type="text" minlength="2" autocomplete="name" placeholder="e.g. Rahul Menon"><p class="field-error" hidden></p></div>
+      <div class="field" data-required-field="nominator.contact"><label for="nominatorContact">Your contact</label><input id="nominatorContact" data-field="nominator.contact" type="text" autocomplete="off" placeholder="Email or phone number"><p class="field-error" hidden></p></div>
+    </div>
+    <div class="actions"><span></span><button class="next-btn" type="submit">Submit</button></div>
   </form>
 </section>
 
 <section class="screen submitted-screen" id="nomination-sent"><div class="center-card"><h1>Sealed.</h1><p>I’ll reach out to them privately. If they join, you’ll hear from me. If they don’t, you won’t hear who said no.</p></div></section>
 
-<section class="screen exit-screen" id="saved"><div class="center-card"><h1>Saved on this device.</h1><p>Your answers are kept in this browser only. Come back on the same device and browser and you’ll pick up where you left off.</p><p>They are not on our servers yet, and they are not on any other device you use.</p><button class="next-btn" type="button" data-resume>Carry on</button><button class="back" type="button" data-clear-saved>Delete my answers from this device</button></div></section>
-
-<section class="screen entry-screen" id="welcome" data-saveable>
+<section class="screen entry-screen" id="welcome" data-show-header>
   <div class="center-card">
     <h1>Before you start.</h1>
-    <p>Six chapters. About twelve minutes.</p>
-    <p>Some of the questions are blunt. That’s on purpose—it’s how we avoid wasting your evening on someone who was never going to work.</p>
-    <p>You’ll get one introduction at a time. Some weeks, I may not have anyone for you. I’ll tell you that rather than send someone merely to keep you occupied.</p>
-    <p>Not everyone who applies gets an introduction.</p>
+    <p>Six chapters. About 10 to 12 minutes.</p>
+    <p>Some of the questions are blunt. I want to know what you are actually like, including your quirks and the things you will not compromise on.</p>
+    <p>One rule. No AI, no bestie, and no answers polished until they stop sounding like you. Be honest, especially about your height. This is not the place to round up.</p>
+    <p>You may not hear from me with a match right away. If I do not have someone I genuinely think you should meet, I will wait.</p>
     <button class="next-btn" type="button" data-next="ch1-intent">Start</button>
   </div>
 </section>
@@ -90,12 +70,6 @@
       <button class="pill" type="button" data-field="applicant.seeking" data-value="women" aria-pressed="false">Women</button>
       <button class="pill" type="button" data-field="applicant.seeking" data-value="all" aria-pressed="false">Open to all</button>
     </div><p class="field-error" hidden></p></fieldset>
-    <div class="field" data-required-field="applicant.dateOfBirth"><label id="dobLabel">Date of birth</label><div class="dob-row" role="group" aria-labelledby="dobLabel">
-      <select data-field="applicant.dateOfBirth.day" data-dob-day aria-label="Day of birth"><option value="">Day</option></select>
-      <select data-field="applicant.dateOfBirth.month" aria-label="Month of birth"><option value="">Month</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
-      <select data-field="applicant.dateOfBirth.year" data-dob-year aria-label="Year of birth"><option value="">Year</option></select>
-    </div><p class="field-error" hidden></p></div>
-    <fieldset class="field" data-required-field="applicant.height"><legend>Height</legend><div class="height-row"><div class="height-values"><div class="row-2" data-height-fields="ft"><input data-field="applicant.height.feet" type="number" min="3" max="8" placeholder="Feet" aria-label="Height in feet"><input data-field="applicant.height.inches" type="number" min="0" max="11" placeholder="Inches" aria-label="Additional inches"></div><div data-height-fields="cm"><input data-field="applicant.height.centimeters" type="number" min="100" max="250" placeholder="Centimetres" aria-label="Height in centimetres"></div></div><div class="unit-toggle"><button class="unit-pill" type="button" data-height-unit="ft" aria-pressed="false">Feet &amp; inches</button><button class="unit-pill" type="button" data-height-unit="cm" aria-pressed="false">Centimetres</button></div></div><p class="field-error" hidden></p></fieldset>
     <div class="actions"><span></span><button class="next-btn" type="submit">Continue</button></div>
   </form>
 </section>
@@ -103,6 +77,12 @@
 <section class="screen grouped-screen" id="ch1-decision" data-chapter="1" data-step="2" data-steps="3">
   <div class="journey-prompt-row"><span aria-hidden="true"></span><div class="bubble"><h1>Can we go one step further?</h1></div></div>
   <form class="answer-card journey-answer-panel" novalidate>
+    <div class="field" data-required-field="applicant.dateOfBirth"><label id="dobLabel">Date of birth</label><div class="dob-row" role="group" aria-labelledby="dobLabel">
+      <select data-field="applicant.dateOfBirth.day" data-dob-day aria-label="Day of birth"><option value="">Day</option></select>
+      <select data-field="applicant.dateOfBirth.month" aria-label="Month of birth"><option value="">Month</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
+      <select data-field="applicant.dateOfBirth.year" data-dob-year aria-label="Year of birth"><option value="">Year</option></select>
+    </div><p class="field-error" hidden></p></div>
+    <fieldset class="field" data-required-field="applicant.height"><legend>Height</legend><div class="height-row"><div class="height-values"><div class="row-2" data-height-fields="ft"><input data-field="applicant.height.feet" type="number" min="3" max="8" placeholder="Feet" aria-label="Height in feet"><input data-field="applicant.height.inches" type="number" min="0" max="11" placeholder="Inches" aria-label="Additional inches"></div><div data-height-fields="cm"><input data-field="applicant.height.centimeters" type="number" min="100" max="250" placeholder="Centimetres" aria-label="Height in centimetres"></div></div><div class="unit-toggle"><button class="unit-pill" type="button" data-height-unit="ft" aria-pressed="false">Feet &amp; inches</button><button class="unit-pill" type="button" data-height-unit="cm" aria-pressed="false">Centimetres</button></div></div><p class="field-error" hidden></p></fieldset>
     <fieldset class="field age-field" data-age-range data-required-field="applicant.preferredAge"><legend>What age range would you genuinely consider?</legend>
       <div class="age-range" data-age-slider>
         <div class="age-range__values"><span class="age-range__value" data-age-label="minimum" style="left:8%">25</span><span class="age-range__value" data-age-label="maximum" style="left:39%">40</span></div>
@@ -224,4 +204,4 @@
   </form>
 </section>
 
-<section class="screen submitted-screen" id="submitted"><div class="center-card"><h1>That’s with me now.</h1><p>I’ll read it properly, not skim it. If I’ve got someone, you’ll hear from me. If I haven’t, you’ll hear that too.</p></div></section>
+<section class="screen submitted-screen" id="submitted"><div class="center-card"><h1>That’s with me now.</h1><p>I’ll read it properly, not skim it. If I’ve got someone, you’ll hear from me. If I haven’t, you’ll hear that too.</p><button class="next-btn" type="button" data-start-nomination>Refer someone</button></div></section>

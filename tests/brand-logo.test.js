@@ -42,10 +42,15 @@ test('the homepage retains its content, intro and live background', () => {
 
 test('apply links enter the signup fork, then the onboarding brief', () => {
   assert.doesNotMatch(journeyTemplate, /<section class="screen" id="landing">/)
-  assert.match(journeyTemplate, /<section class="screen grouped-screen" id="signup-choice" data-saveable>/)
-  assert.match(journeyTemplate, /<section class="screen entry-screen" id="welcome" data-saveable>/)
+  assert.match(journeyTemplate, /<section class="screen grouped-screen" id="signup-choice" data-show-header>/)
+  assert.match(journeyTemplate, /<section class="screen entry-screen" id="welcome" data-show-header>/)
   assert.match(journeyTemplate, /<h1>Before you start\.<\/h1>/)
   assert.match(journeyTemplate, /<button class="next-btn" type="button" data-next="ch1-intent">Start<\/button>/)
   assert.match(journeyTemplate, /<legend>What are you looking for\?<\/legend>/)
   assert.doesNotMatch(journeyTemplate, /Let's start with the obvious one/)
+})
+
+test('homepage offers applicant and friend entry links side by side', () => {
+  const home = readFileSync(new URL('../index.html', import.meta.url), 'utf8')
+  assert.match(home, /class="hero-actions"[\s\S]*href="\/apply\.html\?for=me"[^>]*>Apply to join<\/a>[\s\S]*href="\/apply\.html\?for=friend"[^>]*>Introduce a friend<\/a>/)
 })

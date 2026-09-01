@@ -15,11 +15,15 @@
   line-height: 0.92;
 }
 
-.final-cta .button-primary {
+.final-cta-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
   margin-top: 2.25rem;
 }
 
-.final-cta .button-primary:focus-visible {
+.final-cta-actions .button:focus-visible {
   outline-color: var(--warm-honey);
 }
 

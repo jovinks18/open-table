@@ -16,7 +16,7 @@ test('journey state is versioned, isolated per store, and serializable', () => {
   first.setField('applicant.fullName', 'Aanya Rao')
   first.setScreen('ch1-decision')
 
-  assert.equal(JOURNEY_STATE_VERSION, 3)
+  assert.equal(JOURNEY_STATE_VERSION, 4)
   assert.equal(first.getState().applicant.fullName, 'Aanya Rao')
   assert.equal(first.getState().currentScreen, 'ch1-decision')
   assert.equal(second.getState().applicant.fullName, '')
@@ -31,7 +31,9 @@ test('every DOM binding has a unique stable state path', () => {
   assert.ok(nominatorFieldPaths.every((path) => /^nominator\./.test(path)))
   assert.equal(new Set(nominatorFieldPaths).size, nominatorFieldPaths.length)
   assert.equal(initialJourneyState.path, '')
-  assert.equal(initialJourneyState.nominator.sealed, false)
+  assert.deepEqual(Object.keys(initialJourneyState.nominator), [
+    'nomineeName', 'nomineeContact', 'nomineeReason', 'fullName', 'contact',
+  ])
   assert.ok(!('referrer' in initialJourneyState))
   assert.ok(!('friendPerspectiveChoice' in initialJourneyState.applicant))
   assert.ok(!('chapterOne' in initialJourneyState.applicant))

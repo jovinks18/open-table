@@ -1,7 +1,6 @@
 export const nominatorFieldPaths = Object.freeze([
-  'nominator.fullName', 'nominator.email', 'nominator.linkedinUrl',
-  'nominator.nomineeName', 'nominator.nomineeSeeking',
-  'nominator.nomineeReason', 'nominator.nomineeRelationship',
+  'nominator.nomineeName', 'nominator.nomineeContact', 'nominator.nomineeReason',
+  'nominator.fullName', 'nominator.contact',
 ])
 
 export const applicationFieldPaths = Object.freeze([
