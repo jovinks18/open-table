@@ -8,28 +8,23 @@
 }
 
 .faq-layout {
-  width: min(100%, 80rem);
+  width: min(100%, 72rem);
   margin-inline: auto;
-  padding: clamp(7rem, 10vw, 9rem) clamp(1.25rem, 5vw, 4rem) 0;
+  padding: clamp(7rem, 10vw, 9rem) clamp(1.25rem, 5vw, 3rem) 0;
 }
 
 .faq-intro {
-  padding: 0 0 clamp(2.5rem, 5vw, 4rem);
-  text-align: center;
+  padding: 0 0 clamp(3rem, 6vw, 5rem);
+  text-align: left;
 }
 
 .faq-intro h1 {
   font-size: clamp(2.5rem, 4vw, 4rem);
 }
 
-.faq-intro h1,
-.faq-intro .legal-tldr {
-  margin-inline: auto;
-}
-
 .faq-intro .legal-tldr {
   max-width: 32rem;
-  margin-top: 1rem;
+  margin-top: 0.75rem;
   color: var(--graphite-muted);
   font-size: clamp(1rem, 1.3vw, 1.12rem);
   line-height: 1.6;
@@ -44,32 +39,39 @@
 }
 
 .faq-group + .faq-group {
-  margin-top: clamp(3.5rem, 7vw, 6rem);
+  margin-top: clamp(4rem, 7vw, 6rem);
+}
+
+.faq-group {
+  display: grid;
+  grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
 }
 
 .faq-section-label {
-  margin-bottom: 1.25rem;
+  position: sticky;
+  top: 7rem;
+  margin: 0;
   color: var(--terracotta);
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
 }
 
 .faq-group-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: clamp(2rem, 6vw, 5rem);
+  min-width: 0;
+  border-bottom: 1px solid rgb(160 139 111 / 28%);
 }
 
 .faq-item {
-  border-top: 1px solid rgb(160 139 111 / 32%);
-}
-
-.faq-item:last-child {
-  border-bottom: 1px solid rgb(160 139 111 / 32%);
+  border-top: 1px solid rgb(160 139 111 / 28%);
 }
 
 .faq-item summary {
-  padding-block: 1.25rem;
+  padding-block: 1.15rem;
   cursor: pointer;
   list-style: none;
+  border-radius: 0.5rem;
 }
 
 .faq-item summary::-webkit-details-marker {
@@ -81,36 +83,51 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  font-family: var(--serif);
-  font-size: clamp(1.15rem, 1.5vw, 1.35rem);
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.45;
 }
 
 .faq-icon {
-  flex: 0 0 1.5rem;
+  position: relative;
+  flex: 0 0 1.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid rgb(160 139 111 / 30%);
+  border-radius: 50%;
   color: var(--terracotta);
-  font-family: var(--sans);
-  font-size: 1.35rem;
-  line-height: 1;
-  text-align: center;
 }
 
-.faq-icon::before {
-  content: "+";
+.faq-icon::before,
+.faq-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.62rem;
+  height: 1px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+  transition: transform 160ms ease, opacity 160ms ease;
 }
 
-.faq-item[open] .faq-icon::before {
-  content: "−";
+.faq-icon::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.faq-item[open] .faq-icon::after {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(0deg);
 }
 
 .faq-item p {
-  max-width: 44rem;
-  padding: 0 3rem 1.4rem 0;
+  max-width: 42rem;
+  padding: 0 3.25rem 1.35rem 0;
   color: var(--graphite-muted);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: 0.94rem;
+  line-height: 1.7;
 }
 
 .faq-item p + p {
@@ -133,8 +150,55 @@
   padding: 0 clamp(1.25rem, 5vw, 3rem) clamp(5rem, 9vw, 9rem);
 }
 
+@media (hover: hover) {
+  .faq-item summary:hover h2 {
+    color: var(--terracotta);
+  }
+
+  .faq-item summary:hover .faq-icon {
+    border-color: var(--terracotta);
+  }
+}
+
+.faq-item summary:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 4px;
+}
+
 @media (max-width: 800px) {
-  .faq-group-list {
+  .faq-intro {
+    text-align: center;
+  }
+
+  .faq-intro .legal-tldr {
+    margin-inline: auto;
+  }
+
+  .faq-group {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .faq-section-label {
+    position: static;
+  }
+
+  .faq-group + .faq-group {
+    margin-top: 3.5rem;
+  }
+
+  .faq-item summary {
+    padding-block: 1.05rem;
+  }
+
+  .faq-item p {
+    padding-right: 2.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-icon::before,
+  .faq-icon::after {
+    transition: none;
   }
 }

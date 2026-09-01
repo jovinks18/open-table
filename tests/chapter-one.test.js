@@ -45,6 +45,7 @@ test('Chapter I copy matches the rebuilt journey', () => {
     'How can I contact you?',
   ]) assert.ok(template.includes(copy))
   assert.doesNotMatch(template, /No need to overthink|Keep going|Almost through|Take your time/)
+  assert.doesNotMatch(template, /Probably, I’d need to arrange it/)
   assert.doesNotMatch(template, /Open to either|Open to both|Prefer to describe myself/)
 })
 
@@ -116,4 +117,12 @@ test('Chapter I uses the requested gender and seeking pills and starts panel 2 w
   assert.equal((template.match(/data-required-field="applicant\.height"/g) || []).length, 1)
   assert.equal((store.match(/\bseeking:/g) || []).length, 1)
   assert.equal((store.match(/\bpreferredAge:/g) || []).length, 1)
+})
+
+test('height and contact fields use the requested defaults and examples', () => {
+  assert.match(store, /height: \{ unit: 'cm'/)
+  assert.match(controller, /fieldValue\('applicant\.height\.unit'\) \|\| 'cm'/)
+  assert.match(template, /data-height-unit="cm"[\s\S]*data-height-unit="ft"/)
+  assert.match(template, /placeholder="e\.g\. Lana Del Rey"/)
+  assert.match(template, /placeholder="yourname@email\.com"/)
 })

@@ -10,7 +10,6 @@ import {
 import { isValidPhone } from '../validation.js'
 
 const ROUTES = Object.freeze([
-  'signup-choice',
   'welcome',
   'ch1-intent', 'ch1-decision', 'ch1-contact',
   'ch2-place', 'ch2-marriage',
@@ -49,16 +48,8 @@ let ageRangeTouched = false
 
 export function resolveEntryRoute(search) {
   const target = new URLSearchParams(search).get('for')
-  if (target === 'me') return { path: 'applicant', screen: 'welcome' }
   if (target === 'friend') return { path: 'nominator', screen: 'introduce' }
-  return { path: null, screen: 'signup-choice' }
-}
-
-function stripEntryParameter() {
-  const url = new URL(window.location.href)
-  if (!url.searchParams.has('for')) return
-  url.searchParams.delete('for')
-  window.history.replaceState(window.history.state, '', url)
+  return { path: 'applicant', screen: 'welcome' }
 }
 
 const REVIEW_SECTIONS = Object.freeze([
@@ -307,7 +298,7 @@ function hydrateControls(screen) {
     if (control.type !== 'file') control.value = value ?? ''
   })
 
-  const unit = fieldValue('applicant.height.unit') || 'ft'
+  const unit = fieldValue('applicant.height.unit') || 'cm'
   screen.querySelectorAll('[data-height-unit]').forEach((button) => {
     const selected = button.dataset.heightUnit === unit
     button.classList.toggle('selected', selected)
@@ -608,9 +599,6 @@ function validateScreen(screen) {
 }
 
 function nextFor(screen) {
-  if (screen.id === 'signup-choice') {
-    return fieldValue('path') === 'nominator' ? 'introduce' : 'welcome'
-  }
   const declared = screen.querySelector('form[data-next-screen]')?.dataset.nextScreen
   if (declared) return declared
   const index = ROUTES.indexOf(screen.id)
@@ -734,10 +722,9 @@ export function initializeJourney(options) {
   bindEvents()
 
   const entry = resolveEntryRoute(window.location.search)
-  stripEntryParameter()
-  if (entry.path) journeyStore.setField('path', entry.path)
+  journeyStore.setField('path', entry.path)
 
   const current = entry.screen
-  const initial = screenMarkup.has(current) ? current : 'signup-choice'
+  const initial = screenMarkup.has(current) ? current : 'welcome'
   mountScreen(initial)
 }

@@ -21,18 +21,18 @@ The other person does not receive someone's private debrief. The purpose is to u
 
 - The marketing site consists of Home, Our story, FAQ, and Safety pages.
 - `/apply.html` mounts the active browser journey from `src/application/journey/`.
-- The journey starts at `signup-choice`, where the person chooses the applicant or nominator path.
+- The homepage separates the applicant and nominator entry paths before the journey begins.
 - Journey state is held in memory for the current page session only.
 - The active runtime has no backend, accounts, remote storage, or transport. Nothing leaves the browser.
 - The public FAQ says the pilot is free, based in Bangalore for now, and open to applicants outside Bangalore for future availability.
 
 ## Onboarding structure
 
-`template.html` defines 20 routeable screen sections. Sixteen use the standard prompt-and-card layout. The other four are the applicant welcome, early exit, applicant submission confirmation, and nomination confirmation screens.
+`template.html` defines 19 routeable screen sections. Fifteen use the standard prompt-and-card layout. The other four are the applicant welcome, early exit, applicant submission confirmation, and nomination confirmation screens.
 
-### Entry and path selection
+### Entry routing
 
-Without an entry parameter, the first screen is `signup-choice`. It asks whether the person is applying for themselves or nominating a friend. Homepage links route directly to the applicant welcome with `?for=me` or the nomination form with `?for=friend`. Journey progress is not persisted between page loads.
+`/apply.html` and `?for=me` route directly to the applicant welcome. `?for=friend` routes directly to the nomination form and remains in the URL so refreshing preserves the selected path. The journey does not repeat the applicant-versus-nominator choice. Journey answers are not persisted between page loads.
 
 The applicant path is:
 

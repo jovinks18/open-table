@@ -21,7 +21,6 @@ function navigationMarkup(page) {
             <button class="questions-trigger" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="questions-dropdown">Questions</button>
             <ul class="questions-dropdown" id="questions-dropdown" hidden>
               <li><a href="/faq.html"${currentAttribute(page, 'faq')}>Common questions</a></li>
-              <li><a href="/safety.html"${currentAttribute(page, 'safety')}>Safety</a></li>
             </ul>
           </div>
           <a href="/safety.html"${currentAttribute(page, 'safety')}>Safety</a>

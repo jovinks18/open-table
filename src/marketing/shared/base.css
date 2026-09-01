@@ -144,8 +144,9 @@ h3 {
 }
 
 .donna-wordmark {
+  display: block;
   color: currentColor;
-  font-family: var(--sans);
+  font-family: var(--wordmark);
   font-size: clamp(1.65rem, 2.15vw, 2rem);
   font-weight: 600;
   letter-spacing: -0.065em;
@@ -238,6 +239,10 @@ h3 {
 .wordmark {
   display: inline-flex;
   align-items: center;
+}
+
+.wordmark .donna-wordmark {
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
 }
 
 @media (prefers-reduced-motion: reduce) {

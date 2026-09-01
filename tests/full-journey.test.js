@@ -13,7 +13,7 @@ const screens = [...template.matchAll(/<section class="[^"]*screen[^"]*" id="([^
 
 test('the journey uses six chapters in the requested card order', () => {
   assert.deepEqual(screens, [
-    'signup-choice', 'introduce', 'nomination-sent',
+    'introduce', 'nomination-sent',
     'welcome', 'ch1-intent', 'ch1-decision', 'ch1-contact', 'chapter-one-exit',
     'ch2-place', 'ch2-marriage', 'ch3-facts', 'ch4-background',
     'ch5-tuesday', 'ch5-week', 'ch5-learning', 'ch5-ease', 'ch6-boundaries',
@@ -30,10 +30,10 @@ test('every card uses one donna prompt headline without duplicated card headers'
     'Let’s get to know you.', 'Can we go one step further?', 'How can I contact you?',
     'Let’s talk about home base.', 'Beyond the basics.', 'Life, on paper.',
     'What feels important to you?', 'Let’s finish up with your non-negotiables.',
-    'Three photographs that look like you now', 'Review your profile',
+    'Can we have three recent photographs?', 'Review your profile',
   ]) assert.match(template, new RegExp(`<h1>${heading.replace(/[?]/g, '\\?')}</h1>`))
-  assert.equal((template.match(/class="journey-prompt-row"/g) || []).length, 16)
-  assert.equal((template.match(/class="answer-card journey-answer-panel/g) || []).length, 16)
+  assert.equal((template.match(/class="journey-prompt-row"/g) || []).length, 15)
+  assert.equal((template.match(/class="answer-card journey-answer-panel/g) || []).length, 15)
   assert.doesNotMatch(template, /card-header|card-eyebrow|card-subline|donna-message/)
   for (const message of [
     'Let’s begin with whether you’re ready—and who else is part of the decision.',
@@ -47,10 +47,10 @@ test('every card uses one donna prompt headline without duplicated card headers'
 
 test('entry and confirmation use the supplied copy', () => {
   for (const copy of [
-    'Six chapters. About 10 to 12 minutes.',
-    'Some of the questions are blunt. I want to know what you are actually like, including your quirks and the things you will not compromise on.',
-    'One rule. No AI, no bestie, and no answers polished until they stop sounding like you. Be honest, especially about your height. This is not the place to round up.',
-    'You may not hear from me with a match right away. If I do not have someone I genuinely think you should meet, I will wait.',
+    'Six chapters. <strong>About 10 to 12 minutes.</strong>',
+    'Some questions are blunt. I want the real you, quirks and non-negotiables included.',
+    '<strong>No AI, no bestie, no polished answers.</strong> Be honest, especially about your height. No rounding up.',
+    'You may not get a match right away. <strong>If I do not have the right person, I will wait.</strong>',
     'That’s with me now.',
     'I’ll read it properly, not skim it. If I’ve got someone, you’ll hear from me. If I haven’t, you’ll hear that too.',
   ]) assert.ok(template.includes(copy))
@@ -70,6 +70,16 @@ test('Chapters I through IV use grouped cards and Chapter V has four reflective 
   assert.equal((template.match(/maxlength="600"/g) || []).length, 6)
   assert.equal((template.match(/maxlength="300"/g) || []).length, 1)
   assert.equal((template.match(/data-counter-for=/g) || []).length, 5)
+  for (const id of ['q-tuesday', 'q-week', 'q-learning', 'q-ease']) {
+    assert.match(template, new RegExp(`<label class="sr-only" id="${id}"`))
+  }
+  assert.doesNotMatch(template, /<h1>The part donna can’t put into words\.<\/h1>/)
+  assert.match(template, /takes some <strong>“getting used”<\/strong> to about you\?/)
+})
+
+test('journey completion and photograph consent use the updated copy', () => {
+  assert.doesNotMatch(template, /Finish chapter/)
+  assert.match(template, /Your photographs are shared only with your consent\./)
 })
 
 test('removed questions and fields are absent from the active journey and payload state', () => {
@@ -142,6 +152,16 @@ test('responsive and reduced-motion safeguards remain in place', () => {
   assert.match(styles, /@media\(prefers-reduced-motion:reduce\)/)
 })
 
+test('the onboarding header blends into the page without a divider', () => {
+  assert.match(styles, /\.journey-header\{[^}]*background:linear-gradient\([^}]*transparent 100%\)[^}]*border:0/)
+  assert.doesNotMatch(styles, /\.journey-header\{[^}]*border-bottom/)
+})
+
+test('the welcome card centres the decorative donna mascot above it', () => {
+  assert.match(styles, /#welcome \.center-card::before\{[^}]*bottom:calc\(100% \+ 18px\)[^}]*left:50%[^}]*width:96px[^}]*height:72px[^}]*donna-mascot\.png[^}]*transform:translateX\(-50%\)/)
+  assert.doesNotMatch(template, /id="welcome" data-show-header/)
+})
+
 test('the journey is memory-only and exposes no saved-progress interface', () => {
   assert.doesNotMatch(controller, /localStorage|STORAGE_KEY|readSavedState|writeSavedState|clearSavedState/)
   assert.doesNotMatch(main, /data-save-exit|Save &amp; exit/)
@@ -149,10 +169,7 @@ test('the journey is memory-only and exposes no saved-progress interface', () =>
 })
 
 test('the nominator path is one required form followed by confirmation', () => {
-  assert.match(template, /id="signup-choice"/)
-  assert.match(template, /data-value="applicant"/)
-  assert.match(template, /data-value="nominator"/)
-  assert.match(controller, /fieldValue\('path'\) === 'nominator' \? 'introduce' : 'welcome'/)
+  assert.doesNotMatch(template, /id="signup-choice"|data-value="applicant"|data-value="nominator"/)
   assert.doesNotMatch(template, /id="friend-verification"|id="write-note"|id="seal-send"|data-consent-nominator/)
   const start = template.indexOf('id="introduce"')
   const introduce = template.slice(start, template.indexOf('</section>', start))
@@ -162,11 +179,11 @@ test('the nominator path is one required form followed by confirmation', () => {
   assert.match(controller, /advance\.disabled = !screenIsComplete\(screen\)/)
 })
 
-test('entry query always selects the requested path', () => {
+test('entry routing defaults to applicants and preserves the friend route on refresh', () => {
   assert.deepEqual(resolveEntryRoute('?for=me'), { path: 'applicant', screen: 'welcome' })
   assert.deepEqual(resolveEntryRoute('?for=friend'), { path: 'nominator', screen: 'introduce' })
-  assert.deepEqual(resolveEntryRoute(''), { path: null, screen: 'signup-choice' })
-  assert.match(controller, /stripEntryParameter\(\)/)
+  assert.deepEqual(resolveEntryRoute(''), { path: 'applicant', screen: 'welcome' })
+  assert.doesNotMatch(controller, /stripEntryParameter|searchParams\.delete\('for'\)/)
 })
 
 test('backend behavior remains preview-only', () => {

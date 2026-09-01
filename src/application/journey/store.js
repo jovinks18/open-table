@@ -5,7 +5,7 @@ export const JOURNEY_STATE_VERSION = 4
 export const initialJourneyState = Object.freeze({
   version: JOURNEY_STATE_VERSION,
   mode: 'preview',
-  currentScreen: 'signup-choice',
+  currentScreen: 'welcome',
   path: '',
   nominator: {
     nomineeName: '', nomineeContact: '', nomineeReason: '',
@@ -20,7 +20,7 @@ export const initialJourneyState = Object.freeze({
     currentCity: '', currentCityOther: '', willingToRelocate: '', relocationCities: [], postMarriageLiving: '',
     maritalStatus: '', hasChildren: '', wantsChildren: '',
     occupation: '', highestDegree: '', annualIncome: '', languages: [],
-    height: { unit: 'ft', feet: '', inches: '', centimeters: '' }, linkedinUrl: '',
+    height: { unit: 'cm', feet: '', inches: '', centimeters: '' }, linkedinUrl: '',
     faithBackground: '', faithPresence: '', interfaithOpenness: '',
     familyInterfaithView: '', castePreference: '', castePreferenceDetail: '',
     diet: '',

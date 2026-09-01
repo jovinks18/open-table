@@ -2,21 +2,21 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import test from 'node:test'
 
-const logoPath = new URL('../public/images/donna-logo-transparent.png', import.meta.url)
 const homeBackgroundPath = new URL('../public/images/donna-home-background.png', import.meta.url)
 const journeyTemplate = readFileSync(new URL('../src/application/journey/template.html', import.meta.url), 'utf8')
 const journeyMain = readFileSync(new URL('../src/application/journey/main.js', import.meta.url), 'utf8')
+const journeyStyles = readFileSync(new URL('../src/application/journey/styles.css', import.meta.url), 'utf8')
 const navigation = readFileSync(new URL('../src/marketing/shared/site-navigation.js', import.meta.url), 'utf8')
-test('the journey header uses the centred transparent donna wordmark', () => {
-  assert.equal(existsSync(logoPath), true)
-  assert.match(journeyMain, /<img class="brand" src="\/images\/donna-logo-transparent\.png" alt="donna">/)
-  assert.doesNotMatch(journeyMain, /src="\/images\/donna-logo\.png"/)
+const marketingTokens = readFileSync(new URL('../src/marketing/shared/tokens.css', import.meta.url), 'utf8')
+test('the journey header uses the centred bold lowercase donna wordmark', () => {
+  assert.match(journeyMain, /<span class="brand">donna<\/span>/)
+  assert.doesNotMatch(journeyMain, /donna-logo(?:-transparent)?\.png/)
 })
 
-test('marketing-page header and footer wordmarks use the transition text treatment', () => {
+test('marketing-page header and footer wordmarks reuse the journey wordmark', () => {
   assert.match(navigation, /class="nav-wordmark"[\s\S]*?<span class="donna-wordmark"[^>]*>donna<\/span>/)
   assert.match(navigation, /class="mobile-wordmark"[\s\S]*?<span class="donna-wordmark"[^>]*>donna<\/span>/)
-  assert.doesNotMatch(navigation, /donna-logo-transparent\.png/)
+  assert.doesNotMatch(navigation, /donna-logo(?:-transparent)?\.png/)
   for (const page of ['index.html', 'faq.html', 'safety.html']) {
     const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8')
     const wordmarks = [...html.matchAll(/<a class="wordmark"[\s\S]*?<\/a>/g)]
@@ -26,6 +26,19 @@ test('marketing-page header and footer wordmarks use the transition text treatme
   }
 })
 
+test('interface typography uses Switzer and large journey prompts use the Rhymes Text stack', () => {
+  assert.match(marketingTokens, /--sans: "Switzer", "Helvetica Neue", Helvetica, Arial, sans-serif/)
+  assert.match(marketingTokens, /--serif: "Cormorant"/)
+  assert.match(journeyStyles, /--sans:'Switzer','Helvetica Neue',Helvetica,Arial,sans-serif/)
+  assert.match(journeyStyles, /--prompt:'Rhymes Text','Cormorant Garamond','Cormorant'/)
+  assert.match(journeyStyles, /--serif:'Cormorant'/)
+  for (const page of ['index.html', 'faq.html', 'safety.html', 'our-story.html', 'apply.html']) {
+    const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8')
+    assert.match(html, /api\.fontshare\.com\/v2\/css\?f\[\]=switzer@400,500,600,700/, `${page} should load Switzer`)
+  }
+  assert.match(journeyStyles, /\.bubble h1\{font:500 clamp\(24px,2\.4vw,30px\)\/1\.12 var\(--prompt\)/)
+})
+
 test('the homepage retains its content, intro and live background', () => {
   const home = readFileSync(new URL('../index.html', import.meta.url), 'utf8')
   const styles = readFileSync(new URL('../src/marketing/home/styles.css', import.meta.url), 'utf8')
@@ -33,6 +46,9 @@ test('the homepage retains its content, intro and live background', () => {
   assert.match(home, /data-experience-title/)
   assert.doesNotMatch(home, /data-experience-counter/)
   assert.match(home, /We started making introductions for our friends\. Then their friends asked\./)
+  assert.match(home, /family=Cormorant\+Garamond:ital,wght@1,500/)
+  assert.doesNotMatch(home, /family=Beth\+Ellen/)
+  assert.match(styles, /\.hero h1 \{[\s\S]*?font-family: "Cormorant Garamond"[\s\S]*?font-style: italic;[\s\S]*?font-weight: 500;/)
   assert.match(home, /Between Bangalore and Berkeley/)
   assert.match(home, /How donna works/)
   assert.equal(existsSync(homeBackgroundPath), true)
@@ -40,10 +56,10 @@ test('the homepage retains its content, intro and live background', () => {
   assert.match(styles, /linear-gradient\(180deg, rgb\(20 4 6 \/ 55%\), rgb\(20 4 6 \/ 75%\)\)/)
 })
 
-test('apply links enter the signup fork, then the onboarding brief', () => {
+test('apply links enter the applicant onboarding brief directly', () => {
   assert.doesNotMatch(journeyTemplate, /<section class="screen" id="landing">/)
-  assert.match(journeyTemplate, /<section class="screen grouped-screen" id="signup-choice" data-show-header>/)
-  assert.match(journeyTemplate, /<section class="screen entry-screen" id="welcome" data-show-header>/)
+  assert.doesNotMatch(journeyTemplate, /id="signup-choice"|Which brings you here\?/)
+  assert.match(journeyTemplate, /<section class="screen entry-screen" id="welcome">/)
   assert.match(journeyTemplate, /<h1>Before you start\.<\/h1>/)
   assert.match(journeyTemplate, /<button class="next-btn" type="button" data-next="ch1-intent">Start<\/button>/)
   assert.match(journeyTemplate, /<legend>What are you looking for\?<\/legend>/)
