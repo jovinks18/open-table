@@ -22,17 +22,17 @@ The other person does not receive someone's private debrief. The purpose is to u
 - The marketing site consists of Home, Our story, FAQ, and Safety pages.
 - `/apply.html` mounts the active browser journey from `src/application/journey/`.
 - The journey starts at `signup-choice`, where the person chooses the applicant or nominator path.
-- The journey persists version 3 state locally under `donna.journey`.
+- Journey state is held in memory for the current page session only.
 - The active runtime has no backend, accounts, remote storage, or transport. Nothing leaves the browser.
 - The public FAQ says the pilot is free, based in Bangalore for now, and open to applicants outside Bangalore for future availability.
 
 ## Onboarding structure
 
-`template.html` defines 23 routeable screen sections. Eighteen use the standard prompt-and-card layout. The other five are the applicant welcome, saved state, early exit, applicant submission confirmation, and nomination confirmation screens.
+`template.html` defines 20 routeable screen sections. Sixteen use the standard prompt-and-card layout. The other four are the applicant welcome, early exit, applicant submission confirmation, and nomination confirmation screens.
 
 ### Entry and path selection
 
-The first screen is `signup-choice`. It asks whether the person is applying for themselves or nominating a friend.
+Without an entry parameter, the first screen is `signup-choice`. It asks whether the person is applying for themselves or nominating a friend. Homepage links route directly to the applicant welcome with `?for=me` or the nomination form with `?for=friend`. Journey progress is not persisted between page loads.
 
 The applicant path is:
 
@@ -42,10 +42,8 @@ The applicant path is:
 
 The nominator path is:
 
-1. `friend-verification`
-2. `write-note`
-3. `seal-send`
-4. `nomination-sent`
+1. `introduce`
+2. `nomination-sent`
 
 The applicant welcome heading is **Before you start.** It says there are six chapters and that the journey takes about twelve minutes.
 
@@ -71,11 +69,11 @@ The chapter header displays one Roman numeral at a time.
 - Whether the applicant is available to meet someone in the next four weeks
 - Gender, with woman, man, and non-binary options
 - Whether the applicant is looking to meet men, women, or is open to all
-- Date of birth
-- Height
 
 #### Can we go one step further?
 
+- Date of birth
+- Height
 - Preferred age range
 - How much say the family has in the marriage decision
 
@@ -166,19 +164,14 @@ The applicant path ends at `submitted`. It is a browser-only confirmation, not e
 
 ## Nominator path
 
-The nominator provides their name, email, and LinkedIn profile. They then provide the nominee's name, who the nominee might want to meet, their relationship to the nominee, and a written note.
-
-The seal screen requires two acknowledgements before continuing. It says that the nominee receives the note privately, that the note is deleted if the nominee declines, and that the nominator is not told who declined. The code records only that the note was sealed. There is no backend or deletion lifecycle that enforces the promise. It is currently an operational commitment handled by people.
+The single `introduce` screen collects the friend's name, the friend's email or phone number, a written reason for the introduction, the nominator's name, and the nominator's email or phone number. All five fields are required. The form advances only to a browser confirmation. No invitation is delivered because no transport exists.
 
 ## Persistence and data flow
 
-- The state schema version is `3`.
-- The storage key is `donna.journey`.
-- State changes are written to `localStorage` automatically.
-- Save & exit captures mounted fields, writes state, and opens the saved screen.
-- Resume accepts only state with the current version.
-- Delete my answers from this device clears local storage, resets journey state, and revokes in-tab photograph object URLs.
-- Photograph files exist only in the current tab. Photograph metadata may be serialized, but all photograph entries are reset to `null` on resume.
+- State is held in memory for the current page session.
+- Reloading or leaving the journey discards answers and photographs.
+- The active journey has no Save & exit, resume, or localStorage persistence interface.
+- Photograph files exist only in the current page session.
 - `api.js` exports `configured: false` and preview-only methods.
 - `api.js` is not imported by `main.js` or `controller.js`.
 - There is no submission transport, remote draft storage, photo upload, authentication, or account system.
@@ -287,7 +280,7 @@ These are public commitments even though the repository does not implement the r
 
 `npm test` runs `node --test tests/*.test.js` and then `npm run build`. The build runs only if all Node tests pass.
 
-The current checkout discovers 132 tests. The latest local run passed 131 and failed one stale assertion in `tests/brand-logo.test.js`, which still expects `welcome` to be the first journey screen instead of `signup-choice`. Because the command is chained, that failing assertion prevents the production build step from running through `npm test`.
+The current checkout discovers 134 tests. The full suite and production build pass locally.
 
 ## Future and launch work
 

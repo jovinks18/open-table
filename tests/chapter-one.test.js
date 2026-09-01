@@ -53,7 +53,6 @@ test('the marriage timeline offers the three requested options', () => {
   assert.match(template, /data-value="no_timeline"[^>]*>I don’t have a timeline<\/button>/)
   assert.equal((intent.match(/data-field="applicant\.marriageTimeline"/g) || []).length, 3)
   assert.doesNotMatch(template, /two_to_three_years|Two to three years/)
-  assert.match(controller, /parsed\.applicant\.marriageTimeline === 'two_to_three_years'\) parsed\.applicant\.marriageTimeline = ''/)
   assert.doesNotMatch(template, /when_right|When the time is right/)
   assert.match(intent, /data-value="marriage"[^>]*>Marriage<\/button>/)
   assert.match(intent, /data-value="serious_relationship"[^>]*>A serious relationship that could become marriage<\/button>/)
@@ -95,7 +94,7 @@ test('age preference is a two-handle range with derived defaults', () => {
   assert.match(controller, /AGE_SPREAD_ABOVE = 7/)
 })
 
-test('Chapter I uses the requested gender and seeking pills and keeps height in panel 1', () => {
+test('Chapter I uses the requested gender and seeking pills and starts panel 2 with date of birth and height', () => {
   const intent = chapterOneSection('ch1-intent', 'ch1-decision')
   const decision = chapterOneSection('ch1-decision', 'ch1-contact')
   const contact = chapterOneSection('ch1-contact', 'chapter-one-exit')
@@ -104,11 +103,10 @@ test('Chapter I uses the requested gender and seeking pills and keeps height in 
   assert.match(intent, /data-field="applicant\.seeking"/)
   assert.match(intent, /<legend>Gender<\/legend>[\s\S]*>Woman<\/button>[\s\S]*>Man<\/button>[\s\S]*>Non-binary<\/button>/)
   assert.match(intent, /<legend>Who are you looking to meet\?<\/legend>[\s\S]*>Men<\/button>[\s\S]*>Women<\/button>[\s\S]*>Open to all<\/button>/)
-  assert.match(intent, /data-required-field="applicant\.dateOfBirth"/)
-  assert.match(intent, /data-required-field="applicant\.height"/)
+  assert.doesNotMatch(intent, /data-required-field="applicant\.dateOfBirth"|data-required-field="applicant\.height"/)
   assert.doesNotMatch(intent, /data-required-field="applicant\.preferredAge"/)
-  assert.match(decision, /data-required-field="applicant\.preferredAge"[\s\S]*data-required-field="applicant\.familyDecisionInfluence"/)
-  assert.doesNotMatch(decision, /applicant\.familySearchInvolvement|applicant\.height/)
+  assert.match(decision, /data-required-field="applicant\.dateOfBirth"[\s\S]*data-required-field="applicant\.height"[\s\S]*data-required-field="applicant\.preferredAge"[\s\S]*data-required-field="applicant\.familyDecisionInfluence"/)
+  assert.doesNotMatch(decision, /applicant\.familySearchInvolvement/)
   assert.match(contact, /data-required-field="applicant\.fullName"[\s\S]*data-required-field="applicant\.email"/)
   assert.match(contact, /Your contact details stay private, are never shared with other members, and are only used by donna to reach you\./)
   assert.match(template, /id="chapter-one-exit"[\s\S]*Email address \(optional\)[\s\S]*data-field="applicant\.email"/)

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import test from 'node:test'
+import { resolveEntryRoute } from '../src/application/journey/controller.js'
 
 const template = readFileSync(new URL('../src/application/journey/template.html', import.meta.url), 'utf8')
 const controller = readFileSync(new URL('../src/application/journey/controller.js', import.meta.url), 'utf8')
@@ -12,7 +13,7 @@ const screens = [...template.matchAll(/<section class="[^"]*screen[^"]*" id="([^
 
 test('the journey uses six chapters in the requested card order', () => {
   assert.deepEqual(screens, [
-    'signup-choice', 'friend-verification', 'write-note', 'seal-send', 'nomination-sent', 'saved',
+    'signup-choice', 'introduce', 'nomination-sent',
     'welcome', 'ch1-intent', 'ch1-decision', 'ch1-contact', 'chapter-one-exit',
     'ch2-place', 'ch2-marriage', 'ch3-facts', 'ch4-background',
     'ch5-tuesday', 'ch5-week', 'ch5-learning', 'ch5-ease', 'ch6-boundaries',
@@ -31,8 +32,8 @@ test('every card uses one donna prompt headline without duplicated card headers'
     'What feels important to you?', 'Let’s finish up with your non-negotiables.',
     'Three photographs that look like you now', 'Review your profile',
   ]) assert.match(template, new RegExp(`<h1>${heading.replace(/[?]/g, '\\?')}</h1>`))
-  assert.equal((template.match(/class="journey-prompt-row"/g) || []).length, 18)
-  assert.equal((template.match(/class="answer-card journey-answer-panel/g) || []).length, 18)
+  assert.equal((template.match(/class="journey-prompt-row"/g) || []).length, 16)
+  assert.equal((template.match(/class="answer-card journey-answer-panel/g) || []).length, 16)
   assert.doesNotMatch(template, /card-header|card-eyebrow|card-subline|donna-message/)
   for (const message of [
     'Let’s begin with whether you’re ready—and who else is part of the decision.',
@@ -46,14 +47,16 @@ test('every card uses one donna prompt headline without duplicated card headers'
 
 test('entry and confirmation use the supplied copy', () => {
   for (const copy of [
-    'Six chapters. About twelve minutes.',
-    'Some of the questions are blunt. That’s on purpose—it’s how we avoid wasting your evening on someone who was never going to work.',
-    'You’ll get one introduction at a time. Some weeks, I may not have anyone for you. I’ll tell you that rather than send someone merely to keep you occupied.',
-    'Not everyone who applies gets an introduction.',
+    'Six chapters. About 10 to 12 minutes.',
+    'Some of the questions are blunt. I want to know what you are actually like, including your quirks and the things you will not compromise on.',
+    'One rule. No AI, no bestie, and no answers polished until they stop sounding like you. Be honest, especially about your height. This is not the place to round up.',
+    'You may not hear from me with a match right away. If I do not have someone I genuinely think you should meet, I will wait.',
     'That’s with me now.',
     'I’ll read it properly, not skim it. If I’ve got someone, you’ll hear from me. If I haven’t, you’ll hear that too.',
   ]) assert.ok(template.includes(copy))
   assert.doesNotMatch(template, /submitted-video|sealed-note\.webm/)
+  assert.match(template, /id="submitted"[\s\S]*data-start-nomination>Refer someone<\/button>/)
+  assert.match(controller, /setField\('path', 'nominator'\)[\s\S]*goTo\('introduce'\)/)
 })
 
 test('Chapters I through IV use grouped cards and Chapter V has four reflective screens', () => {
@@ -139,29 +142,31 @@ test('responsive and reduced-motion safeguards remain in place', () => {
   assert.match(styles, /@media\(prefers-reduced-motion:reduce\)/)
 })
 
-test('save and exit keeps a paused application on the device only', () => {
-  assert.match(controller, /const STORAGE_KEY = 'donna\.journey'/)
-  assert.match(controller, /function readSavedState\(\)/)
-  assert.match(controller, /function writeSavedState\(\)/)
-  assert.match(controller, /function clearSavedState\(\)/)
-  assert.match(controller, /parsed\.version !== JOURNEY_STATE_VERSION/)
-  assert.match(controller, /parsed\.applicant\.photographs = \{ face: null, fullLength: null, ordinaryLife: null \}/)
-  assert.match(main, /data-save-exit/)
-  assert.match(template, /data-clear-saved/)
-  assert.match(template, /id="saved"/)
-  assert.ok(template.includes('Your answers are kept in this browser only.'))
-  assert.ok(template.includes('Delete my answers from this device'))
+test('the journey is memory-only and exposes no saved-progress interface', () => {
+  assert.doesNotMatch(controller, /localStorage|STORAGE_KEY|readSavedState|writeSavedState|clearSavedState/)
+  assert.doesNotMatch(main, /data-save-exit|Save &amp; exit/)
+  assert.doesNotMatch(template, /data-saveable|data-resume|data-clear-saved|id="saved"/)
 })
 
-test('the nominator path forks at the start and ends at a sealed note', () => {
+test('the nominator path is one required form followed by confirmation', () => {
   assert.match(template, /id="signup-choice"/)
   assert.match(template, /data-value="applicant"/)
   assert.match(template, /data-value="nominator"/)
-  assert.match(controller, /NOMINATOR_ROUTES = Object\.freeze\(\['friend-verification', 'write-note', 'seal-send', 'nomination-sent'\]\)/)
-  assert.match(controller, /fieldValue\('path'\) === 'nominator' \? 'friend-verification' : 'welcome'/)
-  assert.equal((template.match(/data-consent-nominator=/g) || []).length, 2)
-  assert.ok(template.includes('If they say no, I delete the note and you will not be told who declined.'))
-  assert.doesNotMatch(template, /data-chapter="[1-6]"[^>]*id="(friend-verification|write-note|seal-send)"/)
+  assert.match(controller, /fieldValue\('path'\) === 'nominator' \? 'introduce' : 'welcome'/)
+  assert.doesNotMatch(template, /id="friend-verification"|id="write-note"|id="seal-send"|data-consent-nominator/)
+  const start = template.indexOf('id="introduce"')
+  const introduce = template.slice(start, template.indexOf('</section>', start))
+  assert.equal((introduce.match(/data-required-field=/g) || []).length, 5)
+  assert.match(introduce, /nominator\.nomineeName[\s\S]*nominator\.nomineeContact[\s\S]*nominator\.nomineeReason[\s\S]*nominator\.fullName[\s\S]*nominator\.contact/)
+  assert.equal((introduce.match(/type="submit"/g) || []).length, 1)
+  assert.match(controller, /advance\.disabled = !screenIsComplete\(screen\)/)
+})
+
+test('entry query always selects the requested path', () => {
+  assert.deepEqual(resolveEntryRoute('?for=me'), { path: 'applicant', screen: 'welcome' })
+  assert.deepEqual(resolveEntryRoute('?for=friend'), { path: 'nominator', screen: 'introduce' })
+  assert.deepEqual(resolveEntryRoute(''), { path: null, screen: 'signup-choice' })
+  assert.match(controller, /stripEntryParameter\(\)/)
 })
 
 test('backend behavior remains preview-only', () => {

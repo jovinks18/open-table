@@ -1,6 +1,6 @@
 const clone = (value) => structuredClone(value)
 
-export const JOURNEY_STATE_VERSION = 3
+export const JOURNEY_STATE_VERSION = 4
 
 export const initialJourneyState = Object.freeze({
   version: JOURNEY_STATE_VERSION,
@@ -8,9 +8,8 @@ export const initialJourneyState = Object.freeze({
   currentScreen: 'signup-choice',
   path: '',
   nominator: {
-    fullName: '', email: '', linkedinUrl: '',
-    nomineeName: '', nomineeSeeking: '', nomineeReason: '', nomineeRelationship: '',
-    sealed: false,
+    nomineeName: '', nomineeContact: '', nomineeReason: '',
+    fullName: '', contact: '',
   },
   applicant: {
     relationshipIntent: '', marriageTimeline: '', meetingReadiness: '',
