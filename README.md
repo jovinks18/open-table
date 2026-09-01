@@ -157,6 +157,6 @@ The repository has no environment-variable contract and does not read `.env` val
 
 ## Current data-model removals
 
-The active journey and state no longer contain the earlier intent question, gender choices beyond woman and man, employer, institution, industry, alcohol, or smoking. They also no longer contain conditional follow-ups for living-situation Other, prior relationship end date, children count, faith Other, interfaith conditions, diet Other, or family requirement detail.
+The active journey and state no longer contain employer, institution, industry, alcohol, smoking, family-search involvement, current living situation, or the expectation that both partners continue working. They also no longer contain conditional follow-ups for living-situation Other, prior relationship end date, children count, faith Other, interfaith conditions, or diet Other.
 
 The earlier runtime under `src/application/legacy/` and the older `src/application/schema.js` describe a previous form. They are retained for legacy regression coverage and are not the source of truth for the journey mounted by `apply.html`.

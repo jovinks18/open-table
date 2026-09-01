@@ -64,21 +64,22 @@ The chapter header displays one Roman numeral at a time.
 
 ### Chapter I
 
-#### Where you’re starting from.
+#### Let’s get to know you.
 
+- Relationship intent, with the unsure answer routing to the Chapter I exit
 - Marriage timeline
-- Whether the applicant can realistically meet someone in the next four weeks
-- Gender, limited to woman or man
-- Whether the applicant is looking to meet men or women
+- Whether the applicant is available to meet someone in the next four weeks
+- Gender, with woman, man, and non-binary options
+- Whether the applicant is looking to meet men, women, or is open to all
 - Date of birth
+- Height
 
-#### Who’s in the room.
+#### Can we go one step further?
 
 - Preferred age range
-- Who else is involved in the search
-- How much say the family has in the final decision
+- How much say the family has in the marriage decision
 
-#### How to find you.
+#### How can I contact you?
 
 - Full name
 - Phone number
@@ -88,37 +89,34 @@ Date of birth accepts applicants from 21 through 70. The preferred age range is 
 
 ### Chapter II
 
-#### Home, and whether it moves.
+#### Let’s talk about home base.
 
 - Current city, with a conditional free-text city when Somewhere else is selected
-- Expected living arrangement after marriage
-- Current living situation
 - Willingness to relocate
-- Conditional relocation cities
+- Conditional city choices when the applicant answers Yes to relocation
+- Expected living arrangement after marriage
 
-#### What you’re bringing with you.
+#### Beyond the basics.
 
 - Previous marriage or engagement
 - Whether the applicant has children
 - Whether the applicant wants children
-- Whether both partners would expect to keep working after marriage
 
 ### Chapter III
 
-#### On paper.
+#### Life, on paper.
 
 - Occupation
 - Highest completed education level
 - Required annual income range, with no opt-out
 - Languages
-- Height
 - LinkedIn profile
 
 Employer, institution, and industry are not collected.
 
 ### Chapter IV
 
-#### What you grew up with.
+#### What feels important to you?
 
 - Faith, community, or cultural background
 - How present that background is in everyday life
@@ -135,19 +133,19 @@ Caste is stored separately from faith and community background. The active contr
 Chapter V has four one-question reflective panels:
 
 1. **What does an ordinary Tuesday evening look like for you?**
-2. **Imagine an ordinary week with a partner. What would you want to do together, and what would you still want to do separately?**
-3. **If I asked the person who knows you best, what would they say takes some getting used to about being close to you?**
-4. **When something is bothering you in a relationship, what usually happens next?**
+2. **Imagine a regular weekday with your partner. What would you want to do together?**
+3. **What have you learnt from a past relationship, or from looking for one?**
+4. **If I asked the person who knows you best, what would they say takes some getting used to about you?**
 
 Each answer has a 600-character limit and a live counter.
 
 ### Chapter VI
 
-#### What cannot work.
+#### Let’s finish up with your non-negotiables.
 
-- One thing the applicant would want someone to know before meeting
-- One to three explained non-negotiables
+- A free-text description of what would make an introduction unworkable, with examples shown as placeholder text
 - Whether someone else involved has a requirement the applicant does not share
+- A conditional free-text explanation when the applicant answers Yes
 
 #### Three photographs that look like you now
 
@@ -204,8 +202,6 @@ These are product constraints and should not be reopened casually:
 
 The active journey and version 3 state no longer contain:
 
-- the relationship-intent question;
-- gender options beyond woman and man;
 - employer;
 - institution;
 - industry;
@@ -217,7 +213,10 @@ The active journey and version 3 state no longer contain:
 - faith Other follow-up;
 - interfaith condition detail;
 - diet Other follow-up;
-- family requirement detail.
+- family search involvement;
+- current living situation;
+- the earlier relationship-conflict reflection;
+- the earlier one-thing-to-know response.
 
 Older modules under `src/application/` still describe an earlier form. They are not the source of truth for the journey mounted by `/apply.html`.
 
