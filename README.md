@@ -71,12 +71,10 @@ The marketing routes share navigation, footer, scripts, and styles. `apply.html`
 
 ## Journey shape
 
-The first screen is `signup-choice`. It branches to one of two paths:
-
 - Applicant: `welcome`, then Chapters I through VI, then `submitted`.
 - Nominator: `introduce`, then `nomination-sent`.
 
-Homepage links may enter directly with `/apply.html?for=me` or `/apply.html?for=friend`. The parameter selects the corresponding path and is then removed from the URL. Without a parameter, the journey opens the path-selection screen.
+`/apply.html` and `/apply.html?for=me` open the applicant welcome. `/apply.html?for=friend` opens the nomination form. The entry parameter remains in the URL so refreshing the nomination form preserves the selected path. Journey answers are still memory-only and are not restored after a refresh.
 
 The applicant chapter panel counts are:
 
@@ -89,7 +87,7 @@ The applicant chapter panel counts are:
 | V | 4 |
 | VI | 3 |
 
-`template.html` currently contains 20 routeable `<section>` screens in total. Sixteen use the standard prompt-and-card layout. The other four are `welcome`, `chapter-one-exit`, `nomination-sent`, and `submitted`.
+`template.html` currently contains 19 routeable `<section>` screens in total. Fifteen use the standard prompt-and-card layout. The other four are `welcome`, `chapter-one-exit`, `nomination-sent`, and `submitted`.
 
 ## Run locally
 

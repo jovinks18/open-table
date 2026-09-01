@@ -51,3 +51,9 @@ test('intro wordmark pulls the curtain into the responsive text-wordmark positio
   assert.match(introCss, /\.experience-active \.nav-wordmark \.donna-wordmark[\s\S]*opacity: 0/)
   assert.match(introCss, /\.experience-intro__curtain[\s\S]*will-change: clip-path/)
 })
+
+test('intro wordmark stays hidden until its card animation is initialized', () => {
+  assert.match(introCss, /\.experience-intro__title[\s\S]*visibility: hidden/)
+  assert.match(introCss, /\.experience-intro\.is-ready \.experience-intro__title[\s\S]*visibility: visible/)
+  assert.match(introScript, /motion\.set\(titleCharacters, \{ yPercent: 110 \}\)[\s\S]*overlay\.classList\.add\('is-ready'\)/)
+})

@@ -18,7 +18,9 @@ test('marketing routes mount one shared navigation component and the journey doe
 test('desktop navigation centres the wordmark and groups questions accessibly', () => {
   assert.match(navigation, /Our story[\s\S]*How it works[\s\S]*nav-wordmark[\s\S]*Questions[\s\S]*Safety/)
   assert.match(navigation, /aria-expanded="false" aria-haspopup="true"/)
-  assert.match(navigation, /Common questions[\s\S]*href="\/safety\.html"/)
+  assert.match(navigation, /questions-dropdown[\s\S]*Common questions[\s\S]*<\/ul>[\s\S]*href="\/safety\.html"/)
+  const dropdown = navigation.match(/<ul class="questions-dropdown"[\s\S]*?<\/ul>/)?.[0] || ''
+  assert.doesNotMatch(dropdown, /href="\/safety\.html"/)
   assert.match(navigation, /ArrowDown[\s\S]*ArrowUp[\s\S]*Escape/)
   assert.match(styles, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\) auto repeat\(2, minmax\(0, 1fr\)\)/)
   assert.match(styles, /\.questions-dropdown[\s\S]*background: var\(--espresso\)/)

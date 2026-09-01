@@ -65,14 +65,19 @@
   z-index: 3;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  visibility: hidden;
   will-change: transform;
+}
+
+.experience-intro.is-ready .experience-intro__title {
+  visibility: visible;
 }
 
 .experience-intro__title h2 {
   display: flex;
   overflow: hidden;
   color: #fff;
-  font-family: var(--sans);
+  font-family: var(--wordmark);
   font-size: clamp(3rem, 10vw, 9rem);
   font-weight: 600;
   letter-spacing: -0.065em;

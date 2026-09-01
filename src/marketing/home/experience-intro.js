@@ -161,6 +161,7 @@ export function initExperienceIntro() {
     clipPath: 'polygon(20% 20%, 80% 20%, 80% 80%, 20% 80%)',
   })
   motion.set(titleCharacters, { yPercent: 110 })
+  overlay.classList.add('is-ready')
 
   timeline = motion.timeline({
     delay: 0.5,
