@@ -46,6 +46,6 @@ test('apply links enter the signup fork, then the onboarding brief', () => {
   assert.match(journeyTemplate, /<section class="screen entry-screen" id="welcome" data-saveable>/)
   assert.match(journeyTemplate, /<h1>Before you start\.<\/h1>/)
   assert.match(journeyTemplate, /<button class="next-btn" type="button" data-next="ch1-intent">Start<\/button>/)
-  assert.doesNotMatch(journeyTemplate, /What are you looking for\?/)
+  assert.match(journeyTemplate, /<legend>What are you looking for\?<\/legend>/)
   assert.doesNotMatch(journeyTemplate, /Let's start with the obvious one/)
 })

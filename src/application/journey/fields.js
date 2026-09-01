@@ -5,16 +5,14 @@ export const nominatorFieldPaths = Object.freeze([
 ])
 
 export const applicationFieldPaths = Object.freeze([
-  'applicant.marriageTimeline', 'applicant.meetingReadiness',
+  'applicant.relationshipIntent', 'applicant.marriageTimeline', 'applicant.meetingReadiness',
   'applicant.preferredAge.minimum', 'applicant.preferredAge.maximum',
-  'applicant.gender', 'applicant.seeking',
-  'applicant.familySearchInvolvement', 'applicant.familyDecisionInfluence',
+  'applicant.gender', 'applicant.seeking', 'applicant.familyDecisionInfluence',
   'applicant.fullName', 'applicant.dateOfBirth', 'applicant.phone', 'applicant.email',
-  'applicant.currentCity', 'applicant.currentCityOther', 'applicant.livingSituation',
-  'applicant.willingToRelocate', 'applicant.relocationCities',
-  'applicant.postMarriageLiving',
+  'applicant.currentCity', 'applicant.currentCityOther',
+  'applicant.willingToRelocate', 'applicant.relocationCities', 'applicant.postMarriageLiving',
   'applicant.maritalStatus', 'applicant.hasChildren',
-  'applicant.wantsChildren', 'applicant.bothWorking',
+  'applicant.wantsChildren',
   'applicant.occupation', 'applicant.highestDegree',
   'applicant.annualIncome', 'applicant.languages', 'applicant.height', 'applicant.linkedinUrl',
   'applicant.faithBackground', 'applicant.faithPresence',
@@ -22,9 +20,8 @@ export const applicationFieldPaths = Object.freeze([
   'applicant.castePreference', 'applicant.castePreferenceDetail',
   'applicant.diet',
   'applicant.reflectiveTuesday', 'applicant.reflectiveOrdinaryWeek',
-  'applicant.reflectiveEase', 'applicant.reflectiveConflict',
-  'applicant.oneThingToKnow',
-  'applicant.nonNegotiables', 'applicant.familyRequirement',
+  'applicant.reflectiveLearning', 'applicant.reflectiveEase',
+  'applicant.nonNegotiables', 'applicant.familyRequirement', 'applicant.familyRequirementDetail',
   'applicant.photographs', 'applicant.consents',
 ])
 

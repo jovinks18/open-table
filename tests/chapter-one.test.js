@@ -24,32 +24,41 @@ function chapterOneSection(id, nextId) {
 
 test('Chapter I contains three grouped cards with canonical intent fields', () => {
   for (const id of ['ch1-intent', 'ch1-decision', 'ch1-contact']) assert.match(template, new RegExp(`id="${id}" data-chapter="1"`))
-  for (const path of ['applicant.marriageTimeline', 'applicant.meetingReadiness']) {
+  for (const path of ['applicant.relationshipIntent', 'applicant.marriageTimeline', 'applicant.meetingReadiness']) {
     assert.equal((template.match(new RegExp(`data-field="${path.replaceAll('.', '\\.')}"`, 'g')) || []).length > 0, true)
     assert.equal((store.match(new RegExp(path.split('.').at(-1) + ':', 'g')) || []).length, 1)
   }
   assert.doesNotMatch(store, /chapterOne:/)
-  assert.doesNotMatch(template, /applicant\.intent/)
+  assert.doesNotMatch(template, /data-field="applicant\.intent"/)
 })
 
 test('Chapter I copy matches the rebuilt journey', () => {
   for (const copy of [
-    'Where you’re starting from.',
+    'Let’s get to know you.',
+    'What are you looking for?',
     'If you met the right person, when would you want to be married?',
-    'Could you realistically meet someone in the next four weeks?',
-    'I’m a ',
-    'Who’s in the room.',
-    'Who else is involved in your search?',
-    'When it comes to the final decision, how much say will your family have?',
-    'How to find you.',
+    'If we found someone for you, could you meet them in the next four weeks?',
+    'Gender',
+    'Who are you looking to meet?',
+    'Can we go one step further?',
+    'When it comes to marriage, how much say will your family have?',
+    'How can I contact you?',
   ]) assert.ok(template.includes(copy))
   assert.doesNotMatch(template, /No need to overthink|Keep going|Almost through|Take your time/)
-  assert.doesNotMatch(template, /Open to either|Non-binary|Prefer to describe myself/)
+  assert.doesNotMatch(template, /Open to either|Open to both|Prefer to describe myself/)
 })
 
-test('the marriage timeline offers the four rebuilt options', () => {
+test('the marriage timeline offers the three requested options', () => {
+  const intent = chapterOneSection('ch1-intent', 'ch1-decision')
   assert.match(template, /data-value="no_timeline"[^>]*>I don’t have a timeline<\/button>/)
+  assert.equal((intent.match(/data-field="applicant\.marriageTimeline"/g) || []).length, 3)
+  assert.doesNotMatch(template, /two_to_three_years|Two to three years/)
+  assert.match(controller, /parsed\.applicant\.marriageTimeline === 'two_to_three_years'\) parsed\.applicant\.marriageTimeline = ''/)
   assert.doesNotMatch(template, /when_right|When the time is right/)
+  assert.match(intent, /data-value="marriage"[^>]*>Marriage<\/button>/)
+  assert.match(intent, /data-value="serious_relationship"[^>]*>A serious relationship that could become marriage<\/button>/)
+  assert.match(intent, /data-value="not_sure"[^>]*>I’m not sure yet<\/button>/)
+  assert.match(controller, /path === 'applicant\.relationshipIntent' && value === 'not_sure'\) goTo\('chapter-one-exit'\)/)
 })
 
 test('date of birth uses three selects rather than a native date input', () => {
@@ -86,20 +95,27 @@ test('age preference is a two-handle range with derived defaults', () => {
   assert.match(controller, /AGE_SPREAD_ABOVE = 7/)
 })
 
-test('Chapter I keeps gender and seeking in panel 1 and preferred age in panel 2', () => {
+test('Chapter I uses the requested gender and seeking pills and keeps height in panel 1', () => {
   const intent = chapterOneSection('ch1-intent', 'ch1-decision')
   const decision = chapterOneSection('ch1-decision', 'ch1-contact')
   const contact = chapterOneSection('ch1-contact', 'chapter-one-exit')
 
   assert.match(intent, /data-field="applicant\.gender"/)
   assert.match(intent, /data-field="applicant\.seeking"/)
+  assert.match(intent, /<legend>Gender<\/legend>[\s\S]*>Woman<\/button>[\s\S]*>Man<\/button>[\s\S]*>Non-binary<\/button>/)
+  assert.match(intent, /<legend>Who are you looking to meet\?<\/legend>[\s\S]*>Men<\/button>[\s\S]*>Women<\/button>[\s\S]*>Open to all<\/button>/)
   assert.match(intent, /data-required-field="applicant\.dateOfBirth"/)
+  assert.match(intent, /data-required-field="applicant\.height"/)
   assert.doesNotMatch(intent, /data-required-field="applicant\.preferredAge"/)
-  assert.match(decision, /data-required-field="applicant\.preferredAge"[\s\S]*data-required-field="applicant\.familySearchInvolvement"/)
+  assert.match(decision, /data-required-field="applicant\.preferredAge"[\s\S]*data-required-field="applicant\.familyDecisionInfluence"/)
+  assert.doesNotMatch(decision, /applicant\.familySearchInvolvement|applicant\.height/)
   assert.match(contact, /data-required-field="applicant\.fullName"[\s\S]*data-required-field="applicant\.email"/)
+  assert.match(contact, /Your contact details stay private, are never shared with other members, and are only used by donna to reach you\./)
+  assert.match(template, /id="chapter-one-exit"[\s\S]*Email address \(optional\)[\s\S]*data-field="applicant\.email"/)
   assert.doesNotMatch(contact, /data-required-field="applicant\.dateOfBirth"/)
 
   assert.equal((template.match(/data-required-field="applicant\.preferredAge"/g) || []).length, 1)
+  assert.equal((template.match(/data-required-field="applicant\.height"/g) || []).length, 1)
   assert.equal((store.match(/\bseeking:/g) || []).length, 1)
   assert.equal((store.match(/\bpreferredAge:/g) || []).length, 1)
 })

@@ -18,7 +18,7 @@ const ROUTES = Object.freeze([
   'ch2-place', 'ch2-marriage',
   'ch3-facts',
   'ch4-background',
-  'ch5-tuesday', 'ch5-week', 'ch5-ease', 'ch5-conflict',
+  'ch5-tuesday', 'ch5-week', 'ch5-learning', 'ch5-ease',
   'ch6-boundaries', 'ch6-photos', 'ch6-review',
   'submitted',
 ])
@@ -57,17 +57,17 @@ const REVIEW_SECTIONS = Object.freeze([
   {
     chapter: 'Chapter I',
     screen: 'ch1-intent',
-    fields: ['marriageTimeline', 'meetingReadiness', 'gender', 'seeking', 'dateOfBirth', 'preferredAge', 'familySearchInvolvement', 'familyDecisionInfluence', 'fullName', 'phone', 'email'],
+    fields: ['relationshipIntent', 'marriageTimeline', 'meetingReadiness', 'gender', 'seeking', 'dateOfBirth', 'height', 'preferredAge', 'familyDecisionInfluence', 'fullName', 'phone', 'email'],
   },
   {
     chapter: 'Chapter II',
     screen: 'ch2-place',
-    fields: ['currentCity', 'currentCityOther', 'postMarriageLiving', 'livingSituation', 'willingToRelocate', 'relocationCities', 'maritalStatus', 'hasChildren', 'wantsChildren', 'bothWorking'],
+    fields: ['currentCity', 'currentCityOther', 'willingToRelocate', 'relocationCities', 'postMarriageLiving', 'maritalStatus', 'hasChildren', 'wantsChildren'],
   },
   {
     chapter: 'Chapter III',
     screen: 'ch3-facts',
-    fields: ['occupation', 'highestDegree', 'annualIncome', 'languages', 'height', 'linkedinUrl'],
+    fields: ['occupation', 'highestDegree', 'annualIncome', 'languages', 'linkedinUrl'],
   },
   {
     chapter: 'Chapter IV',
@@ -77,26 +77,26 @@ const REVIEW_SECTIONS = Object.freeze([
   {
     chapter: 'Chapter V',
     screen: 'ch5-tuesday',
-    fields: ['reflectiveTuesday', 'reflectiveOrdinaryWeek', 'reflectiveEase', 'reflectiveConflict'],
+    fields: ['reflectiveTuesday', 'reflectiveOrdinaryWeek', 'reflectiveLearning', 'reflectiveEase'],
   },
   {
     chapter: 'Chapter VI',
     screen: 'ch6-boundaries',
-    fields: ['oneThingToKnow', 'nonNegotiables', 'familyRequirement', 'photographs'],
+    fields: ['nonNegotiables', 'familyRequirement', 'familyRequirementDetail', 'photographs'],
   },
 ])
 
 const FIELD_LABELS = Object.freeze({
-  marriageTimeline: 'Marriage timeline', meetingReadiness: 'Available in the next four weeks', preferredAge: 'Age range',
-  gender: 'You are', seeking: 'Looking to meet', familySearchInvolvement: 'Who else is involved', familyDecisionInfluence: 'Family’s say in the final decision',
+  relationshipIntent: 'Looking for', marriageTimeline: 'Marriage timeline', meetingReadiness: 'Available in the next four weeks', preferredAge: 'Age range',
+  gender: 'Gender', seeking: 'Interested in meeting', familyDecisionInfluence: 'Family’s say in the final decision',
   fullName: 'Full name', dateOfBirth: 'Date of birth', phone: 'Phone number', email: 'Email address',
-  currentCity: 'Current city', currentCityOther: 'Current city detail', livingSituation: 'Current living situation', willingToRelocate: 'Could relocate', relocationCities: 'Cities considered', postMarriageLiving: 'Expected living arrangement',
-  maritalStatus: 'Previous marriage or engagement', hasChildren: 'Has children', wantsChildren: 'Wants children', bothWorking: 'Both working after marriage',
+  currentCity: 'Current city', currentCityOther: 'Current city detail', willingToRelocate: 'Could relocate', relocationCities: 'Cities considered', postMarriageLiving: 'Expected living arrangement',
+  maritalStatus: 'Previous marriage or engagement', hasChildren: 'Has children', wantsChildren: 'Wants children',
   occupation: 'Work', highestDegree: 'Education', annualIncome: 'Annual income', languages: 'Languages', height: 'Height', linkedinUrl: 'LinkedIn profile',
   faithBackground: 'Faith, community or cultural background', faithPresence: 'Presence in everyday life', interfaithOpenness: 'Different faith or community', familyInterfaithView: 'Family’s answer', castePreference: 'Caste preference', castePreferenceDetail: 'Caste preference detail',
   diet: 'Diet',
-  reflectiveTuesday: 'An ordinary Tuesday evening', reflectiveOrdinaryWeek: 'An ordinary week together', reflectiveEase: 'What takes getting used to', reflectiveConflict: 'What happens when something is bothering you',
-  oneThingToKnow: 'One thing to know before meeting', nonNegotiables: 'Non-negotiables', familyRequirement: 'Another person’s requirement', photographs: 'Photographs',
+  reflectiveTuesday: 'An ordinary Tuesday evening', reflectiveOrdinaryWeek: 'A regular weekday together', reflectiveLearning: 'What past relationships taught you', reflectiveEase: 'What takes getting used to',
+  nonNegotiables: 'Non-negotiables', familyRequirement: 'Another person’s requirement', familyRequirementDetail: 'Their requirement', photographs: 'Photographs',
 })
 
 // Save and exit keeps a paused application in this browser only. There is no
@@ -107,6 +107,26 @@ function readSavedState() {
     if (!raw) return null
     const parsed = JSON.parse(raw)
     if (!parsed || parsed.version !== JOURNEY_STATE_VERSION) return null
+    if (parsed.applicant.marriageTimeline === 'two_to_three_years') parsed.applicant.marriageTimeline = ''
+    parsed.applicant.relationshipIntent ||= ''
+    if (parsed.applicant.seeking === 'both') parsed.applicant.seeking = 'all'
+    if (parsed.applicant.interfaithOpenness === 'depends') parsed.applicant.interfaithOpenness = ''
+    parsed.applicant.reflectiveLearning ||= ''
+    delete parsed.applicant.familySearchInvolvement
+    delete parsed.applicant.livingSituation
+    parsed.applicant.relocationCities ||= []
+    if (parsed.applicant.willingToRelocate === 'certain_places') parsed.applicant.willingToRelocate = ''
+    if (parsed.applicant.postMarriageLiving === 'undecided') parsed.applicant.postMarriageLiving = ''
+    delete parsed.applicant.reflectiveConflict
+    delete parsed.applicant.oneThingToKnow
+    delete parsed.applicant.bothWorking
+    parsed.applicant.familyRequirementDetail ||= ''
+    if (Array.isArray(parsed.applicant.nonNegotiables)) {
+      parsed.applicant.nonNegotiables = parsed.applicant.nonNegotiables
+        .map((entry) => `${entry.topic ? `${entry.topic}: ` : ''}${entry.detail || ''}`.trim())
+        .filter(Boolean)
+        .join('\n')
+    }
     // Photograph files cannot survive a reload, so their metadata is dropped
     // rather than leaving the review page claiming photographs that are gone.
     parsed.applicant.photographs = { face: null, fullLength: null, ordinaryLife: null }
@@ -461,67 +481,6 @@ function initTagControl(control) {
   renderTags(control)
 }
 
-function renderBoundaries(screen) {
-  const host = screen.querySelector('[data-boundary-list]')
-  if (!host) return
-  const entries = fieldValue('applicant.nonNegotiables') || []
-  host.replaceChildren(...entries.map((entry, index) => {
-    const row = document.createElement('div')
-    row.className = 'boundary-entry'
-    const label = document.createElement('label')
-    label.htmlFor = `boundary-${index}`
-    label.textContent = 'Explain exactly where your boundary is.'
-    const topic = document.createElement('p')
-    topic.className = 'boundary-topic'
-    topic.textContent = entry.topic
-    const input = document.createElement('input')
-    input.id = `boundary-${index}`
-    input.type = 'text'
-    input.value = entry.detail
-    input.addEventListener('input', () => {
-      const next = structuredClone(fieldValue('applicant.nonNegotiables'))
-      next[index].detail = input.value
-      setField('applicant.nonNegotiables', next)
-      clearErrorFor(host)
-      refreshAdvanceState(screen)
-    })
-    const remove = document.createElement('button')
-    remove.type = 'button'
-    remove.className = 'remove-boundary'
-    remove.textContent = 'Remove'
-    remove.addEventListener('click', () => {
-      setField('applicant.nonNegotiables', entries.filter((_, itemIndex) => itemIndex !== index))
-      renderBoundaries(screen)
-      refreshAdvanceState(screen)
-    })
-    row.append(topic, label, input, remove)
-    return row
-  }))
-  screen.querySelectorAll('[data-topic]').forEach((button) => {
-    const selected = entries.some((entry) => entry.topic === button.dataset.topic)
-    button.classList.toggle('selected', selected)
-    button.setAttribute('aria-pressed', String(selected))
-  })
-}
-
-function toggleBoundary(screen, topic, anchor) {
-  const entries = fieldValue('applicant.nonNegotiables') || []
-  const existing = entries.findIndex((entry) => entry.topic === topic)
-  preserveAnchor(anchor, () => {
-    if (existing >= 0) {
-      setField('applicant.nonNegotiables', entries.filter((_, index) => index !== existing))
-    } else {
-      if (entries.length >= 3) {
-        setError(screen.querySelector('[data-required-field="applicant.nonNegotiables"]'), 'Choose up to three.')
-        return
-      }
-      setField('applicant.nonNegotiables', [...entries, { topic, detail: '' }])
-    }
-    renderBoundaries(screen)
-  })
-  refreshAdvanceState(screen)
-}
-
 function renderPhotoSlot(slot) {
   const id = slot.dataset.photoSlot
   const preview = slot.querySelector('[data-photo-preview]')
@@ -572,7 +531,6 @@ function displayValue(key, value) {
   if (key === 'dateOfBirth') return dateValueFromParts(value)
   if (key === 'preferredAge') return `${value.minimum} to ${value.maximum}`
   if (key === 'height') return value.unit === 'cm' ? `${value.centimeters} cm` : `${value.feet} ft ${value.inches} in`
-  if (key === 'nonNegotiables') return value.map((entry) => `${entry.topic ? `${entry.topic}: ` : ''}${entry.detail}`).join('; ')
   if (key === 'photographs') return Object.values(value).filter(Boolean).map((photo) => photo.name).join(', ')
   if (Array.isArray(value)) return value.join(', ')
   return String(value ?? '').replaceAll('_', ' ')
@@ -616,10 +574,6 @@ function fieldMessage(container) {
   if (container.hidden) return ''
   const path = container.dataset.requiredField
   const value = fieldValue(path)
-  if (path === 'applicant.gender') {
-    if (!String(value).trim() || !String(fieldValue('applicant.seeking')).trim()) return 'Complete this sentence.'
-    return ''
-  }
   if (path.endsWith('.fullName')) return String(value).trim().length < 2 ? 'Enter your full name.' : ''
   if (path === 'applicant.dateOfBirth') return validateApplicantDateOfBirth(dateValueFromParts(value)).message
   if (path.endsWith('.phone')) return isValidPhone(value) ? '' : 'Enter a valid phone number including country code.'
@@ -636,8 +590,7 @@ function fieldMessage(container) {
     return (value.unit === 'cm' ? !value.centimeters : !value.feet || value.inches === '') ? 'Enter your height.' : ''
   }
   if (path === 'applicant.nonNegotiables') {
-    return (!value.length || value.length > 3 || value.some((entry) => !entry.detail.trim()))
-      ? 'Add one to three boundaries and explain each one.' : ''
+    return String(value).trim() ? '' : 'Describe what would make an introduction unworkable.'
   }
   if (Array.isArray(value) && value.length === 0) return 'Answer this question.'
   if (typeof value === 'string' && !value.trim()) return 'Answer this question.'
@@ -731,7 +684,6 @@ function mountScreen(id) {
   hydrateControls(screen)
   initAgeRange(screen)
   screen.querySelectorAll('[data-tags-field]').forEach(initTagControl)
-  renderBoundaries(screen)
   initPhotos(screen)
   renderReview(screen)
   refreshAdvanceState(screen)
@@ -771,6 +723,7 @@ function handleChoice(button) {
   clearErrorFor(button)
   syncConditions(screen, button)
   refreshAdvanceState(screen)
+  if (path === 'applicant.relationshipIntent' && value === 'not_sure') goTo('chapter-one-exit')
 }
 
 function handleInput(control) {
@@ -801,8 +754,6 @@ function bindEvents() {
       refreshAdvanceState(screen)
       return
     }
-    const topic = event.target.closest('[data-topic]')
-    if (topic) return toggleBoundary(topic.closest('.screen'), topic.dataset.topic, topic)
     if (event.target.closest('[data-save-exit]')) return saveAndExit()
     if (event.target.closest('[data-resume]')) return goTo(resumeTarget)
     if (event.target.closest('[data-clear-saved]')) return forgetEverything()

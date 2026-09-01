@@ -15,7 +15,7 @@ test('the journey uses six chapters in the requested card order', () => {
     'signup-choice', 'friend-verification', 'write-note', 'seal-send', 'nomination-sent', 'saved',
     'welcome', 'ch1-intent', 'ch1-decision', 'ch1-contact', 'chapter-one-exit',
     'ch2-place', 'ch2-marriage', 'ch3-facts', 'ch4-background',
-    'ch5-tuesday', 'ch5-week', 'ch5-ease', 'ch5-conflict', 'ch6-boundaries',
+    'ch5-tuesday', 'ch5-week', 'ch5-learning', 'ch5-ease', 'ch6-boundaries',
     'ch6-photos', 'ch6-review', 'submitted',
   ])
   for (let chapter = 1; chapter <= 6; chapter += 1) assert.match(template, new RegExp(`data-chapter="${chapter}"`))
@@ -26,9 +26,9 @@ test('the journey uses six chapters in the requested card order', () => {
 
 test('every card uses one donna prompt headline without duplicated card headers', () => {
   for (const heading of [
-    'Where you’re starting from.', 'Who’s in the room.', 'How to find you.',
-    'Home, and whether it moves.', 'What you’re bringing with you.', 'On paper.',
-    'What you grew up with.', 'What cannot work.',
+    'Let’s get to know you.', 'Can we go one step further?', 'How can I contact you?',
+    'Let’s talk about home base.', 'Beyond the basics.', 'Life, on paper.',
+    'What feels important to you?', 'Let’s finish up with your non-negotiables.',
     'Three photographs that look like you now', 'Review your profile',
   ]) assert.match(template, new RegExp(`<h1>${heading.replace(/[?]/g, '\\?')}</h1>`))
   assert.equal((template.match(/class="journey-prompt-row"/g) || []).length, 18)
@@ -53,8 +53,7 @@ test('entry and confirmation use the supplied copy', () => {
     'That’s with me now.',
     'I’ll read it properly, not skim it. If I’ve got someone, you’ll hear from me. If I haven’t, you’ll hear that too.',
   ]) assert.ok(template.includes(copy))
-  assert.match(template, /<video class="submitted-video" autoplay muted playsinline preload="auto" aria-hidden="true">/)
-  assert.match(template, /src="\/video\/application\/sealed-note\.webm" type="video\/webm"/)
+  assert.doesNotMatch(template, /submitted-video|sealed-note\.webm/)
 })
 
 test('Chapters I through IV use grouped cards and Chapter V has four reflective screens', () => {
@@ -64,10 +63,10 @@ test('Chapters I through IV use grouped cards and Chapter V has four reflective 
     assert.match(section, /class="answer-card journey-answer-panel"/)
     assert.equal((section.match(/type="submit"/g) || []).length, 1)
   }
-  assert.deepEqual(screens.filter((id) => id.startsWith('ch5-')), ['ch5-tuesday', 'ch5-week', 'ch5-ease', 'ch5-conflict'])
-  assert.equal((template.match(/maxlength="600"/g) || []).length, 5)
+  assert.deepEqual(screens.filter((id) => id.startsWith('ch5-')), ['ch5-tuesday', 'ch5-week', 'ch5-learning', 'ch5-ease'])
+  assert.equal((template.match(/maxlength="600"/g) || []).length, 6)
   assert.equal((template.match(/maxlength="300"/g) || []).length, 1)
-  assert.equal((template.match(/data-counter-for=/g) || []).length, 6)
+  assert.equal((template.match(/data-counter-for=/g) || []).length, 5)
 })
 
 test('removed questions and fields are absent from the active journey and payload state', () => {
@@ -77,18 +76,24 @@ test('removed questions and fields are absent from the active journey and payloa
     'relationshipLearning', 'anythingElse', 'sharedBackgroundImportance',
     'qualities are you looking for', 'Keep going', 'ask-a-friend',
     'applicant.intent', 'genderDescription', 'industry', 'drinking', 'smoking',
+    'bothWorking', 'After marriage, would you both expect to keep working?',
     'boundariesConfirmed', 'openToPartnerWithChildren', 'priorRelationshipEnd',
     'childrenCount', 'dietOther', 'interfaithConditions', 'faithBackgroundOther',
-    'livingSituationOther', 'postMarriageLivingOther',
+    'familySearchInvolvement', 'livingSituation',
+    'reflectiveConflict', 'oneThingToKnow', 'livingSituationOther', 'postMarriageLivingOther',
   ]) assert.doesNotMatch(active, new RegExp(removed, 'i'))
 })
 
 test('conditional answers clear when their parent becomes irrelevant', () => {
   assert.match(controller, /function clearConditionalFields\(element\)/)
   assert.match(controller, /if \(!visible && !element\.hidden\) clearConditionalFields\(element\)/)
-  for (const path of ['relocationCities', 'currentCityOther', 'castePreferenceDetail']) {
+  for (const path of ['currentCityOther', 'relocationCities', 'castePreferenceDetail']) {
     assert.match(`${template}\n${store}`, new RegExp(path))
   }
+  assert.match(template, /data-condition-field="applicant\.willingToRelocate" data-condition-values="yes" data-required-field="applicant\.relocationCities"/)
+  assert.doesNotMatch(template, /data-value="undecided"[^>]*>I haven’t decided<\/button>/)
+  assert.doesNotMatch(template, /data-value="certain_places"|Only to certain places/)
+  assert.match(template, /data-value="either"[^>]*>I’m flexible<\/button>/)
 })
 
 test('the controller validates whole cards and focuses the first incomplete question', () => {
@@ -99,10 +104,12 @@ test('the controller validates whole cards and focuses the first incomplete ques
   assert.doesNotMatch(controller, /handleChoice[\s\S]{0,500}goTo\(nextFor/)
 })
 
-test('tags, boundaries, photographs, review and consent are implemented', () => {
+test('tags, free-text boundaries, photographs, review and consent are implemented', () => {
   assert.match(controller, /function initTagControl\(control\)/)
-  assert.match(controller, /function renderBoundaries\(screen\)/)
-  assert.match(controller, /entries\.length >= 3/)
+  assert.match(template, /data-field="applicant\.nonNegotiables" maxlength="600" placeholder="A few examples are/)
+  assert.doesNotMatch(template, /data-topic=|data-boundary-list|data-boundary-prompts/)
+  assert.doesNotMatch(controller, /renderBoundaries|toggleBoundary/)
+  assert.match(template, /data-condition-field="applicant\.familyRequirement" data-condition-values="yes" data-required-field="applicant\.familyRequirementDetail"/)
   assert.match(controller, /function refreshAdvanceState\(screen\)/)
   assert.match(controller, /advance\.disabled = !screenIsComplete\(screen\)/)
   assert.match(controller, /function preserveAnchor\(anchor, mutate\)/)
