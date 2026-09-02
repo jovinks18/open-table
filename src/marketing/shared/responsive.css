@@ -139,13 +139,17 @@
 @media (max-width: 640px) {
 
   .hero {
+    min-height: 100svh;
+    height: auto;
+    justify-content: flex-start;
     padding-inline: 1.15rem;
-    padding-bottom: 2rem;
+    padding-bottom: 3rem;
+    overflow: visible;
   }
 
-  h1 {
-    font-size: clamp(3.25rem, 13vw, 4.5rem);
-    line-height: 0.94;
+  .hero h1 {
+    font-size: clamp(2.75rem, 12vw, 3rem);
+    line-height: 0.98;
   }
 
   .hero-intro {
@@ -153,17 +157,26 @@
   }
 
   .hero-story {
-    margin-top: 1.5rem;
+    max-width: 32rem;
+    margin-top: 2rem;
   }
 
   .hero-actions {
+    width: 100%;
+    max-width: 22rem;
     align-items: center;
     flex-direction: column;
     gap: 0.65rem;
+    margin-top: 2rem;
+    transform: none;
   }
 
   .home-page .hero-actions {
-    flex-direction: row;
+    flex-direction: column;
+  }
+
+  .home-page .hero-actions .button {
+    width: 100%;
   }
 
   .section {

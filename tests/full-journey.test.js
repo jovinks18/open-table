@@ -158,7 +158,9 @@ test('the onboarding header blends into the page without a divider', () => {
 })
 
 test('the welcome card centres the decorative donna mascot above it', () => {
-  assert.match(styles, /#welcome \.center-card::before\{[^}]*bottom:calc\(100% \+ 18px\)[^}]*left:50%[^}]*width:96px[^}]*height:72px[^}]*donna-mascot\.png[^}]*transform:translateX\(-50%\)/)
+  assert.match(styles, /#welcome\{[^}]*flex-direction:column[^}]*gap:18px/)
+  assert.match(styles, /#welcome::before\{[^}]*flex:0 0 auto[^}]*width:96px[^}]*height:72px[^}]*donna-mascot\.png/)
+  assert.doesNotMatch(styles, /#welcome \.center-card::before/)
   assert.doesNotMatch(template, /id="welcome" data-show-header/)
 })
 
