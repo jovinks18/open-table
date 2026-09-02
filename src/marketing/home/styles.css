@@ -1,7 +1,10 @@
 .home-page {
   --graphite: #26080d;
-  --graphite-ink: #f7ece6;
-  --graphite-muted: rgb(247 236 230 / 72%);
+  --body-text: #f0e4e0;
+  --strong-text: #ffffff;
+  --secondary-text: #c9afab;
+  --graphite-ink: var(--body-text);
+  --graphite-muted: var(--secondary-text);
   --deep-brick: #f29985;
   --terracotta: #bf5349;
   --line: rgb(242 153 133 / 22%);
@@ -12,6 +15,11 @@
     radial-gradient(ellipse 800px 800px at 100% 100%, rgb(89 25 25 / 50%), transparent 60%),
     linear-gradient(160deg, #1c0509 0%, #26080d 45%, #34090d 100%);
   color: var(--graphite-ink);
+}
+
+.home-page strong,
+.home-page b {
+  color: var(--strong-text);
 }
 
 .home-page .donna-page {
@@ -37,7 +45,7 @@
   background-size: cover;
 }
 
-.home-page .hero-actions .button {
+.home-page :is(.hero-actions, .final-cta-actions) .button {
   min-height: 3.375rem;
   padding-inline: clamp(1.6rem, 3vw, 1.9rem);
   border: 1px solid transparent;
@@ -45,17 +53,17 @@
   box-shadow: 0 12px 32px rgb(20 4 6 / 24%);
 }
 
-.home-page .hero-actions .button-primary {
+.home-page :is(.hero-actions, .final-cta-actions) .button-primary {
   color: #1c0509;
-  background: #f7ece6;
-  border-color: #f7ece6;
+  background: var(--body-text);
+  border-color: var(--body-text);
 }
 
-.home-page .hero-actions .button-secondary {
-  color: #f7ece6;
+.home-page :is(.hero-actions, .final-cta-actions) .button-secondary {
+  color: var(--body-text);
   background:
     linear-gradient(135deg, rgb(20 4 6 / 62%), rgb(52 9 13 / 42%));
-  border-color: rgb(247 236 230 / 68%);
+  border-color: rgb(240 228 224 / 68%);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 12%),
     0 12px 32px rgb(20 4 6 / 24%);
@@ -63,25 +71,25 @@
   -webkit-backdrop-filter: blur(14px) saturate(120%);
 }
 
-.home-page .hero-actions .button-primary:hover {
+.home-page :is(.hero-actions, .final-cta-actions) .button-primary:hover {
   color: #1c0509;
   background: #ffffff;
   border-color: #ffffff;
   box-shadow: 0 14px 36px rgb(20 4 6 / 32%);
 }
 
-.home-page .hero-actions .button-secondary:hover {
-  color: #f7ece6;
+.home-page :is(.hero-actions, .final-cta-actions) .button-secondary:hover {
+  color: var(--body-text);
   background:
-    linear-gradient(135deg, rgb(247 236 230 / 16%), rgb(52 9 13 / 48%));
-  border-color: #f7ece6;
+    linear-gradient(135deg, rgb(240 228 224 / 16%), rgb(52 9 13 / 48%));
+  border-color: var(--body-text);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 18%),
     0 14px 36px rgb(20 4 6 / 30%);
 }
 
-.home-page .hero-actions .button:focus-visible {
-  outline-color: #f7ece6;
+.home-page :is(.hero-actions, .final-cta-actions) .button:focus-visible {
+  outline-color: var(--body-text);
   outline-offset: 4px;
 }
 
@@ -110,7 +118,7 @@
 
 .hero h1 {
   max-width: 18ch;
-  font-family: "Coming Soon", "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  font-family: "Cormorant Garamond", Garamond, "Iowan Old Style", Georgia, serif;
   font-style: normal;
   font-weight: 400;
 }
@@ -149,7 +157,7 @@ h1 {
 .hero-story {
   width: 100%;
   max-width: 60rem;
-  margin: 2rem auto 0;
+  margin: calc(2rem + 4lh) auto 0;
   text-align: center;
 }
 
@@ -162,7 +170,8 @@ h1 {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  margin-top: 2rem;
+  margin-top: calc(2rem + 2lh);
+  transform: translateY(2lh);
 }
 
 .button {

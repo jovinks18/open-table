@@ -9,7 +9,7 @@
   }
 
   .hero-actions {
-    margin-top: 1.25rem;
+    margin-top: calc(1.25rem + 2lh);
   }
 
 }
@@ -192,7 +192,18 @@
   }
 
   .story-card-back h3 {
-    font-size: clamp(2.1rem, 10vw, 3rem);
+    width: 85%;
+    font-size: clamp(1.875rem, 8vw, 2.125rem);
+  }
+
+  .story-card-back {
+    grid-template-rows: auto 1fr 5.6em;
+    padding: 28px 24px 26px;
+  }
+
+  .story-card-back p {
+    width: 86%;
+    font-size: clamp(0.9375rem, 4vw, 1rem);
   }
 
   .legal-grid {
