@@ -109,6 +109,15 @@ test('conditional answers clear when their parent becomes irrelevant', () => {
   assert.match(template, /data-value="either"[^>]*>I’m flexible<\/button>/)
 })
 
+test('both city questions use the shared branded dropdown surface', () => {
+  assert.match(template, /data-city-combobox="applicant\.currentCity"/)
+  assert.match(template, /data-tags-field="applicant\.relocationCities"/)
+  assert.doesNotMatch(template, /data-city-select/)
+  assert.match(controller, /function initCityCombobox\(control\)/)
+  assert.match(controller, /Use “\$\{option\.label\}”/)
+  assert.match(controller, /Use “\$\{option\}”/)
+})
+
 test('the controller validates whole cards and focuses the first incomplete question', () => {
   assert.match(controller, /function validateScreen\(screen\)/)
   assert.match(controller, /if \(!validateScreen\(screen\)\) return/)

@@ -129,6 +129,11 @@ h3 {
   opacity: 0.62;
 }
 
+.desktop-nav > a:not(.nav-wordmark)[aria-current='page'] {
+  border-bottom: 1px solid var(--terracotta);
+  opacity: 1;
+}
+
 .nav-wordmark,
 .mobile-wordmark {
   display: flex;
