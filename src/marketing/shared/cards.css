@@ -66,55 +66,49 @@
   border-radius: 0.9rem;
   padding: clamp(1.25rem, 2.3vw, 2rem);
   overflow: hidden;
-  background: var(--card-color);
-  color: var(--espresso);
+  background: var(--card-back);
+  color: var(--card-back-text);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   isolation: isolate;
 }
 
 .story-card-one {
-  --card-color: var(--soft-linen);
+  --card-back: #f1e7da;
+  --card-back-text: #2a090d;
 }
 
 .story-card-two {
-  --card-color: var(--almond);
+  --card-back: #d8bea5;
+  --card-back-text: #2a090d;
 }
 
 .story-card-three {
-  --card-color: var(--dusty-rose);
+  --card-back: #b8675f;
+  --card-back-text: #fff7ee;
 }
 
 .story-card-four {
-  --card-color: var(--warm-ivory);
+  --card-back: #74343b;
+  --card-back-text: #fff7ee;
 }
 
 .story-card-front {
+  --playing-card-burgundy: #74343b;
+  --playing-card-terracotta: #b8675f;
+  --playing-card-ivory: #f1e7da;
+
   align-items: center;
   justify-content: center;
+  background: var(--playing-card-ivory);
+  border-color: var(--playing-card-burgundy);
+  color: var(--playing-card-burgundy);
   text-align: center;
 }
 
 .story-card-front::before,
 .story-card-front::after {
-  position: absolute;
-  width: 55%;
-  aspect-ratio: 1;
-  border: 1px solid var(--line-subtle);
-  border-radius: 50%;
-  content: "";
-  opacity: 0.42;
-  pointer-events: none;
-}
-
-.story-card-front::before {
-  top: 22%;
-  left: -23%;
-}
-
-.story-card-front::after {
-  right: -24%;
-  bottom: 18%;
+  content: none;
 }
 
 .story-card-face > span {
@@ -126,44 +120,124 @@
   text-transform: uppercase;
 }
 
-.story-card-front p {
-  position: relative;
-  z-index: 1;
-  max-width: 11ch;
-  margin: 1rem auto 0;
+.playing-card-corner {
+  position: absolute !important;
+  z-index: 2;
+  top: clamp(1rem, 1.6vw, 1.35rem);
+  left: clamp(1rem, 1.6vw, 1.35rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--playing-card-burgundy);
   font-family: var(--serif);
-  font-size: clamp(1.6rem, 2.6vw, 2.3rem);
-  letter-spacing: -0.045em;
-  line-height: 1.05;
+  letter-spacing: 0;
+  line-height: 0.82;
+  text-transform: none;
+}
+
+.playing-card-corner b {
+  font-size: clamp(1.45rem, 2vw, 1.9rem);
+  font-weight: 600;
+}
+
+.playing-card-corner i {
+  margin-top: 0.28rem;
+  font-size: clamp(1rem, 1.45vw, 1.35rem);
+  font-style: normal;
+}
+
+.playing-card-corner--reverse {
+  inset: auto clamp(1rem, 1.6vw, 1.35rem) clamp(1rem, 1.6vw, 1.35rem) auto;
+  transform: rotate(180deg);
+}
+
+.playing-card-portrait {
+  z-index: 1;
+  display: block;
+  width: min(76%, 13.25rem);
+  height: auto;
+  max-height: 78%;
+}
+
+.playing-card-frame {
+  fill: none;
+  stroke: var(--playing-card-burgundy);
+  stroke-width: 2;
+}
+
+.playing-card-burgundy {
+  fill: var(--playing-card-burgundy);
+}
+
+.playing-card-terracotta,
+.playing-card-dot {
+  fill: var(--playing-card-terracotta);
+}
+
+.playing-card-ivory {
+  fill: var(--playing-card-ivory);
+}
+
+.playing-card-line {
+  fill: none;
+  stroke: var(--playing-card-burgundy);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .story-card-back {
-  justify-content: flex-end;
+  display: grid;
+  grid-template-rows: auto 1fr 7em;
+  align-items: center;
+  padding: 32px 28px 30px;
+  text-align: center;
   transform: rotateY(180deg);
 }
 
 .story-card-back > span {
-  margin-bottom: auto;
+  align-self: start;
+  justify-self: center;
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .story-card-back h3 {
-  max-width: 11ch;
+  align-self: center;
+  justify-self: center;
+  width: 85%;
+  max-width: none;
+  margin: 0;
   font-family: var(--serif);
-  font-size: clamp(1.7rem, 2.6vw, 2.45rem);
-  font-weight: 400;
+  font-size: clamp(2.125rem, 2.6vw, 2.5rem);
+  font-weight: 600;
   letter-spacing: -0.045em;
-  line-height: 1;
+  line-height: 1.05;
+  text-align: center;
+  text-wrap: balance;
 }
 
 .story-card-back p {
-  margin-top: 1rem;
-  color: var(--espresso);
-  font-size: 0.82rem;
-  line-height: 1.5;
+  align-self: end;
+  justify-self: center;
+  width: 85%;
+  max-width: none;
+  margin: 0;
+  color: inherit;
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
 }
 
-.story-card-four .story-card-face > span {
-  color: var(--deep-brick);
+.story-card-back h3,
+.story-card-back > span {
+  color: inherit;
 }
 
 .cards-enhanced .story-card-stage {

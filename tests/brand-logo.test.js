@@ -26,11 +26,11 @@ test('marketing-page header and footer wordmarks reuse the journey wordmark', ()
   }
 })
 
-test('interface typography uses Switzer and large journey prompts use the Rhymes Text stack', () => {
+test('interface typography and large journey prompts use Switzer', () => {
   assert.match(marketingTokens, /--sans: "Switzer", "Helvetica Neue", Helvetica, Arial, sans-serif/)
   assert.match(marketingTokens, /--serif: "Cormorant"/)
   assert.match(journeyStyles, /--sans:'Switzer','Helvetica Neue',Helvetica,Arial,sans-serif/)
-  assert.match(journeyStyles, /--prompt:'Rhymes Text','Cormorant Garamond','Cormorant'/)
+  assert.match(journeyStyles, /--prompt:var\(--sans\)/)
   assert.match(journeyStyles, /--serif:'Cormorant'/)
   for (const page of ['index.html', 'faq.html', 'safety.html', 'our-story.html', 'apply.html']) {
     const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8')
@@ -46,10 +46,12 @@ test('the homepage retains its content, intro and live background', () => {
   assert.match(home, /data-experience-title/)
   assert.doesNotMatch(home, /data-experience-counter/)
   assert.match(home, /We started making introductions for our friends\. Then their friends asked\./)
-  assert.match(home, /family=Cormorant\+Garamond:ital,wght@1,500/)
+  assert.match(home, /family=Cormorant\+Garamond:ital,wght@0,400;1,500/)
+  assert.doesNotMatch(home, /family=Coming\+Soon/)
   assert.doesNotMatch(home, /family=Beth\+Ellen/)
-  assert.match(styles, /\.hero h1 \{[\s\S]*?font-family: "Cormorant Garamond"[\s\S]*?font-style: italic;[\s\S]*?font-weight: 500;/)
-  assert.match(home, /Between Bangalore and Berkeley/)
+  assert.match(styles, /\.hero h1 \{[\s\S]*?font-family: "Cormorant Garamond"[\s\S]*?font-style: normal;[\s\S]*?font-weight: 400;/)
+  assert.match(home, /Donna started with us introducing friends to people we thought they would genuinely like\./)
+  assert.match(home, /So Donna stays small and personal\. One introduction at a time, chosen by someone who has paid attention\./)
   assert.match(home, /How donna works/)
   assert.equal(existsSync(homeBackgroundPath), true)
   assert.match(styles, /url\("\/images\/donna-home-background\.png"\)/)

@@ -1,5 +1,3 @@
-const DESKTOP_BREAKPOINT = '(min-width: 900px)'
-
 function currentAttribute(page, item) {
   return page === item ? ' aria-current="page"' : ''
 }
@@ -17,12 +15,7 @@ function navigationMarkup(page) {
           <a class="nav-wordmark" href="/index.html" aria-label="donna home"${currentAttribute(page, 'home')}>
             <span class="donna-wordmark" aria-hidden="true">donna</span>
           </a>
-          <div class="questions-menu">
-            <button class="questions-trigger" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="questions-dropdown">Questions</button>
-            <ul class="questions-dropdown" id="questions-dropdown" hidden>
-              <li><a href="/faq.html"${currentAttribute(page, 'faq')}>Common questions</a></li>
-            </ul>
-          </div>
+          <a href="/faq.html"${currentAttribute(page, 'faq')}>FAQ</a>
           <a href="/safety.html"${currentAttribute(page, 'safety')}>Safety</a>
         </nav>
         <a class="header-cta" href="/apply.html" data-nav-apply${currentAttribute(page, 'apply')}>Apply to join</a>
@@ -36,71 +29,12 @@ function navigationMarkup(page) {
         <nav aria-label="Mobile navigation">
           <a href="/our-story.html"${currentAttribute(page, 'story')}>Our story</a>
           <a href="${howHref}">How it works</a>
-          <a href="/faq.html"${currentAttribute(page, 'faq')}>Common questions</a>
+          <a href="/faq.html"${currentAttribute(page, 'faq')}>FAQ</a>
           <a href="/safety.html"${currentAttribute(page, 'safety')}>Safety</a>
           <a href="/apply.html"${currentAttribute(page, 'apply')}>Apply to join</a>
         </nav>
       </div>
     </header>`
-}
-
-function initQuestionsDropdown(header) {
-  const trigger = header.querySelector('.questions-trigger')
-  const panel = header.querySelector('.questions-dropdown')
-  if (!trigger || !panel) return
-
-  const links = [...panel.querySelectorAll('a')]
-  const isOpen = () => trigger.getAttribute('aria-expanded') === 'true'
-
-  function open({ focusFirst = false } = {}) {
-    panel.hidden = false
-    trigger.setAttribute('aria-expanded', 'true')
-    if (focusFirst) links[0]?.focus()
-  }
-
-  function close({ returnFocus = false } = {}) {
-    if (!isOpen()) return
-    panel.hidden = true
-    trigger.setAttribute('aria-expanded', 'false')
-    if (returnFocus) trigger.focus({ preventScroll: true })
-  }
-
-  trigger.addEventListener('click', () => {
-    if (isOpen()) close()
-    else open()
-  })
-
-  trigger.addEventListener('keydown', (event) => {
-    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
-    event.preventDefault()
-    open({ focusFirst: true })
-    if (event.key === 'ArrowUp') links.at(-1)?.focus()
-  })
-
-  panel.addEventListener('keydown', (event) => {
-    const index = links.indexOf(document.activeElement)
-    if (event.key === 'Escape') {
-      event.preventDefault()
-      close({ returnFocus: true })
-      return
-    }
-    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return
-    event.preventDefault()
-    if (event.key === 'Home') links[0]?.focus()
-    else if (event.key === 'End') links.at(-1)?.focus()
-    else {
-      const direction = event.key === 'ArrowDown' ? 1 : -1
-      links[(index + direction + links.length) % links.length]?.focus()
-    }
-  })
-
-  links.forEach((link) => link.addEventListener('click', () => close()))
-  document.addEventListener('click', (event) => {
-    if (!header.querySelector('.questions-menu')?.contains(event.target)) close()
-  })
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && isOpen()) close({ returnFocus: true })
-  })
 }
 
 function initHeroScroll(header) {
@@ -147,16 +81,5 @@ export function initSiteNavigation() {
   const header = document.querySelector('[data-site-header]')
   if (!header) return
 
-  initQuestionsDropdown(header)
   initHeroScroll(header)
-
-  const desktopQuery = window.matchMedia(DESKTOP_BREAKPOINT)
-  desktopQuery.addEventListener('change', () => {
-    const trigger = header.querySelector('.questions-trigger')
-    const panel = header.querySelector('.questions-dropdown')
-    if (!desktopQuery.matches && trigger && panel) {
-      trigger.setAttribute('aria-expanded', 'false')
-      panel.hidden = true
-    }
-  })
 }
