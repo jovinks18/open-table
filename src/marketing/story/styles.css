@@ -12,7 +12,7 @@
 }
 
 .story-shell {
-  width: min(100%, 70rem);
+  width: min(100%, 42rem);
   margin-inline: auto;
 }
 
@@ -26,27 +26,12 @@
 }
 
 .story-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
-  align-items: start;
-  gap: 4rem;
-}
-
-.story-media {
-  position: sticky;
-  top: calc(5.75rem + 2rem);
-  aspect-ratio: 4 / 5;
-}
-
-.story-media__placeholder {
-  width: 100%;
-  height: 100%;
-  background: var(--terracotta);
+  display: block;
 }
 
 .story-copy {
   width: 100%;
-  max-width: 35rem;
+  max-width: 42rem;
 }
 
 .story-copy p {
@@ -72,14 +57,7 @@
     margin-bottom: 2.5rem;
   }
 
-  .story-layout {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-
-  .story-media {
-    position: static;
-    width: 100%;
-    margin-bottom: 2.5rem;
+  .story-copy {
+    max-width: 38rem;
   }
 }

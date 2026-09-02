@@ -63,13 +63,14 @@ strong,b{color:var(--strong-text);}
 .center-card{display:flex;width:min(600px,100%);flex-direction:column;align-items:center;gap:18px;padding:56px 64px;text-align:center;background:rgba(247,236,230,0.05);border:1px solid var(--line);border-radius:22px;}
 .center-card h1{font:500 48px/1.04 var(--prompt);letter-spacing:-0.8px;}
 .center-card p{max-width:470px;color:var(--body-text);font-size:15px;line-height:1.58;}
-#welcome .center-card{position:relative;width:min(680px,100%);gap:0;padding:52px 64px 48px;font-family:'Cormorant Garamond',Garamond,'Iowan Old Style',Georgia,serif;}
+#welcome{flex-direction:column;gap:18px;}
+#welcome::before{flex:0 0 auto;width:96px;height:72px;background:url('/images/application/donna-mascot.png') 50% 50%/contain no-repeat;content:'';filter:drop-shadow(0 10px 16px rgba(0,0,0,0.38));pointer-events:none;}
+#welcome .center-card{width:min(680px,100%);gap:0;padding:52px 64px 48px;font-family:'Cormorant Garamond',Garamond,'Iowan Old Style',Georgia,serif;}
 #welcome .center-card h1{margin-bottom:28px;font:500 56px/1 'Cormorant Garamond',Garamond,'Iowan Old Style',Georgia,serif;letter-spacing:-0.6px;}
 #welcome .center-card p{max-width:520px;font-size:20px;line-height:1.45;}
 #welcome .center-card p+p{margin-top:20px;}
 #welcome .center-card strong{font-weight:600;}
 #welcome .center-card .next-btn{margin-top:30px;font-size:17px;}
-#welcome .center-card::before{position:absolute;bottom:calc(100% + 18px);left:50%;width:96px;height:72px;background:url('/images/application/donna-mascot.png') 50% 50%/contain no-repeat;content:'';filter:drop-shadow(0 10px 16px rgba(0,0,0,0.38));transform:translateX(-50%);pointer-events:none;}
 
 .persistent-mascot{position:absolute;z-index:2;top:4px;left:0;width:64px;height:64px;background:url('/images/application/donna-mascot.png') center/contain no-repeat;filter:drop-shadow(0 10px 16px rgba(0,0,0,0.38));pointer-events:none;}
 .journey-prompt-row{display:grid;grid-template-columns:64px minmax(0,1fr);gap:20px;align-items:start;margin-bottom:16px;}
@@ -269,7 +270,8 @@ strong,b{color:var(--strong-text);}
   #welcome .center-card p{font-size:18px;line-height:1.42;}
   #welcome .center-card p+p{margin-top:16px;}
   #welcome .center-card .next-btn{margin-top:24px;font-size:16px;}
-  #welcome .center-card::before{bottom:calc(100% + 14px);width:76px;height:57px;}
+  #welcome{gap:14px;}
+  #welcome::before{width:76px;height:57px;}
   .persistent-mascot{top:2px;width:48px;height:48px;}
   .journey-prompt-row{grid-template-columns:minmax(0,1fr);gap:0;padding-top:54px;}
   .bubble{grid-column:1;}
