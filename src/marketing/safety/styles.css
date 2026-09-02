@@ -11,10 +11,6 @@
   color: var(--graphite-ink);
 }
 
-.safety-page .desktop-nav a[aria-current='page'] {
-  border-bottom: 1px solid var(--terracotta);
-}
-
 .safety-main {
   padding: clamp(7rem, 10vw, 8.5rem) clamp(1rem, 5vw, 5rem) clamp(5rem, 9vw, 8rem);
 }

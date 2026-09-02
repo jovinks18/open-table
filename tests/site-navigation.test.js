@@ -19,6 +19,7 @@ test('desktop navigation centres the wordmark and links directly to FAQ', () => 
   assert.match(navigation, /Our story[\s\S]*How it works[\s\S]*nav-wordmark[\s\S]*href="\/faq\.html"[\s\S]*FAQ[\s\S]*Safety/)
   assert.doesNotMatch(navigation, /questions-(?:menu|trigger|dropdown)|Common questions|aria-haspopup/)
   assert.match(styles, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\) auto repeat\(2, minmax\(0, 1fr\)\)/)
+  assert.match(styles, /\.desktop-nav > a:not\(\.nav-wordmark\)\[aria-current='page'\][\s\S]*?border-bottom: 1px solid var\(--terracotta\)/)
 })
 
 test('apply appears only after the homepage hero and motion can be disabled', () => {

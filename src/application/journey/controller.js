@@ -21,9 +21,14 @@ const ROUTES = Object.freeze([
 ])
 
 const CITY_OPTIONS = Object.freeze([
-  'Bengaluru', 'Mumbai', 'Delhi', 'Chennai', 'Hyderabad', 'Pune', 'Kolkata', 'Ahmedabad',
-  'Kochi', 'Coimbatore', 'Jaipur', 'Chandigarh', 'Gurugram', 'Noida', 'Dubai', 'Singapore',
-  'London', 'New York', 'San Francisco', 'Toronto', 'Sydney', 'Melbourne', 'Berlin', 'Amsterdam',
+  'Ahmedabad', 'Amritsar', 'Amsterdam', 'Austin', 'Bengaluru', 'Berlin', 'Bhopal', 'Bhubaneswar',
+  'Boston', 'Brisbane', 'Chandigarh', 'Chennai', 'Chicago', 'Coimbatore', 'Dallas', 'Delhi',
+  'Dubai', 'Dublin', 'Edinburgh', 'Frankfurt', 'Goa', 'Gurugram', 'Guwahati', 'Hong Kong',
+  'Hyderabad', 'Indore', 'Jaipur', 'Jamshedpur', 'Kanpur', 'Kochi', 'Kolkata', 'Kozhikode',
+  'London', 'Los Angeles', 'Lucknow', 'Melbourne', 'Miami', 'Mumbai', 'Mysuru', 'Nagpur',
+  'New York', 'Noida', 'Ottawa', 'Paris', 'Patna', 'Perth', 'Philadelphia', 'Portland',
+  'Pune', 'San Diego', 'San Francisco', 'Seattle', 'Singapore', 'Surat', 'Sydney', 'Thane',
+  'Thiruvananthapuram', 'Toronto', 'Udaipur', 'Vadodara', 'Vancouver', 'Visakhapatnam', 'Washington, D.C.',
 ])
 
 const LANGUAGE_OPTIONS = Object.freeze([
@@ -178,17 +183,6 @@ function orderFieldDescriptions(container) {
   }
 }
 
-function populateCitySelect(select) {
-  if (select.options.length > 1) return
-  const options = [...CITY_OPTIONS.map((city) => [city, city]), ['somewhere_else', 'Somewhere else']]
-  options.forEach(([value, label]) => {
-    const option = document.createElement('option')
-    option.value = value
-    option.textContent = label
-    select.append(option)
-  })
-}
-
 function populateDateOfBirthSelects(screen) {
   const day = screen.querySelector('[data-dob-day]')
   const year = screen.querySelector('[data-dob-year]')
@@ -290,7 +284,6 @@ function hydrateControls(screen) {
     else button.setAttribute('aria-pressed', String(selected))
   })
 
-  screen.querySelectorAll('[data-city-select]').forEach(populateCitySelect)
   populateDateOfBirthSelects(screen)
 
   screen.querySelectorAll('input[data-field], textarea[data-field], select[data-field]').forEach((control) => {
@@ -398,17 +391,21 @@ function initTagControl(control) {
   const showOptions = () => {
     const query = input.value.trim().toLowerCase()
     const selected = fieldValue(path) || []
-    const matches = options.filter((option) => !selected.includes(option) && (!query || option.toLowerCase().includes(query))).slice(0, 8)
-    dropdown.replaceChildren(...matches.map((option) => {
+    const matches = options.filter((option) => !selected.includes(option) && (!query || option.toLowerCase().includes(query))).slice(0, 12)
+    const exactMatch = options.some((option) => option.toLowerCase() === query)
+    const visibleOptions = query && !exactMatch && !selected.some((option) => option.toLowerCase() === query)
+      ? [...matches, input.value.trim()]
+      : matches
+    dropdown.replaceChildren(...visibleOptions.map((option) => {
       const button = document.createElement('button')
       button.type = 'button'
       button.className = 'tag-option'
-      button.textContent = option
+      button.textContent = options.includes(option) ? option : `Use “${option}”`
       button.addEventListener('click', () => add(option))
       return button
     }))
-    dropdown.classList.toggle('show', matches.length > 0)
-    control.classList.toggle('is-open', matches.length > 0)
+    dropdown.classList.toggle('show', visibleOptions.length > 0)
+    control.classList.toggle('is-open', visibleOptions.length > 0)
   }
   input.addEventListener('input', showOptions)
   input.addEventListener('focus', showOptions)
@@ -421,6 +418,103 @@ function initTagControl(control) {
     if (event.key === 'Escape') close()
   })
   renderTags(control)
+}
+
+function initCityCombobox(control) {
+  const path = control.dataset.cityCombobox
+  const input = control.querySelector('[data-city-combobox-input]')
+  const dropdown = control.querySelector('[data-city-combobox-dropdown]')
+  const options = [...CITY_OPTIONS.map((city) => ({ value: city, label: city })), { value: 'somewhere_else', label: 'Somewhere else' }]
+  let activeIndex = -1
+
+  const selectedLabel = () => options.find(({ value }) => value === fieldValue(path))?.label || ''
+  const close = () => {
+    dropdown.classList.remove('show')
+    control.classList.remove('is-open')
+    input.setAttribute('aria-expanded', 'false')
+    input.removeAttribute('aria-activedescendant')
+    activeIndex = -1
+  }
+
+  const choose = ({ value, label }) => {
+    setField(path, value)
+    input.value = label
+    close()
+    clearErrorFor(control)
+    const screen = control.closest('.screen')
+    syncConditions(screen, control)
+    refreshAdvanceState(screen)
+  }
+
+  const setActive = (index) => {
+    const items = [...dropdown.querySelectorAll('.tag-option')]
+    if (!items.length) return
+    activeIndex = (index + items.length) % items.length
+    items.forEach((item, itemIndex) => item.classList.toggle('is-active', itemIndex === activeIndex))
+    input.setAttribute('aria-activedescendant', items[activeIndex].id)
+    items[activeIndex].scrollIntoView({ block: 'nearest' })
+  }
+
+  const showOptions = () => {
+    const query = input.value.trim().toLowerCase()
+    const matches = options.filter(({ label }) => !query || label.toLowerCase().includes(query)).slice(0, 12)
+    const exactMatch = options.some(({ label }) => label.toLowerCase() === query)
+    const visibleOptions = query && !exactMatch
+      ? [...matches, { value: input.value.trim(), label: input.value.trim(), custom: true }]
+      : matches
+    dropdown.replaceChildren(...visibleOptions.map((option, index) => {
+      const button = document.createElement('button')
+      button.type = 'button'
+      button.className = 'tag-option'
+      button.id = `${dropdown.id}-option-${index}`
+      button.setAttribute('role', 'option')
+      button.setAttribute('aria-selected', String(option.value === fieldValue(path)))
+      button.textContent = option.custom ? `Use “${option.label}”` : option.label
+      button.addEventListener('mousedown', (event) => event.preventDefault())
+      button.addEventListener('click', () => choose(option))
+      return button
+    }))
+    const isOpen = visibleOptions.length > 0
+    dropdown.classList.toggle('show', isOpen)
+    control.classList.toggle('is-open', isOpen)
+    input.setAttribute('aria-expanded', String(isOpen))
+    activeIndex = -1
+    input.removeAttribute('aria-activedescendant')
+  }
+
+  input.value = selectedLabel()
+  input.addEventListener('focus', () => {
+    input.select()
+    showOptions()
+  })
+  input.addEventListener('input', showOptions)
+  input.addEventListener('blur', () => window.setTimeout(() => {
+    input.value = selectedLabel()
+    close()
+  }, 120))
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      if (!dropdown.classList.contains('show')) showOptions()
+      setActive(activeIndex + (event.key === 'ArrowDown' ? 1 : -1))
+      return
+    }
+    if (event.key === 'Enter' && input.value.trim()) {
+      event.preventDefault()
+      const query = input.value.trim().toLowerCase()
+      const matches = options.filter(({ label }) => !query || label.toLowerCase().includes(query)).slice(0, 12)
+      const exactMatch = options.some(({ label }) => label.toLowerCase() === query)
+      const visibleOptions = query && !exactMatch
+        ? [...matches, { value: input.value.trim(), label: input.value.trim(), custom: true }]
+        : matches
+      const exactOption = options.find(({ label }) => label.toLowerCase() === query)
+      choose(visibleOptions[activeIndex] || exactOption || { value: input.value.trim(), label: input.value.trim(), custom: true })
+    }
+    if (event.key === 'Escape') {
+      input.value = selectedLabel()
+      close()
+    }
+  })
 }
 
 function renderPhotoSlot(slot) {
@@ -612,6 +706,7 @@ function mountScreen(id) {
   renderProgress(screen)
   hydrateControls(screen)
   initAgeRange(screen)
+  screen.querySelectorAll('[data-city-combobox]').forEach(initCityCombobox)
   screen.querySelectorAll('[data-tags-field]').forEach(initTagControl)
   initPhotos(screen)
   renderReview(screen)

@@ -38,9 +38,9 @@ strong,b{color:var(--strong-text);}
 
 .journey-shell{display:flex;height:auto;max-height:none;flex-direction:column;overflow:visible;}
 .journey-header{position:relative;z-index:20;display:flex;flex:0 0 auto;align-items:center;justify-content:center;padding:12px 16px 16px;background:linear-gradient(180deg,rgba(28,5,9,0.58) 0%,rgba(28,5,9,0.20) 62%,transparent 100%);border:0;}
-.journey-header__mark{display:flex;align-items:center;gap:14px;}
+.journey-header__mark{display:flex;flex-direction:column;align-items:center;gap:5px;}
 .brand{display:block;color:var(--cream);font:600 32px/.85 var(--wordmark);letter-spacing:-.065em;text-transform:lowercase;}
-.chapter-status{min-width:34px;padding-left:14px;color:var(--rose);font:500 22px/1 var(--serif);letter-spacing:0.14em;text-align:left;border-left:1px solid rgba(242,153,133,0.28);opacity:1;transition:opacity 140ms ease;}
+.chapter-status{min-width:0;padding-left:0;color:var(--rose);font:500 22px/1 var(--serif);letter-spacing:0.14em;text-align:center;border-left:0;opacity:1;transition:opacity 140ms ease;}
 .chapter-status.is-fading{opacity:0;}
 
 .choice-cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
@@ -72,15 +72,15 @@ strong,b{color:var(--strong-text);}
 #welcome .center-card strong{font-weight:600;}
 #welcome .center-card .next-btn{margin-top:30px;font-size:17px;}
 
-.persistent-mascot{position:absolute;z-index:2;top:4px;left:0;width:64px;height:64px;background:url('/images/application/donna-mascot.png') center/contain no-repeat;filter:drop-shadow(0 10px 16px rgba(0,0,0,0.38));pointer-events:none;}
-.journey-prompt-row{display:grid;grid-template-columns:64px minmax(0,1fr);gap:20px;align-items:start;margin-bottom:16px;}
+.persistent-mascot{position:absolute;z-index:2;top:4px;left:0;width:72px;height:72px;background:url('/images/application/donna-mascot.png') center/contain no-repeat;filter:drop-shadow(0 10px 16px rgba(0,0,0,0.38));pointer-events:none;}
+.journey-prompt-row{display:grid;grid-template-columns:72px minmax(0,1fr);gap:20px;align-items:start;margin-bottom:16px;}
 .bubble{grid-column:2;padding:14px 22px 15px;background:rgba(247,236,230,0.055);border:1px solid var(--line);border-radius:16px;}
 
 .bubble h1{font:500 clamp(24px,2.4vw,30px)/1.12 var(--prompt);letter-spacing:-0.3px;overflow-wrap:anywhere;}
 .bubble h1.is-long{font-size:clamp(21px,1.9vw,25px);line-height:1.25;}
 .bubble h1 strong{font-weight:700;}
 
-.answer-card{width:calc(100% - 84px);max-height:none;margin:0 0 0 84px;padding:34px 36px 32px;overflow:visible;background:linear-gradient(180deg,rgba(247,236,230,0.055),rgba(247,236,230,0.018));border:1px solid rgba(242,153,133,0.26);border-radius:18px;box-shadow:0 24px 60px -30px rgba(0,0,0,0.75);}
+.answer-card{width:calc(100% - 92px);max-height:none;margin:0 0 0 92px;padding:34px 36px 32px;overflow:visible;background:linear-gradient(180deg,rgba(247,236,230,0.055),rgba(247,236,230,0.018));border:1px solid rgba(242,153,133,0.26);border-radius:18px;box-shadow:0 24px 60px -30px rgba(0,0,0,0.75);}
 .card-intro{max-width:58ch;margin-bottom:24px;color:var(--secondary-text);font-size:14px;line-height:1.55;}
 .nomination-card__header{margin-bottom:30px;}
 .nomination-card__eyebrow{margin-bottom:13px;color:var(--rose);font-size:12px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;}
@@ -172,7 +172,8 @@ strong,b{color:var(--strong-text);}
 .tag-dropdown{position:absolute;z-index:30;top:calc(100% + 6px);left:0;right:0;display:none;max-height:210px;overflow-y:auto;background:var(--wine);border:1px solid rgba(242,153,133,0.34);border-radius:12px;box-shadow:0 14px 30px -10px rgba(0,0,0,0.6);}
 .tag-dropdown.show{display:block;}
 .tag-option{display:block;width:100%;min-height:44px;padding:11px 14px;color:var(--body-text);text-align:left;background:transparent;border:0;cursor:pointer;}
-.tag-option:hover,.tag-option:focus-visible{background:rgba(242,153,133,0.12);}
+.tag-option:hover,.tag-option:focus-visible,.tag-option.is-active{background:rgba(242,153,133,0.12);}
+.tag-option[aria-selected='true']{color:#fff;font-weight:600;background:linear-gradient(135deg,var(--brick),var(--wine));}
 
 .field .boundary-textarea{min-height:180px;}
 .contact-privacy{margin-top:16px;margin-bottom:0;}
@@ -213,12 +214,12 @@ strong,b{color:var(--strong-text);}
   .brand{font-size:30px;}
   .chapter-status{font-size:21px;}
   .journey-main{padding:32px 0 48px;}
-  .journey-prompt-row{grid-template-columns:56px minmax(0,1fr);gap:16px;margin-bottom:12px;}
-  .persistent-mascot{width:56px;height:56px;}
+  .journey-prompt-row{grid-template-columns:64px minmax(0,1fr);gap:16px;margin-bottom:12px;}
+  .persistent-mascot{width:64px;height:64px;}
   .bubble{padding:13px 20px 14px;}
   .bubble h1{font-size:clamp(24px,1.9vw,27px);line-height:1.12;}
   .bubble h1.is-long{font-size:clamp(20px,1.6vw,23px);}
-  .answer-card{width:calc(100% - 72px);margin-left:72px;padding:28px 30px 26px;}
+  .answer-card{width:calc(100% - 80px);margin-left:80px;padding:28px 30px 26px;}
   .card-intro{margin-bottom:20px;font-size:13.5px;}
   .field + .field{margin-top:24px;}
   .field legend,.field>label{margin-bottom:10px;font-size:16px;}
@@ -257,9 +258,9 @@ strong,b{color:var(--strong-text);}
 
 @media(max-width:760px){
   .journey-header{padding:10px 14px;}
-  .journey-header__mark{gap:10px;}
+  .journey-header__mark{gap:4px;}
   .brand{font-size:28px;}
-  .chapter-status{min-width:26px;padding-left:10px;font-size:17px;}
+  .chapter-status{min-width:0;padding-left:0;font-size:17px;}
   .journey-main{padding:24px 0 64px;}
   .journey-stage{width:calc(100% - 32px);}
   .entry-screen,.exit-screen,.submitted-screen{min-height:calc(100dvh - 40px);}
@@ -272,8 +273,8 @@ strong,b{color:var(--strong-text);}
   #welcome .center-card .next-btn{margin-top:24px;font-size:16px;}
   #welcome{gap:14px;}
   #welcome::before{width:76px;height:57px;}
-  .persistent-mascot{top:2px;width:48px;height:48px;}
-  .journey-prompt-row{grid-template-columns:minmax(0,1fr);gap:0;padding-top:54px;}
+  .persistent-mascot{top:2px;width:56px;height:56px;}
+  .journey-prompt-row{grid-template-columns:minmax(0,1fr);gap:0;padding-top:62px;}
   .bubble{grid-column:1;}
   .persistent-mascot{top:0;left:4px;}
   .bubble{padding:13px 17px 14px;}
