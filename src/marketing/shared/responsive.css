@@ -160,6 +160,7 @@
     align-items: center;
     flex-direction: column;
     gap: 0.65rem;
+    transform: none;
   }
 
   .home-page .hero-actions {
