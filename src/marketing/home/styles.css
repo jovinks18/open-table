@@ -32,6 +32,8 @@
 .home-page .hero,
 .home-page .card-story,
 .home-page .story-card-stage,
+.home-page .why-donna,
+.home-page .home-trust,
 .home-page .final-cta,
 .home-page .site-footer {
   background: transparent;
@@ -119,6 +121,7 @@
 .hero h1 {
   max-width: 18ch;
   font-family: "Cormorant Garamond", Garamond, "Iowan Old Style", Georgia, serif;
+  font-size: clamp(2.75rem, 4.8vw, 4.5rem);
   font-style: normal;
   font-weight: 400;
 }
@@ -146,32 +149,6 @@ h1 {
   line-height: 1.02;
 }
 
-.hero-intro {
-  max-width: none;
-  margin: 0;
-  color: var(--graphite-muted);
-  font-size: clamp(0.98rem, 1.2vw, 1.12rem);
-  line-height: 1.55;
-}
-
-.hero-story {
-  width: 100%;
-  max-width: 60rem;
-  margin: calc(2rem + 4lh) auto 0;
-  text-align: center;
-}
-
-.hero-story .hero-intro + .hero-intro {
-  margin-top: 0.45rem;
-}
-
-.hero-story .hero-intro {
-  font-family: "Parisienne", cursive;
-  font-size: clamp(1.35rem, 2.25vw, 1.8rem);
-  font-weight: 400;
-  letter-spacing: 0.01em;
-}
-
 .hero-actions {
   display: flex;
   align-items: center;
@@ -181,22 +158,141 @@ h1 {
   transform: translateY(2lh);
 }
 
+.hero-supporting-line {
+  margin-top: calc(2rem + 2lh);
+  color: var(--body-text);
+  font-family: var(--wordmark);
+  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  font-weight: 400;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
 @media (min-width: 900px) {
-  .hero-story {
-    max-width: 50rem;
-  }
-
-  .hero-story .hero-intro {
-    color: var(--body-text);
-    white-space: nowrap;
-  }
-
   .home-page :is(.hero-actions, .final-cta-actions) .button {
     font-size: 0.95rem;
   }
 
   .home-page .final-cta {
     padding-top: 3rem;
+  }
+}
+
+.why-donna {
+  padding: clamp(4.5rem, 8vw, 7rem) clamp(1.25rem, 7vw, 7rem);
+  text-align: center;
+}
+
+.why-donna h2 {
+  max-width: 42rem;
+  margin: 0.8rem auto 0;
+  font-family: var(--wordmark);
+  font-size: clamp(1.8rem, 3vw, 2.7rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+
+.why-donna > p:last-child {
+  max-width: 37rem;
+  margin: 1.25rem auto 0;
+  color: var(--graphite-muted);
+  font-size: clamp(0.95rem, 1.15vw, 1.05rem);
+  line-height: 1.65;
+}
+
+.home-trust {
+  width: min(calc(100% - 2.5rem), 72rem);
+  margin-inline: auto;
+  padding: clamp(2.75rem, 5vw, 4rem) 0;
+}
+
+.home-trust__heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.home-trust__heading .eyebrow {
+  margin: 0;
+}
+
+.home-trust__heading h2 {
+  font-size: clamp(2rem, 3.5vw, 3.2rem);
+  line-height: 1;
+}
+
+.home-trust__items {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-block: 1px solid var(--line);
+}
+
+.home-trust__items article {
+  min-width: 0;
+  padding: 1.4rem clamp(1rem, 2vw, 1.5rem);
+}
+
+.home-trust__items article + article {
+  border-left: 1px solid var(--line);
+}
+
+.home-trust__items h3 {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.home-trust__items p {
+  margin-top: 0.65rem;
+  color: var(--graphite-muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.home-trust__link {
+  display: inline-block;
+  margin-top: 1.25rem;
+  border-bottom: 1px solid var(--terracotta);
+  padding-bottom: 0.3rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+@media (max-width: 800px) {
+  .home-trust__heading {
+    display: block;
+  }
+
+  .home-trust__heading h2 {
+    margin-top: 0.65rem;
+  }
+
+  .home-trust__items {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .home-trust__items article:nth-child(3) {
+    border-left: 0;
+  }
+
+  .home-trust__items article:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 520px) {
+  .home-trust__items {
+    grid-template-columns: 1fr;
+  }
+
+  .home-trust__items article + article {
+    border-top: 1px solid var(--line);
+    border-left: 0;
   }
 }
 

@@ -15,8 +15,9 @@ test('marketing routes mount one shared navigation component and the journey doe
   assert.doesNotMatch(journey, /data-site-navigation|src\/marketing\/shared\/index\.js|src\/marketing\/styles\.css/)
 })
 
-test('desktop navigation centres the wordmark and links directly to FAQ', () => {
-  assert.match(navigation, /Our story[\s\S]*How it works[\s\S]*nav-wordmark[\s\S]*href="\/faq\.html"[\s\S]*FAQ[\s\S]*Safety/)
+test('desktop navigation centres the wordmark and keeps FAQ and Safety separate', () => {
+  assert.match(navigation, /Our story[\s\S]*How it works[\s\S]*nav-wordmark[\s\S]*href="\/faq\.html"[\s\S]*>FAQ<[\s\S]*href="\/safety\.html"[\s\S]*>Safety</)
+  assert.doesNotMatch(navigation, /FAQ &amp; Safety|desktop-nav-spacer/)
   assert.doesNotMatch(navigation, /questions-(?:menu|trigger|dropdown)|Common questions|aria-haspopup/)
   assert.match(styles, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\) auto repeat\(2, minmax\(0, 1fr\)\)/)
   assert.match(styles, /\.desktop-nav > a:not\(\.nav-wordmark\)\[aria-current='page'\][\s\S]*?border-bottom: 1px solid var\(--terracotta\)/)
@@ -38,7 +39,7 @@ test('homepage navigation hides on downward scroll and returns on upward scroll'
 test('mobile navigation is flat, full-height, closable and focus-trapped below 900px', () => {
   assert.match(responsive, /@media \(max-width: 899px\)/)
   assert.match(responsive, /\.mobile-menu[\s\S]*position: fixed[\s\S]*inset: 0/)
-  assert.match(navigation, /mobile-menu__close[\s\S]*Our story[\s\S]*How it works[\s\S]*FAQ[\s\S]*Safety[\s\S]*Apply to join/)
+  assert.match(navigation, /mobile-menu__close[\s\S]*Our story[\s\S]*How it works[\s\S]*>FAQ<[\s\S]*>Safety<[\s\S]*Apply to join/)
   const mobileMenu = readFileSync(new URL('../src/marketing/shared/mobile-menu.js', import.meta.url), 'utf8')
   assert.match(mobileMenu, /menuFocusables[\s\S]*event\.key !== 'Tab'/)
   assert.match(mobileMenu, /function closeMenu[\s\S]*menuButton\.focus/)

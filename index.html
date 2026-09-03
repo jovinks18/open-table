@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://api.fontshare.com" />
     <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&amp;display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;600;700&amp;family=Cormorant+Garamond:ital,wght@0,400;1,500&amp;family=Instrument+Sans:wght@600&amp;family=Parisienne&amp;display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;600;700&amp;family=Cormorant+Garamond:ital,wght@0,400;1,500&amp;family=Instrument+Sans:wght@400;600&amp;display=swap" />
     <link rel="stylesheet" href="/src/marketing/styles.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/splitting/dist/splitting.css" />
     <script>
@@ -72,18 +72,14 @@
       <div data-site-navigation data-page="home"></div>
 
       <main id="main-content">
-        <section class="hero" id="top" aria-labelledby="hero-title">
+        <section class="hero" id="top" aria-labelledby="hero-title" aria-describedby="hero-supporting-line">
           <div class="hero-copy">
             <h1 id="hero-title" tabindex="-1">We started making introductions for our friends. Then their friends asked.</h1>
             <div class="hero-actions">
               <a class="button button-primary" href="/apply.html?for=me">Apply to join</a>
               <a class="button button-secondary" href="/apply.html?for=friend">Introduce a friend</a>
             </div>
-            <div class="hero-story">
-              <p class="hero-intro">
-                One introduction at a time, chosen by someone who has paid attention.
-              </p>
-            </div>
+            <p class="hero-supporting-line" id="hero-supporting-line">One introduction at a time, chosen by someone who has paid attention.</p>
           </div>
         </section>
 
@@ -220,12 +216,43 @@
           </div>
         </section>
 
+        <section class="why-donna" aria-labelledby="why-title">
+          <p class="eyebrow">Why donna exists</p>
+          <h2 id="why-title">One introduction at a time, chosen by someone who has paid attention.</h2>
+          <p>A profile can hold facts. It cannot replace the attention and judgment behind a considered introduction.</p>
+        </section>
+
+        <section class="home-trust" aria-labelledby="trust-title">
+          <div class="home-trust__heading">
+            <p class="eyebrow">What stays private</p>
+            <h2 id="trust-title">The essentials</h2>
+          </div>
+          <div class="home-trust__items">
+            <article>
+              <h3>Reviewed by people</h3>
+              <p>Every application and introduction is considered by a person.</p>
+            </article>
+            <article>
+              <h3>Your profile is not public</h3>
+              <p>It is only shown when Donna has a specific introduction in mind.</p>
+            </article>
+            <article>
+              <h3>You decide privately</h3>
+              <p>Nothing moves forward unless both people are interested.</p>
+            </article>
+            <article>
+              <h3>Meet somewhere public</h3>
+              <p>Donna arranges first meetings at populated public venues.</p>
+            </article>
+          </div>
+          <a class="home-trust__link" href="/safety.html">Read our safety approach</a>
+        </section>
+
         <section class="final-cta" id="apply" aria-labelledby="apply-title">
           <p class="eyebrow">The donna experience</p>
           <h2 id="apply-title">Ready to meet, not just match?</h2>
           <div class="final-cta-actions">
             <a class="button button-primary" href="/apply.html?for=me">Apply to join</a>
-            <a class="button button-secondary" href="/apply.html?for=friend">Introduce a friend</a>
           </div>
           <p>We’re welcoming a small number of people this year.</p>
         </section>
@@ -237,8 +264,8 @@
         </a>
         <nav class="footer-nav" aria-label="Footer navigation">
           <a href="#how">How it works</a>
-          <a href="/safety.html">Safety</a>
           <a href="/faq.html">FAQ</a>
+          <a href="/safety.html">Safety</a>
           <a data-contact-link hidden>Contact</a>
           <span data-contact-fallback title="Contact method pending launch">Contact</span>
         </nav>

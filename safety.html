@@ -3,11 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f5efe6" />
-    <meta
-      name="description"
-      content="How we review applications, share introductions, support safer first meetings and respond to concerns."
-    />
+    <meta name="theme-color" content="#26080d" />
+    <meta name="description" content="Donna’s safety approach, reporting contacts and emergency information." />
     <title>donna | Safety</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,92 +17,64 @@
   <body class="safety-page">
     <div class="donna-page">
       <a class="skip-link" href="#main-content">Skip to content</a>
-
       <div data-site-navigation data-page="safety"></div>
 
-      <main class="safety-main" id="main-content">
-        <header class="safety-page-intro">
-          <h1>Safety at donna</h1>
-          <p>What we review, what we cannot guarantee, and how you stay in control.</p>
-        </header>
+      <main id="main-content" class="safety-layout">
+        <section class="safety-section" id="safety" aria-labelledby="safety-title">
+          <header class="safety-intro">
+            <p class="eyebrow">Safety</p>
+            <h1 id="safety-title" tabindex="-1">Safety at Donna</h1>
+            <p>We take precautions before, during and after an introduction. Here is what that means in practice.</p>
+          </header>
 
-        <a class="safety-emergency-jump" href="#emergency">Emergency help</a>
+          <div class="safety-items" aria-label="Safety approach">
+            <article class="safety-item">
+              <h2>Every application is reviewed</h2>
+              <p>Every application is read by a person before an introduction is made. We look for inconsistencies and may ask for more information when something does not add up.</p>
+            </article>
+            <article class="safety-item">
+              <h2>Your profile is not public</h2>
+              <p>Your profile and photos are only shown to someone being considered for a specific introduction. There is no searchable directory, and your full application is never shared.</p>
+            </article>
+            <article class="safety-item">
+              <h2>First meetings happen in public</h2>
+              <p>Donna arranges the time and a populated public venue. Use your own transport and tell someone you trust where you are going. We will message you after the meeting to check that you got home safely.</p>
+            </article>
+            <article class="safety-item">
+              <h2>You stay in control</h2>
+              <p>You can decline an introduction, leave a meeting, stop communicating or withdraw from Donna at any time. Never send money or financial information to someone you meet through Donna.</p>
+            </article>
+          </div>
 
-        <section class="safety-category-grid" aria-label="Safety guidance">
-          <article class="safety-category-card" id="review" aria-labelledby="review-title">
-            <p class="safety-label">Application review</p>
-            <h2 id="review-title">Every application is reviewed</h2>
-            <p>We read every application ourselves and check that what someone's told us is consistent.</p>
-          </article>
+          <section class="safety-report" aria-labelledby="report-title">
+            <h2 id="report-title">Something feels wrong? Tell us.</h2>
+            <p>You do not need to prove that something was serious before contacting us. We review safety concerns promptly and may pause further introductions involving the person while we assess what happened.</p>
+            <p class="safety-contact-links">
+              <a href="https://wa.me/13413338019">WhatsApp: +1 341-333-8019</a>
+              <a href="mailto:thedonnapilot@gmail.com">Email: thedonnapilot@gmail.com</a>
+            </p>
+          </section>
 
-          <article class="safety-category-card" aria-labelledby="permission-title">
-            <p class="safety-label">Permission</p>
-            <h2 id="permission-title">Nothing is shared without permission</h2>
-            <p>Your profile is only shared for a specific introduction, and only after you agree.</p>
-          </article>
+          <section class="safety-emergency" aria-labelledby="emergency-title">
+            <h2 id="emergency-title">Emergency help</h2>
+            <p>Donna is not an emergency service. If you are in immediate danger, call 112.</p>
+            <ul>
+              <li>Immediate emergency: <a href="tel:112">112</a></li>
+              <li>Women’s helpline: <a href="tel:181">181</a></li>
+              <li>Cyber or financial fraud: <a href="tel:1930">1930</a></li>
+            </ul>
+          </section>
 
-          <article class="safety-category-card" id="meeting" aria-labelledby="meeting-title">
-            <p class="safety-label">First meetings</p>
-            <h2 id="meeting-title">Meet somewhere public</h2>
-            <p>Choose a populated place, arrange your own transport, and tell someone you trust.</p>
-          </article>
-
-          <article class="safety-category-card" aria-labelledby="during-meeting-title">
-            <p class="safety-label">During the meeting</p>
-            <h2 id="during-meeting-title">We know when and where you're meeting</h2>
-            <p>We arrange the time and place, so we know where you'll be. We'll message you afterwards to check you got home fine. If you'd rather we didn't, just say.</p>
-          </article>
-
-          <article class="safety-category-card" aria-labelledby="control-title">
-            <p class="safety-label">Your choice</p>
-            <h2 id="control-title">You stay in control</h2>
-            <p>You can decline, leave, stop communicating, or withdraw from donna at any time.</p>
-          </article>
-
-          <article class="safety-category-card" aria-labelledby="money-title">
-            <p class="safety-label">Money</p>
-            <h2 id="money-title">Money requests are a warning sign</h2>
-            <p>Never send money or financial information to someone we introduce you to.</p>
-          </article>
-
-          <article class="safety-category-card" aria-labelledby="report-card-title">
-            <p class="safety-label">Reporting</p>
-            <h2 id="report-card-title">Tell us when something feels wrong</h2>
-            <p>You do not need to prove it was serious before reporting a concern.</p>
-          </article>
-
-          <article class="safety-category-card" aria-labelledby="next-title">
-            <p class="safety-label">What happens next</p>
-            <h2 id="next-title">What we do about it</h2>
-            <p>We reply within 2 hours. You'll speak to one person, not a queue. If someone has behaved badly, we stop introducing them.</p>
-          </article>
+          <p class="safety-limitation">Application review and safety precautions can reduce risk, but they cannot guarantee another person’s identity, intentions or behaviour.</p>
         </section>
-
-        <section class="safety-report" id="support" aria-labelledby="support-title">
-          <h2 id="support-title">Report a concern</h2>
-          <p>Message us on WhatsApp at <a href="https://wa.me/13413338019">+1 3413338019</a> or email <a href="mailto:thedonnapilot@gmail.com">thedonnapilot@gmail.com</a>. Jovin reads these. We reply within 2 hours.</p>
-          <p>You don't need to prove it was serious before telling us.</p>
-        </section>
-
-        <section class="safety-emergency" id="emergency" aria-label="Emergency contacts">
-          <p>If you're in immediate danger, call <a href="tel:112">112</a>.</p>
-          <p>Women's helpline: <a href="tel:1091">1091</a> · Women in distress: <a href="tel:181">181</a> · Cyber and financial fraud: <a href="tel:1930">1930</a></p>
-          <p>donna is not an emergency service.</p>
-        </section>
-
-        <aside class="safety-limitation" aria-label="Limitations of donna’s safety process">
-          <p>Manual review can reduce avoidable risk, but it cannot guarantee another person’s identity, intentions or behaviour. If you believe you are in immediate danger, contact the appropriate local emergency services. donna is not an emergency-response service.</p>
-        </aside>
       </main>
 
       <footer class="site-footer">
-        <a class="wordmark" href="/index.html" aria-label="donna home">
-          <span class="donna-wordmark" aria-hidden="true">donna</span>
-        </a>
+        <a class="wordmark" href="/index.html" aria-label="donna home"><span class="donna-wordmark" aria-hidden="true">donna</span></a>
         <nav class="footer-nav" aria-label="Footer navigation">
           <a href="/index.html#how">How it works</a>
-          <a href="/safety.html" aria-current="page">Safety</a>
           <a href="/faq.html">FAQ</a>
+          <a href="/safety.html" aria-current="page">Safety</a>
           <a href="mailto:thedonnapilot@gmail.com">Contact</a>
         </nav>
       </footer>

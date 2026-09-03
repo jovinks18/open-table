@@ -76,7 +76,7 @@ test('contact validation preserves the age and phone boundaries', () => {
   assert.equal(dateValueFromParts({ day: 29, month: 8, year: 1995 }), '1995-08-29')
   assert.equal(calculateAgeFromDateOfBirth('1995-08-29', today), 31)
   assert.deepEqual(validateApplicantDateOfBirth('2005-08-30', today), { valid: false, message: 'You need to be 21 or older to apply.' })
-  assert.deepEqual(validateApplicantDateOfBirth('1955-08-29', today), { valid: false, message: 'This pilot is for applicants up to 70.' })
+  assert.deepEqual(validateApplicantDateOfBirth('1955-08-29', today), { valid: false, message: 'Applications are open to people up to 70.' })
   assert.equal(isValidPhone('+91 98765 43210'), true)
   assert.equal(isValidPhone('+1 (415) 555-0136'), true)
   assert.equal(isValidPhone('123'), false)

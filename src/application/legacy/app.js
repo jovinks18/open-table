@@ -1751,7 +1751,7 @@ function buildPhotoReview() {
 
 function buildLegalLinks() {
   const row = createElement('p', 'application-legal-links')
-  ;[['Privacy Notice', siteConfig.privacyNoticeUrl], ['Pilot Terms', siteConfig.pilotTermsUrl]].forEach(([label, url], index) => {
+  ;[['Privacy Notice', siteConfig.privacyNoticeUrl], ['Terms', siteConfig.pilotTermsUrl]].forEach(([label, url], index) => {
     if (index) row.append(document.createTextNode(' · '))
     if (url) {
       const link = createElement('a', '', label)
