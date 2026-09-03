@@ -3,28 +3,40 @@ import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
 const faqHtml = readFileSync(new URL('../faq.html', import.meta.url), 'utf8')
+const faqCss = readFileSync(new URL('../src/marketing/faq/styles.css', import.meta.url), 'utf8')
 
-function positionOf(text) {
-  return faqHtml.indexOf(text)
-}
+const questions = [
+  'What is Donna?',
+  'Who can apply?',
+  'How does an introduction work?',
+  'What will the other person see about me?',
+  'Do you consider family, religion, community or caste?',
+  'How long might I wait?',
+  'What does Donna cost?',
+  'How is my information used?',
+]
 
-test('faq uses three ordered groups and the complete supplied question list', () => {
-  const groupLabels = ['The basics', 'How introductions work', 'Cost and your data']
-  const positions = groupLabels.map(positionOf)
-
-  assert.equal(positions.every((position) => position >= 0), true)
-  assert.deepEqual([...positions].sort((a, b) => a - b), positions)
-  assert.equal((faqHtml.match(/<details class="faq-item">/g) || []).length, 23)
+test('faq is a standalone page with eight questions', () => {
+  assert.match(faqHtml, /<section class="faq-section" id="faq"/)
+  assert.doesNotMatch(faqHtml, /<section class="safety-section"|id="safety"/)
+  assert.equal((faqHtml.match(/<details class="faq-item">/g) || []).length, 8)
 })
 
-test('faq decisions match the application and homepage photo flow', () => {
-  assert.match(faqHtml, /We ask\. For a lot of people it matters, and pretending it doesn't wastes everyone's time\./)
-  assert.match(faqHtml, /Once you've both said yes to an introduction, photos are shared before we set a time\./)
-  assert.doesNotMatch(faqHtml, /community isn't one of the things we ask about|You'll see each other at the meeting/)
+test('faq contains only the eight supplied questions in order', () => {
+  const summaries = [...faqHtml.matchAll(/<summary><h2><span>([^<]+)<\/span>/g)].map((match) => match[1])
+  assert.deepEqual(summaries, questions)
+  assert.doesNotMatch(faqHtml, /Who is Donna, exactly\?|Who is this not for\?|How many introductions will I get\?|How do you check people are real\?/)
 })
 
-test('faq removes the duplicate debrief entry and links footer contact', () => {
-  assert.match(faqHtml, /Does the other person see my debrief\?/)
-  assert.doesNotMatch(faqHtml, /What about what I say in a debrief\?/)
-  assert.match(faqHtml, /href="mailto:thedonnapilot@gmail\.com">Contact<\/a>/)
+test('faq uses the restrained burgundy layout and accessible accordions', () => {
+  assert.match(faqCss, /\.faq-page\s*\{[\s\S]*--graphite: #26080d/)
+  assert.match(faqCss, /\.faq-layout\s*\{[\s\S]*width: min\(100%, 68rem\)/)
+  assert.doesNotMatch(faqCss, /\.safety-items|\.safety-section/)
+  assert.match(faqCss, /\.faq-item summary:focus-visible/)
+  assert.match(faqCss, /@media \(prefers-reduced-motion: reduce\)/)
+})
+
+test('public copy does not describe Donna as a pilot', () => {
+  const withoutContactAddress = faqHtml.replaceAll('thedonnapilot@gmail.com', '')
+  assert.doesNotMatch(withoutContactAddress, /\bpilot(?:ing)?\b/i)
 })

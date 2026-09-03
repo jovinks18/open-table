@@ -8,10 +8,11 @@ const styles = readFileSync(new URL('../src/marketing/story/styles.css', import.
 test('our story replaces the placeholder with the supplied story and no CTA', () => {
   assert.doesNotMatch(html, /Coming soon\./)
   assert.match(html, /<h1>Our story<\/h1>/)
-  assert.equal((html.match(/<p(?: class="story-signature")?>/g) || []).length, 9)
-  assert.match(html, /My mother keeps the biodatas in a folder\./)
-  assert.match(html, /donna is her method, pointed at the people instead of the families\./)
-  assert.match(html, /<p class="story-signature">— Jo<\/p>/)
+  assert.equal((html.match(/<p>/g) || []).length, 8)
+  assert.match(html, /I have always been the friend people ask, “Do you know someone\?”/)
+  assert.match(html, /Donna works the same way\./)
+  assert.match(html, /Some weeks, I may not have anyone for you\./)
+  assert.doesNotMatch(html, /story-signature|— Jo/)
   assert.doesNotMatch(html, /Apply to join|class="[^\"]*cta/)
 })
 

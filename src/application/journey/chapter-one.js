@@ -55,6 +55,6 @@ export function validateApplicantDateOfBirth(value, today = new Date()) {
   const age = calculateAgeFromDateOfBirth(value, today)
   if (age === null) return { valid: false, message: 'Enter a valid date of birth.' }
   if (age < APPLICANT_MINIMUM_AGE) return { valid: false, message: 'You need to be 21 or older to apply.' }
-  if (age > APPLICANT_MAXIMUM_AGE) return { valid: false, message: 'This pilot is for applicants up to 70.' }
+  if (age > APPLICANT_MAXIMUM_AGE) return { valid: false, message: 'Applications are open to people up to 70.' }
   return { valid: true, message: '' }
 }

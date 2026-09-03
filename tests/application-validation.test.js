@@ -26,7 +26,7 @@ test('calculates the exact 25th-birthday boundary', () => {
   assert.equal(isAtLeast25('2001-08-03', referenceDate), true)
   assert.equal(calculateAge('2001-08-04', referenceDate), 24)
   assert.equal(isAtLeast25('2001-08-04', referenceDate), false)
-  assert.equal(UNDER_25_MESSAGE, "donna's pilot is open to people 25 and over.")
+  assert.equal(UNDER_25_MESSAGE, "donna is open to people 25 and over.")
 })
 
 test('rejects invalid calendar dates', () => {

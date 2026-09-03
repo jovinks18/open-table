@@ -1,77 +1,59 @@
 .faq-page {
-  --graphite: var(--warm-ivory);
-  --graphite-ink: var(--espresso);
-  --graphite-muted: var(--warm-taupe);
+  --graphite: #26080d;
+  --graphite-ink: #f0e4e0;
+  --graphite-muted: #c9afab;
 
-  background: var(--warm-ivory);
-  color: var(--espresso);
+  background:
+    radial-gradient(ellipse 800px 700px at 85% 20%, rgb(89 25 25 / 40%), transparent 65%),
+    linear-gradient(160deg, #1c0509 0%, #26080d 55%, #34090d 100%);
+  color: var(--graphite-ink);
+}
+
+.faq-page .donna-page {
+  background: transparent;
 }
 
 .faq-layout {
-  width: min(100%, 72rem);
+  width: min(100%, 68rem);
   margin-inline: auto;
-  padding: clamp(7rem, 10vw, 9rem) clamp(1.25rem, 5vw, 3rem) 0;
+  padding: clamp(7.5rem, 10vw, 9rem) clamp(1.25rem, 5vw, 3rem) clamp(4rem, 8vw, 7rem);
+}
+
+.faq-section {
+  scroll-margin-top: 6.5rem;
 }
 
 .faq-intro {
-  padding: 0 0 clamp(3rem, 6vw, 5rem);
-  text-align: left;
+  max-width: 42rem;
+  padding-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.faq-intro .eyebrow {
+  margin-bottom: 0.75rem;
+  color: var(--terracotta);
 }
 
 .faq-intro h1 {
-  font-size: clamp(2.5rem, 4vw, 4rem);
-}
-
-.faq-intro .legal-tldr {
-  max-width: 32rem;
-  margin-top: 0.75rem;
-  color: var(--graphite-muted);
-  font-size: clamp(1rem, 1.3vw, 1.12rem);
-  line-height: 1.6;
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 5vw, 4.5rem);
+  font-weight: 400;
+  letter-spacing: -0.05em;
+  line-height: 0.98;
 }
 
 .faq-list {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  background: var(--graphite);
-}
-
-.faq-group + .faq-group {
-  margin-top: clamp(4rem, 7vw, 6rem);
-}
-
-.faq-group {
-  display: grid;
-  grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
-  gap: clamp(2rem, 5vw, 5rem);
-  align-items: start;
-}
-
-.faq-section-label {
-  position: sticky;
-  top: 7rem;
-  margin: 0;
-  color: var(--terracotta);
-  font-size: 0.72rem;
-  letter-spacing: 0.11em;
-}
-
-.faq-group-list {
-  min-width: 0;
-  border-bottom: 1px solid rgb(160 139 111 / 28%);
+  border-bottom: 1px solid var(--line);
 }
 
 .faq-item {
-  border-top: 1px solid rgb(160 139 111 / 28%);
+  border-top: 1px solid var(--line);
 }
 
 .faq-item summary {
+  border-radius: 0.35rem;
   padding-block: 1.15rem;
   cursor: pointer;
   list-style: none;
-  border-radius: 0.5rem;
 }
 
 .faq-item summary::-webkit-details-marker {
@@ -85,7 +67,7 @@
   gap: 1.5rem;
   font-family: var(--sans);
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.45;
 }
@@ -95,20 +77,20 @@
   flex: 0 0 1.75rem;
   width: 1.75rem;
   height: 1.75rem;
-  border: 1px solid rgb(160 139 111 / 30%);
+  border: 1px solid var(--line);
   border-radius: 50%;
   color: var(--terracotta);
 }
 
 .faq-icon::before,
 .faq-icon::after {
-  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
   width: 0.62rem;
   height: 1px;
   background: currentColor;
+  content: "";
   transform: translate(-50%, -50%);
   transition: transform 160ms ease, opacity 160ms ease;
 }
@@ -122,32 +104,23 @@
   transform: translate(-50%, -50%) rotate(0deg);
 }
 
-.faq-item p {
-  max-width: 42rem;
-  padding: 0 3.25rem 1.35rem 0;
+.faq-item > p {
+  width: 100%;
+  max-width: none;
+  padding: 0 3.25rem 1.4rem 0;
   color: var(--graphite-muted);
   font-size: 0.94rem;
   line-height: 1.7;
 }
 
-.faq-item p + p {
+.faq-item > p + p {
   margin-top: -0.55rem;
-}
-
-.faq-disclaimer {
-  max-width: 44rem;
-  margin-inline: auto;
-  padding: clamp(3.5rem, 6vw, 5rem) clamp(1.25rem, 5vw, 3rem) 2rem;
-  color: var(--graphite-muted);
-  font-size: 0.8rem;
-  line-height: 1.55;
-  text-align: center;
 }
 
 .faq-cta {
   display: flex;
   justify-content: center;
-  padding: 0 clamp(1.25rem, 5vw, 3rem) clamp(5rem, 9vw, 9rem);
+  padding-top: clamp(4rem, 8vw, 6rem);
 }
 
 @media (hover: hover) {
@@ -165,33 +138,12 @@
   outline-offset: 4px;
 }
 
-@media (max-width: 800px) {
-  .faq-intro {
-    text-align: center;
+@media (max-width: 640px) {
+  .faq-layout {
+    padding-top: 7rem;
   }
 
-  .faq-intro .legal-tldr {
-    margin-inline: auto;
-  }
-
-  .faq-group {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .faq-section-label {
-    position: static;
-  }
-
-  .faq-group + .faq-group {
-    margin-top: 3.5rem;
-  }
-
-  .faq-item summary {
-    padding-block: 1.05rem;
-  }
-
-  .faq-item p {
+  .faq-item > p {
     padding-right: 2.5rem;
   }
 }

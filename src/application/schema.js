@@ -2,7 +2,7 @@ export const APPLICATION_GATEWAY = Object.freeze({
   eyebrow: 'Private application · 25+',
   title: 'A thoughtful introduction starts with being known.',
   supportingCopy: 'Tell donna enough to understand who you are, what matters to you and who may genuinely fit. Every application is reviewed by a person—not an algorithm.',
-  pilotDisclaimer: 'donna is a limited, manually operated pilot. Applying does not guarantee acceptance, a match or an introduction.',
+  pilotDisclaimer: 'donna is manually operated. Applying does not guarantee acceptance, a match or an introduction.',
   beforeBegin: Object.freeze([
     'About twelve minutes, in one sitting.',
     'Your LinkedIn profile URL.',
@@ -383,7 +383,7 @@ export const CONSENT_SCHEMA = Object.freeze([
   { name: 'photographStorage', required: true, label: 'I consent to donna storing my photographs privately for review.' },
   { name: 'writtenAnswers', required: true, label: "I understand my written answers are read by donna's team and are used to consider and describe potential introductions." },
   { name: 'noGuarantee', required: true, label: 'I understand applying does not guarantee acceptance or an introduction.' },
-  { name: 'legalDocuments', required: true, label: 'I have read the Privacy Notice and the Pilot Terms.', legal: true },
+  { name: 'legalDocuments', required: true, label: 'I have read the Privacy Notice and the Terms.', legal: true },
   { name: 'updates', required: false, label: 'Send me occasional updates from donna.', optional: true },
 ])
 

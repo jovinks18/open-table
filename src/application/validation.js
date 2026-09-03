@@ -1,6 +1,6 @@
 import { ACCEPTED_PHOTO_TYPES, MAX_PHOTO_SIZE_BYTES } from './schema.js'
 
-export const UNDER_25_MESSAGE = "donna's pilot is open to people 25 and over."
+export const UNDER_25_MESSAGE = "donna is open to people 25 and over."
 
 export function sanitizeText(value) {
   return String(value ?? '')
