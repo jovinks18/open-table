@@ -7,11 +7,11 @@ const styles = readFileSync(new URL('../src/marketing/story/styles.css', import.
 
 test('our story replaces the placeholder with the supplied story and no CTA', () => {
   assert.doesNotMatch(html, /Coming soon\./)
-  assert.match(html, /<h1>Our story<\/h1>/)
-  assert.equal((html.match(/<p>/g) || []).length, 8)
-  assert.match(html, /I have always been the friend people ask, “Do you know someone\?”/)
-  assert.match(html, /Donna works the same way\./)
-  assert.match(html, /Some weeks, I may not have anyone for you\./)
+  assert.match(html, /<h1>Before I had a name<\/h1>/)
+  assert.equal((html.match(/<p>/g) || []).length, 16)
+  assert.match(html, /Before I had a name, I was a question passed between friends\./)
+  assert.match(html, /I am not an AI, and there is no algorithm deciding who deserves whom\./)
+  assert.match(html, /The rarer kindness is knowing when not to\./)
   assert.doesNotMatch(html, /story-signature|— Jo/)
   assert.doesNotMatch(html, /Apply to join|class="[^\"]*cta/)
 })
@@ -27,4 +27,12 @@ test('our story uses a centred readable text column without a placeholder image'
 
 test('our story preserves a readable text measure below 900px', () => {
   assert.match(styles, /@media \(max-width: 899px\)[\s\S]*\.story-copy \{[\s\S]*max-width: 38rem/)
+})
+
+test('our story uses Donna’s burgundy public-page palette', () => {
+  assert.match(html, /<meta name="theme-color" content="#26080d" \/>/)
+  assert.match(styles, /--graphite: #26080d/)
+  assert.match(styles, /--graphite-ink: #f0e4e0/)
+  assert.match(styles, /--graphite-muted: #c9afab/)
+  assert.match(styles, /linear-gradient\(160deg, #1c0509 0%, #26080d 55%, #34090d 100%\)/)
 })

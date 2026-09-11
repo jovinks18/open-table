@@ -4,6 +4,7 @@ import test from 'node:test'
 
 const faqHtml = readFileSync(new URL('../faq.html', import.meta.url), 'utf8')
 const faqCss = readFileSync(new URL('../src/marketing/faq/styles.css', import.meta.url), 'utf8')
+const homeCss = readFileSync(new URL('../src/marketing/home/styles.css', import.meta.url), 'utf8')
 
 const questions = [
   'What is Donna?',
@@ -19,6 +20,7 @@ const questions = [
 test('faq is a standalone page with eight questions', () => {
   assert.match(faqHtml, /<section class="faq-section" id="faq"/)
   assert.doesNotMatch(faqHtml, /<section class="safety-section"|id="safety"/)
+  assert.doesNotMatch(faqHtml, /Details, when you want them/)
   assert.equal((faqHtml.match(/<details class="faq-item">/g) || []).length, 8)
 })
 
@@ -31,6 +33,7 @@ test('faq contains only the eight supplied questions in order', () => {
 test('faq uses the restrained burgundy layout and accessible accordions', () => {
   assert.match(faqCss, /\.faq-page\s*\{[\s\S]*--graphite: #26080d/)
   assert.match(faqCss, /\.faq-layout\s*\{[\s\S]*width: min\(100%, 68rem\)/)
+  assert.match(faqCss, /\.faq-intro\s*\{[\s\S]*display: grid;[\s\S]*width: 100%;[\s\S]*justify-items: center;[\s\S]*margin-inline: auto;[\s\S]*text-align: center;/)
   assert.doesNotMatch(faqCss, /\.safety-items|\.safety-section/)
   assert.match(faqCss, /\.faq-item summary:focus-visible/)
   assert.match(faqCss, /@media \(prefers-reduced-motion: reduce\)/)
@@ -39,4 +42,10 @@ test('faq uses the restrained burgundy layout and accessible accordions', () => 
 test('public copy does not describe Donna as a pilot', () => {
   const withoutContactAddress = faqHtml.replaceAll('thedonnapilot@gmail.com', '')
   assert.doesNotMatch(withoutContactAddress, /\bpilot(?:ing)?\b/i)
+})
+
+test('faq apply button shares the homepage primary treatment', () => {
+  assert.match(faqHtml, /<div class="faq-cta"><a class="button button-primary"/)
+  assert.match(homeCss, /\.home-page :is\(\.hero-actions, \.final-cta-actions\) \.button,\s*\.faq-page \.faq-cta \.button/)
+  assert.match(homeCss, /\.home-page :is\(\.hero-actions, \.final-cta-actions\) \.button-primary,\s*\.faq-page \.faq-cta \.button-primary/)
 })

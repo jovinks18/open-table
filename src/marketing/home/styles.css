@@ -32,8 +32,6 @@
 .home-page .hero,
 .home-page .card-story,
 .home-page .story-card-stage,
-.home-page .why-donna,
-.home-page .home-trust,
 .home-page .final-cta,
 .home-page .site-footer {
   background: transparent;
@@ -41,13 +39,14 @@
 
 .home-page .hero {
   background-image:
-    linear-gradient(180deg, rgb(20 4 6 / 55%), rgb(20 4 6 / 75%)),
+    linear-gradient(180deg, rgb(20 4 6 / 20%), rgb(20 4 6 / 35%)),
     url("/images/donna-home-background.png");
   background-position: center;
   background-size: cover;
 }
 
-.home-page :is(.hero-actions, .final-cta-actions) .button {
+.home-page :is(.hero-actions, .final-cta-actions) .button,
+.faq-page .faq-cta .button {
   min-height: 3.375rem;
   padding-inline: clamp(1.6rem, 3vw, 1.9rem);
   border: 1px solid transparent;
@@ -55,7 +54,8 @@
   box-shadow: 0 12px 32px rgb(20 4 6 / 24%);
 }
 
-.home-page :is(.hero-actions, .final-cta-actions) .button-primary {
+.home-page :is(.hero-actions, .final-cta-actions) .button-primary,
+.faq-page .faq-cta .button-primary {
   color: #1c0509;
   background: var(--body-text);
   border-color: var(--body-text);
@@ -73,7 +73,8 @@
   -webkit-backdrop-filter: blur(14px) saturate(120%);
 }
 
-.home-page :is(.hero-actions, .final-cta-actions) .button-primary:hover {
+.home-page :is(.hero-actions, .final-cta-actions) .button-primary:hover,
+.faq-page .faq-cta .button-primary:hover {
   color: #1c0509;
   background: #ffffff;
   border-color: #ffffff;
@@ -90,7 +91,8 @@
     0 14px 36px rgb(20 4 6 / 30%);
 }
 
-.home-page :is(.hero-actions, .final-cta-actions) .button:focus-visible {
+.home-page :is(.hero-actions, .final-cta-actions) .button:focus-visible,
+.faq-page .faq-cta .button:focus-visible {
   outline-color: var(--body-text);
   outline-offset: 4px;
 }
@@ -154,145 +156,33 @@ h1 {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  margin-top: calc(2rem + 2lh);
-  transform: translateY(2lh);
+  margin-top: clamp(2rem, 4vh, 3rem);
 }
 
 .hero-supporting-line {
-  margin-top: calc(2rem + 2lh);
+  position: absolute;
+  z-index: 3;
+  bottom: clamp(1.5rem, 4vh, 3rem);
+  left: 50%;
+  width: calc(100% - 2.5rem);
+  margin: 0;
   color: var(--body-text);
   font-family: var(--wordmark);
   font-size: clamp(1rem, 1.35vw, 1.2rem);
   font-weight: 400;
   line-height: 1.4;
+  transform: translateX(-50%);
   white-space: nowrap;
 }
 
 @media (min-width: 900px) {
-  .home-page :is(.hero-actions, .final-cta-actions) .button {
+  .home-page :is(.hero-actions, .final-cta-actions) .button,
+  .faq-page .faq-cta .button {
     font-size: 0.95rem;
   }
 
   .home-page .final-cta {
     padding-top: 3rem;
-  }
-}
-
-.why-donna {
-  padding: clamp(4.5rem, 8vw, 7rem) clamp(1.25rem, 7vw, 7rem);
-  text-align: center;
-}
-
-.why-donna h2 {
-  max-width: 42rem;
-  margin: 0.8rem auto 0;
-  font-family: var(--wordmark);
-  font-size: clamp(1.8rem, 3vw, 2.7rem);
-  font-weight: 400;
-  letter-spacing: -0.035em;
-  line-height: 1.08;
-}
-
-.why-donna > p:last-child {
-  max-width: 37rem;
-  margin: 1.25rem auto 0;
-  color: var(--graphite-muted);
-  font-size: clamp(0.95rem, 1.15vw, 1.05rem);
-  line-height: 1.65;
-}
-
-.home-trust {
-  width: min(calc(100% - 2.5rem), 72rem);
-  margin-inline: auto;
-  padding: clamp(2.75rem, 5vw, 4rem) 0;
-}
-
-.home-trust__heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
-}
-
-.home-trust__heading .eyebrow {
-  margin: 0;
-}
-
-.home-trust__heading h2 {
-  font-size: clamp(2rem, 3.5vw, 3.2rem);
-  line-height: 1;
-}
-
-.home-trust__items {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  border-block: 1px solid var(--line);
-}
-
-.home-trust__items article {
-  min-width: 0;
-  padding: 1.4rem clamp(1rem, 2vw, 1.5rem);
-}
-
-.home-trust__items article + article {
-  border-left: 1px solid var(--line);
-}
-
-.home-trust__items h3 {
-  font-family: var(--sans);
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
-}
-
-.home-trust__items p {
-  margin-top: 0.65rem;
-  color: var(--graphite-muted);
-  font-size: 0.84rem;
-  line-height: 1.55;
-}
-
-.home-trust__link {
-  display: inline-block;
-  margin-top: 1.25rem;
-  border-bottom: 1px solid var(--terracotta);
-  padding-bottom: 0.3rem;
-  font-size: 0.84rem;
-  font-weight: 600;
-}
-
-@media (max-width: 800px) {
-  .home-trust__heading {
-    display: block;
-  }
-
-  .home-trust__heading h2 {
-    margin-top: 0.65rem;
-  }
-
-  .home-trust__items {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .home-trust__items article:nth-child(3) {
-    border-left: 0;
-  }
-
-  .home-trust__items article:nth-child(n + 3) {
-    border-top: 1px solid var(--line);
-  }
-}
-
-@media (max-width: 520px) {
-  .home-trust__items {
-    grid-template-columns: 1fr;
-  }
-
-  .home-trust__items article + article {
-    border-top: 1px solid var(--line);
-    border-left: 0;
   }
 }
 

@@ -3,13 +3,15 @@ import { existsSync, readFileSync } from 'node:fs'
 import test from 'node:test'
 
 const homeBackgroundPath = new URL('../public/images/donna-home-background.png', import.meta.url)
+const siteIconPath = new URL('../public/images/donna-icon.png', import.meta.url)
 const journeyTemplate = readFileSync(new URL('../src/application/journey/template.html', import.meta.url), 'utf8')
 const journeyMain = readFileSync(new URL('../src/application/journey/main.js', import.meta.url), 'utf8')
 const journeyStyles = readFileSync(new URL('../src/application/journey/styles.css', import.meta.url), 'utf8')
 const navigation = readFileSync(new URL('../src/marketing/shared/site-navigation.js', import.meta.url), 'utf8')
 const marketingTokens = readFileSync(new URL('../src/marketing/shared/tokens.css', import.meta.url), 'utf8')
 test('the journey header uses the centred bold lowercase donna wordmark', () => {
-  assert.match(journeyMain, /<span class="brand">donna<\/span>/)
+  assert.match(journeyMain, /<a class="brand" href="\/index\.html" aria-label="donna home">donna<\/a>/)
+  assert.match(journeyStyles, /\.brand\{[^}]*text-decoration:none[^}]*\}/)
   assert.doesNotMatch(journeyMain, /donna-logo(?:-transparent)?\.png/)
 })
 
@@ -23,6 +25,16 @@ test('marketing-page header and footer wordmarks reuse the journey wordmark', ()
 
     assert.equal(wordmarks.length, 1, `${page} should keep its footer wordmark`)
     wordmarks.forEach(([markup]) => assert.match(markup, /<span class="donna-wordmark"[^>]*>donna<\/span>/))
+  }
+})
+
+test('every entry point uses the cleaned Donna site icon', () => {
+  assert.equal(existsSync(siteIconPath), true)
+  for (const page of ['index.html', 'faq.html', 'safety.html', 'our-story.html', 'apply.html']) {
+    const html = readFileSync(new URL(`../${page}`, import.meta.url), 'utf8')
+    assert.match(html, /<title>donna<\/title>/)
+    assert.match(html, /<link rel="icon" type="image\/png" sizes="512x512" href="\/images\/donna-icon\.png"\s*\/?>/)
+    assert.match(html, /<link rel="apple-touch-icon" href="\/images\/donna-icon\.png"\s*\/?>/)
   }
 })
 
@@ -53,25 +65,24 @@ test('the homepage retains its content, intro and live background', () => {
   assert.match(home, /family=Instrument\+Sans:wght@400;600/)
   assert.doesNotMatch(home, /family=Parisienne/)
   assert.doesNotMatch(home, /fonts\.cdnfonts\.com\/css\/erratic-cursive/)
-  assert.match(styles, /\.why-donna h2 \{[\s\S]*?font-family: var\(--wordmark\);/)
   assert.match(styles, /\.hero h1 \{[\s\S]*?font-family: "Cormorant Garamond"[\s\S]*?font-style: normal;[\s\S]*?font-weight: 400;/)
-  assert.match(home, /<h2 id="why-title">One introduction at a time, chosen by someone who has paid attention\.<\/h2>/)
+  assert.doesNotMatch(home, /Why donna exists|id="why-title"|class="why-donna"/)
   assert.doesNotMatch(home, /<strong>One introduction at a time/)
   assert.doesNotMatch(home, /Some introductions became relationships/)
   assert.match(home, /How donna works/)
-  assert.match(home, /<section class="why-donna"[\s\S]*<section class="home-trust"[\s\S]*<section class="final-cta"/)
-  assert.equal((home.match(/<article>\s*<h3>(?:Reviewed by people|Your profile is not public|You decide privately|Meet somewhere public)<\/h3>/g) || []).length, 4)
-  assert.match(home, /href="\/safety\.html">Read our safety approach<\/a>/)
+  assert.match(home, /<section class="card-story"[\s\S]*<section class="final-cta"/)
+  assert.doesNotMatch(home, /class="home-trust|The essentials|What stays private|Read our safety approach/)
+  assert.doesNotMatch(styles, /\.home-trust/)
   assert.equal(existsSync(homeBackgroundPath), true)
   assert.match(styles, /url\("\/images\/donna-home-background\.png"\)/)
-  assert.match(styles, /linear-gradient\(180deg, rgb\(20 4 6 \/ 55%\), rgb\(20 4 6 \/ 75%\)\)/)
+  assert.match(styles, /linear-gradient\(180deg, rgb\(20 4 6 \/ 20%\), rgb\(20 4 6 \/ 35%\)\)/)
 })
 
 test('apply links enter the applicant onboarding brief directly', () => {
   assert.doesNotMatch(journeyTemplate, /<section class="screen" id="landing">/)
   assert.doesNotMatch(journeyTemplate, /id="signup-choice"|Which brings you here\?/)
   assert.match(journeyTemplate, /<section class="screen entry-screen" id="welcome">/)
-  assert.match(journeyTemplate, /<h1>Before you start\.<\/h1>/)
+  assert.match(journeyTemplate, /<h1>Before we begin<\/h1>/)
   assert.match(journeyTemplate, /<button class="next-btn" type="button" data-next="ch1-intent">Start<\/button>/)
   assert.match(journeyTemplate, /<legend>What are you looking for\?<\/legend>/)
   assert.doesNotMatch(journeyTemplate, /Let's start with the obvious one/)
