@@ -24,16 +24,17 @@
 }
 
 .faq-intro {
+  display: grid;
+  width: 100%;
   max-width: 42rem;
+  justify-items: center;
+  margin-inline: auto;
   padding-bottom: clamp(2rem, 4vw, 3rem);
-}
-
-.faq-intro .eyebrow {
-  margin-bottom: 0.75rem;
-  color: var(--terracotta);
+  text-align: center;
 }
 
 .faq-intro h1 {
+  width: 100%;
   font-family: var(--serif);
   font-size: clamp(2.8rem, 5vw, 4.5rem);
   font-weight: 400;

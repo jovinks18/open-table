@@ -16,7 +16,7 @@ root.innerHTML = `
   <div class="journey-shell">
     <header class="journey-header" data-journey-header hidden>
       <div class="journey-header__mark">
-        <span class="brand">donna</span>
+        <a class="brand" href="/index.html" aria-label="donna home">donna</a>
         <p class="chapter-status" data-chapter-status aria-live="polite"></p>
       </div>
     </header>

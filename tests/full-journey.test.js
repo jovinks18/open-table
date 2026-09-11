@@ -48,14 +48,18 @@ test('every card uses one donna prompt headline without duplicated card headers'
 test('entry and confirmation use the supplied copy', () => {
   for (const copy of [
     'Six chapters. <strong>About 10 to 12 minutes.</strong>',
-    'Some questions are blunt. I want the real you, quirks and non-negotiables included.',
-    '<strong>No AI, no bestie, no polished answers.</strong> Be honest, especially about your height. No rounding up.',
-    'You may not get a match right away. <strong>If I do not have the right person, I will wait.</strong>',
+    'Some questions are direct. I am not being nosy for sport. The small details help me avoid the wrong introductions.',
+    '<strong>Please do not outsource your personality.</strong> No AI, no best friend on your editorial board and no answers polished until they sound like someone else.',
+    'Be honest about your height. It is a measurement, not an aspiration.',
+    'You may not hear from me immediately. If I do not have someone I genuinely believe you should meet, I will wait. Bangalore has enough traffic without sending two wrong people across it.',
     'That’s with me now.',
     'I’ll read it properly, not skim it. If I’ve got someone, you’ll hear from me. If I haven’t, you’ll hear that too.',
   ]) assert.ok(template.includes(copy))
+  assert.match(template, /<h1>Before we begin<\/h1>/)
   assert.doesNotMatch(template, /submitted-video|sealed-note\.webm/)
   assert.match(template, /id="submitted"[\s\S]*data-start-nomination>Refer someone<\/button>/)
+  assert.match(template, /id="submitted"[\s\S]*href="\/index\.html">Back to homepage<\/a>/)
+  assert.match(styles, /\.submitted-actions\{[^}]*display:flex[^}]*justify-content:center[^}]*\}/)
   assert.match(controller, /setField\('path', 'nominator'\)[\s\S]*goTo\('introduce'\)/)
 })
 
@@ -128,7 +132,8 @@ test('the controller validates whole cards and focuses the first incomplete ques
 
 test('tags, free-text boundaries, photographs, review and consent are implemented', () => {
   assert.match(controller, /function initTagControl\(control\)/)
-  assert.match(template, /data-field="applicant\.nonNegotiables" maxlength="600" placeholder="A few examples are/)
+  assert.match(template, /data-field="applicant\.nonNegotiables" maxlength="600" placeholder="Consider the values/)
+  assert.equal((template.match(/<textarea[^>]*placeholder=/g) || []).length, 7)
   assert.doesNotMatch(template, /data-topic=|data-boundary-list|data-boundary-prompts/)
   assert.doesNotMatch(controller, /renderBoundaries|toggleBoundary/)
   assert.match(template, /data-condition-field="applicant\.familyRequirement" data-condition-values="yes" data-required-field="applicant\.familyRequirementDetail"/)
@@ -171,6 +176,9 @@ test('the welcome card centres the decorative donna mascot above it', () => {
   assert.match(styles, /#welcome::before\{[^}]*flex:0 0 auto[^}]*width:96px[^}]*height:72px[^}]*donna-mascot\.png/)
   assert.doesNotMatch(styles, /#welcome \.center-card::before/)
   assert.doesNotMatch(template, /id="welcome" data-show-header/)
+  assert.match(styles, /#welcome \.center-card\{[^}]*font-family:var\(--sans\)/)
+  assert.match(styles, /#welcome \.center-card h1\{[^}]*var\(--sans\)/)
+  assert.doesNotMatch(styles, /#welcome \.center-card(?: h1)?\{[^}]*Cormorant Garamond/)
 })
 
 test('the journey is memory-only and exposes no saved-progress interface', () => {

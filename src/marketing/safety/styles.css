@@ -24,16 +24,17 @@
 }
 
 .safety-intro {
+  display: grid;
+  width: 100%;
   max-width: 42rem;
+  justify-items: center;
+  margin-inline: auto;
   padding-bottom: clamp(2rem, 4vw, 3rem);
-}
-
-.safety-intro .eyebrow {
-  margin-bottom: 0.75rem;
-  color: var(--terracotta);
+  text-align: center;
 }
 
 .safety-intro h1 {
+  width: 100%;
   font-family: var(--serif);
   font-size: clamp(2.8rem, 5vw, 4.5rem);
   font-weight: 400;
@@ -43,7 +44,7 @@
 
 .safety-intro > p:last-child {
   max-width: 38rem;
-  margin-top: 1rem;
+  margin: 1rem auto 0;
   color: var(--graphite-muted);
   font-size: 1rem;
   line-height: 1.65;
@@ -98,17 +99,19 @@
   border-radius: 0.75rem;
   padding: clamp(1.25rem, 3vw, 2rem);
   background: rgb(255 255 255 / 2%);
+  text-align: center;
 }
 
 .safety-report > p,
 .safety-emergency > p {
   max-width: 48rem;
-  margin-top: 0.7rem;
+  margin: 0.7rem auto 0;
 }
 
 .safety-contact-links {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.75rem 1.5rem;
 }
 
@@ -124,6 +127,7 @@
 .safety-emergency ul {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.5rem 1.5rem;
   margin: 1rem 0 0;
   padding: 0;
@@ -158,5 +162,6 @@
   .safety-contact-links,
   .safety-emergency ul {
     display: grid;
+    justify-items: center;
   }
 }

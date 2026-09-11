@@ -1,13 +1,16 @@
 .story-page {
-  --graphite: var(--warm-ivory);
-  --graphite-ink: var(--espresso);
-  --graphite-muted: var(--warm-taupe);
+  --graphite: #26080d;
+  --graphite-ink: #f0e4e0;
+  --graphite-muted: #c9afab;
   min-height: 100vh;
-  background: var(--graphite);
+  background:
+    radial-gradient(ellipse 800px 700px at 85% 20%, rgb(89 25 25 / 40%), transparent 65%),
+    linear-gradient(160deg, #1c0509 0%, #26080d 55%, #34090d 100%);
   color: var(--graphite-ink);
 }
 
 .story-main {
+  min-height: 100svh;
   padding: calc(5.75rem + 5rem) clamp(1.25rem, 5vw, 4rem) 5rem;
 }
 
@@ -35,6 +38,7 @@
 }
 
 .story-copy p {
+  color: var(--graphite-muted);
   font-size: 1.05rem;
   line-height: 1.75;
 }

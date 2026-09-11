@@ -10,6 +10,7 @@ test('safety is a standalone marketing page', () => {
   assert.match(safetyHtml, /<section class="safety-section" id="safety"/)
   assert.doesNotMatch(safetyHtml, /http-equiv="refresh"|location\.replace/)
   assert.equal((safetyHtml.match(/<article class="safety-item">/g) || []).length, 4)
+  assert.doesNotMatch(safetyHtml, /<p class="eyebrow">Safety<\/p>/)
 })
 
 test('safety keeps the four current protections visible', () => {
@@ -33,7 +34,11 @@ test('safety states its limitation once', () => {
 test('safety uses the restrained burgundy layout and responsive grid', () => {
   assert.match(safetyCss, /\.safety-page\s*\{[\s\S]*--graphite: #26080d/)
   assert.match(safetyCss, /\.safety-layout\s*\{[\s\S]*width: min\(100%, 68rem\)/)
+  assert.match(safetyCss, /\.safety-intro\s*\{[\s\S]*display: grid;[\s\S]*width: 100%;[\s\S]*justify-items: center;[\s\S]*margin-inline: auto;[\s\S]*text-align: center;/)
   assert.match(safetyCss, /\.safety-items\s*\{[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/)
+  assert.match(safetyCss, /\.safety-report,\s*\.safety-emergency\s*\{[\s\S]*text-align: center;/)
+  assert.match(safetyCss, /\.safety-contact-links\s*\{[\s\S]*justify-content: center;/)
+  assert.match(safetyCss, /\.safety-emergency ul\s*\{[\s\S]*justify-content: center;/)
   assert.match(safetyCss, /@media \(max-width: 640px\)[\s\S]*grid-template-columns: 1fr/)
 })
 
